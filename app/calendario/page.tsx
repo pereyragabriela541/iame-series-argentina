@@ -25,7 +25,7 @@ export default async function CalendarioPage() {
       <PageHeader
         kicker={`Temporada ${year}`}
         title="Calendario"
-        subtitle={`${rounds.length || 7} fechas — Etapa regular IAME Series Argentina`}
+        subtitle={`${rounds.length ? `${rounds.length} fechas` : "11 fechas"} — Calendario oficial IAME Series Argentina`}
       />
       <div className="grid gap-3">
         {rounds.map((r) => <RoundCard key={r.id} round={r} />)}

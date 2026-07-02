@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner, EmptyState, PdfLink } from "@/components/ui";
+import { formatRoundEventDates } from "@/lib/calendar-dates";
 import {
   getActiveSeason,
   getCategories,
@@ -40,7 +41,12 @@ export default async function ResultadosPage() {
             return (
               <section key={round.id} className="space-y-3">
                 <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
-                  <h2 className="text-sm font-bold uppercase text-white">{round.name}</h2>
+                  <div>
+                    <h2 className="text-sm font-bold uppercase text-white">{round.name}</h2>
+                    <p className="font-mono text-[10px] text-neutral-500">
+                      {formatRoundEventDates(round)}
+                    </p>
+                  </div>
                   <Link href={`/calendario/${round.id}`} className="text-[10px] uppercase text-iame-red hover:underline">
                     Detalle
                   </Link>

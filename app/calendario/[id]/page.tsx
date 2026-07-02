@@ -1,8 +1,8 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner, EmptyState, PdfLink } from "@/components/ui";
+import { formatRoundEventDates } from "@/lib/calendar-dates";
 import {
-  formatDate,
   getCategories,
   getRoundById,
   getRoundResults,
@@ -52,7 +52,7 @@ export default async function RoundDetailPage({
       <PageHeader
         kicker={`Fecha ${round.round_number}`}
         title={round.name}
-        subtitle={`${round.circuit ?? ""} · ${formatDate(round.event_date)}`}
+        subtitle={`${round.circuit ?? ""} · ${formatRoundEventDates(round)}`}
       />
 
       <div className="grid gap-3 sm:grid-cols-2">

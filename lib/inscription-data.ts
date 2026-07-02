@@ -1,3 +1,4 @@
+import { getRoundDateLabel } from "@/lib/calendar-dates";
 import type { Category, Round } from "@/lib/types";
 
 export interface InscriptionRoundOption {
@@ -11,53 +12,54 @@ export interface InscriptionCategoryOption {
   label: string;
 }
 
+const INSCRIPTION_CIRCUITS: Record<number, string> = {
+  1: "Kartódromo de BS AS",
+  2: "Kartódromo Ramiro Tot, Baradero",
+  3: "Kartódromo de BS AS",
+  4: "Kartódromo Internacional de Zárate",
+  5: "Kartódromo de BS AS",
+  6: "Kartódromo Ramiro Tot, Baradero",
+  7: "Kartódromo de BS AS",
+  8: "Kartódromo a confirmar",
+  9: "Kartódromo de BS AS",
+  10: "Kartódromo de BS AS",
+  11: "Kartódromo a confirmar",
+};
+
+function buildInscriptionLabel(roundNumber: number, suffix = ""): string {
+  const name =
+    roundNumber === 11 ? "Final IAME Argentina" : `Fecha ${roundNumber}`;
+  const dates = getRoundDateLabel(roundNumber);
+  const circuit = INSCRIPTION_CIRCUITS[roundNumber];
+  return `${name} — ${dates} — ${circuit}${suffix}`;
+}
+
 /** Calendario oficial 2026 — IAME Series Argentina */
 export const INSCRIPTION_ROUNDS: InscriptionRoundOption[] = [
-  {
-    value: "fecha-1",
-    label: "Fecha 1 — 28 de Febrero / 1 de Marzo — Kartódromo de BS AS",
-  },
-  {
-    value: "fecha-2",
-    label: "Fecha 2 — 28 y 29 de Marzo — Kartódromo Ramiro Tot, Baradero",
-  },
-  {
-    value: "fecha-3",
-    label: "Fecha 3 — 25 y 26 de Abril — Kartódromo de BS AS",
-  },
-  {
-    value: "fecha-4",
-    label: "Fecha 4 — 30 y 31 de Mayo — Kartódromo Internacional de Zárate",
-  },
-  {
-    value: "fecha-5",
-    label: "Fecha 5 — 18 y 19 de Julio — Kartódromo de BS AS",
-  },
-  {
-    value: "fecha-6",
-    label: "Fecha 6 — 8 y 9 de Agosto — Kartódromo Ramiro Tot, Baradero (2 pilotos)",
-  },
-  {
-    value: "fecha-7",
-    label: "Fecha 7 — 3 y 4 de Octubre — Kartódromo de BS AS",
-  },
-  {
-    value: "fecha-8",
-    label: "Fecha 8 — 31 de Octubre / 1 de Noviembre — Kartódromo a confirmar",
-  },
-  {
-    value: "fecha-9",
-    label: "Fecha 9 — 14 y 15 de Noviembre — Kartódromo de BS AS",
-  },
-  {
-    value: "fecha-10",
-    label: "Fecha 10 — 19 y 20 de Diciembre — Kartódromo de BS AS",
-  },
-  {
-    value: "final-iame",
-    label: "Final IAME Argentina — 5 y 6 de Septiembre — Kartódromo a confirmar",
-  },
+  { value: "fecha-1", label: buildInscriptionLabel(1) },
+  { value: "fecha-2", label: buildInscriptionLabel(2) },
+  { value: "fecha-3", label: buildInscriptionLabel(3) },
+  { value: "fecha-4", label: buildInscriptionLabel(4) },
+  { value: "fecha-5", label: buildInscriptionLabel(5) },
+  { value: "fecha-6", label: buildInscriptionLabel(6, " (2 pilotos)") },
+  { value: "fecha-7", label: buildInscriptionLabel(7) },
+  { value: "fecha-8", label: buildInscriptionLabel(8) },
+  { value: "fecha-9", label: buildInscriptionLabel(9) },
+  { value: "fecha-10", label: buildInscriptionLabel(10) },
+  { value: "final-iame", label: buildInscriptionLabel(11) },
 ];
+
+const FINISHED_ROUND_KEYS = new Set([
+  "fecha-1",
+  "fecha-2",
+  "fecha-3",
+  "fecha-4",
+]);
+
+/** Fechas abiertas a inscripción (sin las ya finalizadas) */
+export const INSCRIPTION_ROUNDS_OPEN = INSCRIPTION_ROUNDS.filter(
+  (r) => !FINISHED_ROUND_KEYS.has(r.value)
+);
 
 /** Categorías oficiales 2026 */
 export const INSCRIPTION_CATEGORIES: InscriptionCategoryOption[] = [
@@ -69,6 +71,8 @@ export const INSCRIPTION_CATEGORIES: InscriptionCategoryOption[] = [
   { value: "okn-junior", label: "OKN JUNIOR" },
   { value: "okn", label: "OKN" },
   { value: "master-gentleman", label: "MASTER MY10 GENTLEMAN" },
+  { value: "senior-pro-390-honda", label: "SENIOR 390 PRO/HONDA" },
+  { value: "academy", label: "ACADEMY/HONDA" },
 ];
 
 const UUID_RE =
@@ -83,22 +87,28 @@ export function roundNumberToKey(roundNumber: number): string {
   return `fecha-${roundNumber}`;
 }
 
+function roundToInscriptionLabel(r: Round): string {
+  const dates = getRoundDateLabel(r.round_number);
+  const suffix =
+    r.round_number === 6 ? " (2 pilotos)" : "";
+  if (r.circuit) {
+    return `${r.name} — ${dates} — ${r.circuit}${suffix}`;
+  }
+  return `${r.name} — ${dates}${suffix}`;
+}
+
 export function roundsToOptions(rounds: Round[]): InscriptionRoundOption[] {
   const openRounds = rounds.filter(
     (r) => r.status === "upcoming" || r.status === "live"
   );
 
   if (!openRounds.length) {
-    return INSCRIPTION_ROUNDS.filter((r) =>
-      !["fecha-1", "fecha-2", "fecha-3", "fecha-4"].includes(r.value)
-    );
+    return INSCRIPTION_ROUNDS_OPEN;
   }
 
   return openRounds.map((r) => ({
     value: roundNumberToKey(r.round_number),
-    label: r.circuit
-      ? `${r.name} — ${r.circuit}`
-      : r.name,
+    label: roundToInscriptionLabel(r),
     roundId: r.id,
   }));
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { formatRoundEventDates } from "@/lib/calendar-dates";
 import type { Round } from "@/lib/types";
-import { formatDate } from "@/lib/queries";
 
 interface RoundCardProps {
   round: Round;
@@ -44,7 +44,7 @@ export default function RoundCard({ round }: RoundCardProps) {
             <p className="text-xs text-neutral-400">{round.circuit}</p>
           )}
           <p className="font-mono text-[10px] text-neutral-500">
-            {formatDate(round.event_date)}
+            {formatRoundEventDates(round)}
           </p>
         </div>
       </div>

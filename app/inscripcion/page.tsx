@@ -4,7 +4,7 @@ import { DbSetupBanner } from "@/components/ui";
 import {
   categoriesToOptions,
   INSCRIPTION_CATEGORIES,
-  INSCRIPTION_ROUNDS,
+  INSCRIPTION_ROUNDS_OPEN,
   roundsToOptions,
 } from "@/lib/inscription-data";
 import {
@@ -20,7 +20,7 @@ export default async function InscripcionPage() {
   let enabled = true;
   let dbReady = true;
 
-  let roundOptions = INSCRIPTION_ROUNDS;
+  let roundOptions = INSCRIPTION_ROUNDS_OPEN;
   let categoryOptions = INSCRIPTION_CATEGORIES;
 
   try {

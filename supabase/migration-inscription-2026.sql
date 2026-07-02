@@ -13,8 +13,8 @@ insert into categories (slug, name, short_name, sort_order, color) values
   ('senior', 'SENIOR', 'SEN', 4, '#004A99'),
   ('okn-junior', 'OKN JUNIOR', 'OKNJ', 5, '#E30613'),
   ('okn', 'OKN', 'OKN', 6, '#E30613'),
-  ('senior-pro-390-honda', 'SENIOR PRO 390 HONDA', 'SP390', 7, '#E30613'),
-  ('academy', 'ACADEMY', 'ACAD', 8, '#75BEE9')
+  ('senior-pro-390-honda', 'SENIOR 390 PRO/HONDA', 'S390H', 9, '#E30613'),
+  ('academy', 'ACADEMY/HONDA', 'ACADH', 10, '#75BEE9')
 on conflict (slug) do update set
   name = excluded.name,
   short_name = excluded.short_name,

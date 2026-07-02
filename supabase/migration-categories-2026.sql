@@ -9,14 +9,12 @@ insert into categories (slug, name, short_name, sort_order, color, is_active) va
   ('master-my10', 'MASTER MY10', 'MMY10', 5, '#A7A9AC', true),
   ('okn-junior', 'OKN JUNIOR', 'OKNJ', 6, '#E30613', true),
   ('okn', 'OKN', 'OKN', 7, '#E30613', true),
-  ('master-gentleman', 'MASTER MY10 GENTLEMAN', 'MG10', 8, '#A7A9AC', true)
+  ('master-gentleman', 'MASTER MY10 GENTLEMAN', 'MG10', 8, '#A7A9AC', true),
+  ('senior-pro-390-honda', 'SENIOR 390 PRO/HONDA', 'S390H', 9, '#E30613', true),
+  ('academy', 'ACADEMY/HONDA', 'ACADH', 10, '#75BEE9', true)
 on conflict (slug) do update set
   name = excluded.name,
   short_name = excluded.short_name,
   sort_order = excluded.sort_order,
   color = excluded.color,
   is_active = true;
-
-update categories
-set is_active = false
-where slug in ('senior-pro-390-honda', 'academy');
