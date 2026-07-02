@@ -39,7 +39,7 @@ export default function Footer({
           </div>
         </div>
         <p className="mt-8 text-center text-[10px] text-neutral-600">
-          © {year} {BRAND.name}. Todos los derechos reservados.
+          © {year} BS Proyect. Todos los derechos reservados.
         </p>
       </div>
     </footer>
