@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-iame-navy: #004a99;
+  --color-iame-red: #e30613;
+  --color-iame-silver: #a7a9ac;
+  --color-iame-sky: #75bee9;
+}
+
+body {
+  background-color: #0a0a0a;
+  color: #fafafa;
+}
+
+.bg-carbon {
+  background-color: #0a0a0a;
+  background-image:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(255, 255, 255, 0.02) 25%, #0a0a0a 25%);
+  background-size: 8px 8px;
+}
+
+.racing-stripe {
+  border-left: 4px solid var(--color-iame-red);
+}
+
+.iame-gradient-bar {
+  background: linear-gradient(
+    90deg,
+    var(--color-iame-navy) 0%,
+    var(--color-iame-navy) 45%,
+    var(--color-iame-red) 45%,
+    var(--color-iame-red) 100%
+  );
+  height: 3px;
+}
