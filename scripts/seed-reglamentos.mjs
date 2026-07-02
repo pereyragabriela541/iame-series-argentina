@@ -70,6 +70,13 @@ const regulations = [
     sort_order: 7,
     is_published: true,
   },
+  {
+    title: "Reglamento Técnico Categoría OKN y OKN Junior ICS 2026",
+    doc_type: "tecnico",
+    pdf_url: "/reglamentos/reglamento-tecnico-okn-oknj-2026.pdf",
+    sort_order: 8,
+    is_published: true,
+  },
 ];
 
 const { error: delError } = await sb.from("regulations").delete().neq("id", "00000000-0000-0000-0000-000000000000");

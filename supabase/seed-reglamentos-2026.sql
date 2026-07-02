@@ -50,4 +50,11 @@ insert into regulations (title, doc_type, pdf_url, sort_order, is_published) val
     '/reglamentos/reglamento-tecnico-old-school-master-gentleman-2026.pdf',
     7,
     true
+  ),
+  (
+    'Reglamento Técnico Categoría OKN y OKN Junior ICS 2026',
+    'tecnico',
+    '/reglamentos/reglamento-tecnico-okn-oknj-2026.pdf',
+    8,
+    true
   );
