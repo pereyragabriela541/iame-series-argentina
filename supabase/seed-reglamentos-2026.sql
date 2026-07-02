@@ -57,4 +57,11 @@ insert into regulations (title, doc_type, pdf_url, sort_order, is_published) val
     '/reglamentos/reglamento-tecnico-okn-oknj-2026.pdf',
     8,
     true
+  ),
+  (
+    'Ficha de Homologación Embrague 390',
+    'homologacion',
+    '/reglamentos/ficha-homologacion-embrague-390.pdf',
+    9,
+    true
   );
