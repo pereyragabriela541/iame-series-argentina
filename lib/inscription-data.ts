@@ -84,8 +84,17 @@ export function roundNumberToKey(roundNumber: number): string {
 }
 
 export function roundsToOptions(rounds: Round[]): InscriptionRoundOption[] {
-  if (!rounds.length) return INSCRIPTION_ROUNDS;
-  return rounds.map((r) => ({
+  const openRounds = rounds.filter(
+    (r) => r.status === "upcoming" || r.status === "live"
+  );
+
+  if (!openRounds.length) {
+    return INSCRIPTION_ROUNDS.filter((r) =>
+      !["fecha-1", "fecha-2", "fecha-3", "fecha-4"].includes(r.value)
+    );
+  }
+
+  return openRounds.map((r) => ({
     value: roundNumberToKey(r.round_number),
     label: r.circuit
       ? `${r.name} — ${r.circuit}`
