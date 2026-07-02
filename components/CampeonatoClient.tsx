@@ -20,13 +20,13 @@ export default function CampeonatoClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-1 border-b border-neutral-800 pb-2">
+      <div className="flex flex-wrap gap-2 border-b border-neutral-800 pb-3">
         {categories.map((cat) => (
           <button
             key={cat.id}
             type="button"
             onClick={() => setActive(cat.id)}
-            className={`px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition ${
+            className={`px-3 py-2 text-[10px] font-semibold uppercase tracking-wide transition sm:text-xs ${
               active === cat.id
                 ? "bg-iame-navy text-white"
                 : "border border-neutral-800 text-neutral-400 hover:text-white"
@@ -37,7 +37,7 @@ export default function CampeonatoClient({
                 : undefined
             }
           >
-            {cat.short_name ?? cat.name}
+            {cat.name}
           </button>
         ))}
       </div>

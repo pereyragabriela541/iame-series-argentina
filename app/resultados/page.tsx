@@ -51,7 +51,7 @@ export default async function ResultadosPage() {
                       <PdfLink
                         key={r.id}
                         href={r.pdf_url}
-                        label={`${catMap[r.category_id]?.short_name ?? "?"} — ${r.label}`}
+                        label={`${catMap[r.category_id]?.name ?? "?"} — ${r.label}`}
                       />
                     ))}
                   </div>
