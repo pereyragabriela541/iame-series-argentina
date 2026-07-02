@@ -84,13 +84,6 @@ const regulations = [
     sort_order: 9,
     is_published: true,
   },
-  {
-    title: "Ficha de Homologación Embrague Mini Honda",
-    doc_type: "homologacion",
-    pdf_url: "/reglamentos/ficha-homologacion-embrague-mini-honda.pdf",
-    sort_order: 10,
-    is_published: true,
-  },
 ];
 
 const { error: delError } = await sb.from("regulations").delete().neq("id", "00000000-0000-0000-0000-000000000000");
