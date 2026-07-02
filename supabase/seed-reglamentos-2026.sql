@@ -64,4 +64,11 @@ insert into regulations (title, doc_type, pdf_url, sort_order, is_published) val
     '/reglamentos/ficha-homologacion-embrague-390.pdf',
     9,
     true
+  ),
+  (
+    'Ficha de Homologación Embrague Mini Honda',
+    'homologacion',
+    '/reglamentos/ficha-homologacion-embrague-mini-honda.pdf',
+    10,
+    true
   );
