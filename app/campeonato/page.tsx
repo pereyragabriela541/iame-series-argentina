@@ -13,10 +13,12 @@ export const metadata = { title: "Campeonato | IAME Series Argentina" };
 export default async function CampeonatoPage() {
   let dbReady = true;
   let categories: Category[] = [];
+  let regularRounds = 10;
   const standingsByCategory: Record<string, Awaited<ReturnType<typeof getStandings>>> = {};
 
   try {
     const season = await getActiveSeason();
+    regularRounds = season?.regular_rounds ?? 10;
     categories = await getCategories();
     if (season) {
       await Promise.all(
@@ -35,7 +37,7 @@ export default async function CampeonatoPage() {
       <PageHeader
         kicker="Posiciones"
         title="Campeonato"
-        subtitle="Clasificación general por categoría — 7 fechas etapa regular"
+        subtitle={`Clasificación general por categoría — ${regularRounds} fechas etapa regular`}
       />
       {categories.length ? (
         <CampeonatoClient categories={categories} standingsByCategory={standingsByCategory} />
