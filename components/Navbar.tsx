@@ -18,7 +18,7 @@ export default function Navbar({ isLive = false, roundLabel }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-800 bg-neutral-950/95 backdrop-blur-sm">
       <div className="iame-gradient-bar" />
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-3">
           <Image
             src="/assets/logo-iame.png"
@@ -41,8 +41,8 @@ export default function Navbar({ isLive = false, roundLabel }: NavbarProps) {
           <span className={`h-0.5 w-5 bg-white transition ${open ? "-translate-y-2 -rotate-45" : ""}`} />
         </button>
 
-        <nav className="hidden items-center gap-0.5 lg:flex">
-          {NAV_LINKS.slice(0, 8).map((link) => {
+        <nav className="hidden max-w-4xl flex-1 flex-wrap items-center justify-end gap-0.5 lg:flex">
+          {NAV_LINKS.map((link) => {
             const active = pathname === link.href;
             return (
               <Link
