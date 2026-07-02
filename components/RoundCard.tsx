@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatRoundEventDates } from "@/lib/calendar-dates";
+import { formatRoundEventDates, getRoundBadge } from "@/lib/calendar-dates";
 import type { Round } from "@/lib/types";
 
 interface RoundCardProps {
@@ -19,6 +19,8 @@ const statusLabels = {
 };
 
 export default function RoundCard({ round }: RoundCardProps) {
+  const badge = getRoundBadge(round.round_number);
+
   return (
     <Link
       href={`/calendario/${round.id}`}
@@ -26,8 +28,12 @@ export default function RoundCard({ round }: RoundCardProps) {
     >
       <div className="flex items-stretch">
         <div className="flex w-14 shrink-0 flex-col items-center justify-center bg-iame-navy/40 font-mono">
-          <span className="text-[10px] uppercase text-neutral-400">Fecha</span>
-          <span className="text-xl font-bold text-white">{round.round_number}</span>
+          {badge.caption ? (
+            <span className="text-[10px] uppercase text-neutral-400">{badge.caption}</span>
+          ) : null}
+          <span className={`font-bold text-white ${badge.label === "Final" ? "text-sm uppercase tracking-wide" : "text-xl"}`}>
+            {badge.label}
+          </span>
         </div>
         <div className="flex flex-1 flex-col gap-1 p-4">
           <div className="flex items-start justify-between gap-2">

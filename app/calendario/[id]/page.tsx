@@ -1,7 +1,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner, EmptyState, PdfLink } from "@/components/ui";
-import { formatRoundEventDates } from "@/lib/calendar-dates";
+import { formatRoundEventDates, getRoundKicker } from "@/lib/calendar-dates";
 import {
   getCategories,
   getRoundById,
@@ -50,7 +50,7 @@ export default async function RoundDetailPage({
         ← Calendario
       </Link>
       <PageHeader
-        kicker={`Fecha ${round.round_number}`}
+        kicker={getRoundKicker(round.round_number)}
         title={round.name}
         subtitle={`${round.circuit ?? ""} · ${formatRoundEventDates(round)}`}
       />

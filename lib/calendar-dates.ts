@@ -20,6 +20,22 @@ export function getRoundDateLabel(roundNumber: number): string {
   return ROUND_DATE_RANGES[roundNumber]?.label ?? "";
 }
 
+/** Etiqueta lateral en tarjetas del calendario */
+export function getRoundBadge(roundNumber: number): {
+  caption: string;
+  label: string;
+} {
+  if (roundNumber === 11) {
+    return { caption: "", label: "Final" };
+  }
+  return { caption: "Fecha", label: String(roundNumber) };
+}
+
+/** Kicker en detalle de fecha */
+export function getRoundKicker(roundNumber: number): string {
+  return roundNumber === 11 ? "Final" : `Fecha ${roundNumber}`;
+}
+
 export function formatRoundEventDates(round: {
   round_number: number;
   event_date?: string | null;
