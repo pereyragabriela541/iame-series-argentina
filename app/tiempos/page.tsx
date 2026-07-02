@@ -1,13 +1,14 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner } from "@/components/ui";
-import { resolveLiveTimingUrl } from "@/lib/live-config";
+import {
+  resolveLiveTimingUrl,
+  SPEEDHIVE_PORTAL_URL,
+} from "@/lib/live-config";
 import type { AppConfig } from "@/lib/types";
 import { getAppConfig } from "@/lib/queries";
 
 export const metadata = { title: "Tiempos en Vivo | IAME Series Argentina" };
-
-const SPEEDHIVE_URL = "https://www.speedhive.org/";
 
 export default async function TiemposPage() {
   let config: AppConfig = {};
@@ -20,6 +21,8 @@ export default async function TiemposPage() {
 
   const live = config.live;
   const timingUrl = resolveLiveTimingUrl(live);
+  const isLiveSession =
+    live?.is_live && timingUrl !== SPEEDHIVE_PORTAL_URL;
 
   return (
     <div className="space-y-6">
@@ -34,7 +37,7 @@ export default async function TiemposPage() {
         <p>
           IAME Series Argentina utiliza{" "}
           <a
-            href={SPEEDHIVE_URL}
+            href={SPEEDHIVE_PORTAL_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-iame-sky hover:underline"
@@ -42,52 +45,44 @@ export default async function TiemposPage() {
             Speedhive
           </a>
           , la misma plataforma de cronometraje que el Campeonato Argentino de Karting.
-          En días de carrera el enlace de la sesión se publica acá.
         </p>
       </div>
 
-      {timingUrl ? (
+      <div className="border border-iame-navy/40 bg-iame-navy/10 px-6 py-10 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-iame-sky">
+          {isLiveSession ? "Sesión en vivo" : "Cronometraje oficial"}
+          {live?.round_label ? ` — ${live.round_label}` : ""}
+        </p>
+        <p className="mx-auto mt-3 max-w-lg text-sm text-neutral-400">
+          Consultá los tiempos en vivo en Speedhive. En fin de semana de carrera
+          buscá el evento IAME Series Argentina.
+        </p>
+        <a
+          href={timingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-block bg-iame-red px-8 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
+        >
+          Abrir Speedhive ↗
+        </a>
+        <p className="mt-4 font-mono text-[10px] text-neutral-600">
+          {SPEEDHIVE_PORTAL_URL}
+        </p>
+      </div>
+
+      {isLiveSession && (
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-iame-red">
-              {live?.is_live ? "Sesión en vivo" : "Cronometraje disponible"}
-              {live?.round_label ? ` — ${live.round_label}` : ""}
-            </p>
-            <Link
-              href={timingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] font-semibold uppercase tracking-widest text-iame-sky hover:underline"
-            >
-              Abrir en Speedhive ↗
-            </Link>
-          </div>
-          <div className="border border-neutral-800">
-            <iframe
-              src={timingUrl}
-              title="Live Timing IAME — Speedhive"
-              className="h-[70vh] w-full bg-neutral-900"
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="border border-iame-red/30 bg-iame-navy/10 px-6 py-12 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-iame-red">
-            {live?.is_live ? "Sesión en vivo" : "Sin cronometraje activo"}
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+            Sesión activa
           </p>
-          <p className="mx-auto mt-3 max-w-md text-sm text-neutral-400">
-            {live?.is_live
-              ? "La organización publicará el enlace de Speedhive cuando arranque la sesión."
-              : "Fuera de fecha de carrera no hay tiempos en vivo. Volvé en el fin de semana de competencia."}
-          </p>
-          <a
-            href={SPEEDHIVE_URL}
+          <Link
+            href={timingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-block border border-iame-navy bg-iame-navy/30 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-navy/50"
+            className="text-xs text-iame-sky hover:underline"
           >
-            Ir a Speedhive
-          </a>
+            Abrir sesión en curso ↗
+          </Link>
         </div>
       )}
     </div>

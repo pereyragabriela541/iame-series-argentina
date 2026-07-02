@@ -111,7 +111,7 @@ on conflict (season_id, round_number) do update set
 insert into app_config (key, value) values
   ('temporada', '{"year": 2026, "nombre": "IAME Series Argentina", "organizador": "BS Proyecta", "inscripcion_habilitada": true}'),
   ('contacto', '{"email": "info@iameseriesargentina.com.ar", "inscripciones_email": "inscripciones@iameseriesargentina.com.ar"}'),
-  ('live', '{"is_live": false, "timing_url": "", "speedhive_url": "", "round_label": "Fecha 5"}'),
+  ('live', '{"is_live": false, "timing_url": "https://speedhive.mylaps.com/", "speedhive_url": "https://speedhive.mylaps.com/", "round_label": "Fecha 5"}'),
   ('transmision', '{"titulo": "Transmisión en Vivo", "url": "", "descripcion": "Seguí la transmisión oficial de IAME Series Argentina."}'),
   ('theme', '{"navy": "#004A99", "red": "#E30613", "silver": "#A7A9AC", "sky": "#75BEE9"}')
 on conflict (key) do update set value = excluded.value, updated_at = now();

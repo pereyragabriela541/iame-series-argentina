@@ -1,8 +1,10 @@
 import type { AppConfig } from "@/lib/types";
 
-/** URL de cronometraje — mismos criterios que CAK (Speedhive / MyLaps). */
-export function resolveLiveTimingUrl(live?: AppConfig["live"]): string | null {
-  if (!live) return null;
+export const SPEEDHIVE_PORTAL_URL = "https://speedhive.mylaps.com/";
+
+/** URL de cronometraje — portal Speedhive o sesión específica en app_config. */
+export function resolveLiveTimingUrl(live?: AppConfig["live"]): string {
+  if (!live) return SPEEDHIVE_PORTAL_URL;
 
   const url = String(
     live.timing_url ??
@@ -11,5 +13,5 @@ export function resolveLiveTimingUrl(live?: AppConfig["live"]): string | null {
       ""
   ).trim();
 
-  return url || null;
+  return url || SPEEDHIVE_PORTAL_URL;
 }
