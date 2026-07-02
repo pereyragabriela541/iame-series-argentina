@@ -41,7 +41,7 @@ export default function CampeonatoClient({
           </button>
         ))}
       </div>
-      <StandingsTable standings={standings} />
+      <StandingsTable standings={standings} showSessions={false} />
     </div>
   );
 }
