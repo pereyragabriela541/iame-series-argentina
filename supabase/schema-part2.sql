@@ -71,14 +71,14 @@ values (2026, 'IAME Series Argentina 2026', true, 10)
 on conflict (year) do update set is_active = true, regular_rounds = 10;
 
 insert into categories (slug, name, short_name, sort_order, color) values
-  ('60-mini-under', '60 MINI/UNDER', '60MU', 1, '#75BEE9'),
-  ('junior', 'JUNIOR', 'JUN', 2, '#004A99'),
-  ('master-gentleman', 'MASTER/GENTLEMAN', 'M/G', 3, '#A7A9AC'),
-  ('senior', 'SENIOR', 'SEN', 4, '#004A99'),
-  ('okn-junior', 'OKN JUNIOR', 'OKNJ', 5, '#E30613'),
-  ('okn', 'OKN', 'OKN', 6, '#E30613'),
-  ('senior-pro-390-honda', 'SENIOR PRO 390 HONDA', 'SP390', 7, '#E30613'),
-  ('academy', 'ACADEMY', 'ACAD', 8, '#75BEE9')
+  ('60-mini', '60 MINI', '60M', 1, '#75BEE9'),
+  ('60-mini-under', '60 MINI UNDER', '60U', 2, '#75BEE9'),
+  ('junior', 'JUNIOR MY10', 'JMY10', 3, '#004A99'),
+  ('senior', 'SENIOR MY10', 'SMY10', 4, '#004A99'),
+  ('master-my10', 'MASTER MY10', 'MMY10', 5, '#A7A9AC'),
+  ('okn-junior', 'OKN JUNIOR', 'OKNJ', 6, '#E30613'),
+  ('okn', 'OKN', 'OKN', 7, '#E30613'),
+  ('master-gentleman', 'MASTER MY10 GENTLEMAN', 'MG10', 8, '#A7A9AC')
 on conflict (slug) do update set
   name = excluded.name,
   short_name = excluded.short_name,

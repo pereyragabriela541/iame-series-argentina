@@ -61,14 +61,14 @@ export const INSCRIPTION_ROUNDS: InscriptionRoundOption[] = [
 
 /** Categorías oficiales 2026 */
 export const INSCRIPTION_CATEGORIES: InscriptionCategoryOption[] = [
-  { value: "60-mini-under", label: "60 MINI/UNDER" },
-  { value: "junior", label: "JUNIOR" },
-  { value: "master-gentleman", label: "MASTER/GENTLEMAN" },
-  { value: "senior", label: "SENIOR" },
+  { value: "60-mini", label: "60 MINI" },
+  { value: "60-mini-under", label: "60 MINI UNDER" },
+  { value: "junior", label: "JUNIOR MY10" },
+  { value: "senior", label: "SENIOR MY10" },
+  { value: "master-my10", label: "MASTER MY10" },
   { value: "okn-junior", label: "OKN JUNIOR" },
   { value: "okn", label: "OKN" },
-  { value: "senior-pro-390-honda", label: "SENIOR PRO 390 HONDA" },
-  { value: "academy", label: "ACADEMY" },
+  { value: "master-gentleman", label: "MASTER MY10 GENTLEMAN" },
 ];
 
 const UUID_RE =
