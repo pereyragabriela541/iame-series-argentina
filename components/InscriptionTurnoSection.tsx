@@ -30,6 +30,8 @@ export default function InscriptionTurnoSection({
   const [selectedSlot, setSelectedSlot] = useState<TurnoSlot | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [resendStatus, setResendStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [resendMessage, setResendMessage] = useState("");
   const [ticket, setTicket] = useState<{
     codigo: string;
     fecha: string;
@@ -118,6 +120,28 @@ export default function InscriptionTurnoSection({
     setStatus("ok");
   }
 
+  async function reenviarEmail() {
+    setResendStatus("loading");
+    setResendMessage("");
+    const res = await fetch("/api/inscripcion/resend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        dni: registration.dni,
+        email: registration.email,
+        round_key: registration.roundKey,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setResendStatus("error");
+      setResendMessage(data.error ?? data.message ?? "No se pudo reenviar el email");
+      return;
+    }
+    setResendStatus("ok");
+    setResendMessage(data.message ?? "Email reenviado. Revisá también la carpeta de spam.");
+  }
+
   if (loading) {
     return (
       <p className="text-sm text-neutral-500">Cargando turnos de administración...</p>
@@ -161,6 +185,30 @@ export default function InscriptionTurnoSection({
         <p className="mt-1 text-xs text-neutral-400">
           Elegí día y horario para la verificación de documentación.
         </p>
+        <p className="mt-2 text-xs text-neutral-500">
+          ¿No te llegó el email de confirmación? Revisá spam o correo no deseado
+          {registration.email.includes("@live.") ||
+          registration.email.includes("@hotmail.") ||
+          registration.email.includes("@outlook.")
+            ? " (común en Outlook/Live)"
+            : ""}
+          .
+        </p>
+        <button
+          type="button"
+          onClick={reenviarEmail}
+          disabled={resendStatus === "loading"}
+          className="mt-2 text-xs font-semibold text-iame-sky underline-offset-2 hover:underline disabled:opacity-50"
+        >
+          {resendStatus === "loading" ? "Reenviando..." : "Reenviar email de confirmación"}
+        </button>
+        {resendMessage && (
+          <p
+            className={`mt-1 text-xs ${resendStatus === "ok" ? "text-green-400" : "text-iame-red"}`}
+          >
+            {resendMessage}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">

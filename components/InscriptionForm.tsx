@@ -101,7 +101,11 @@ export default function InscriptionForm({
     }
 
     setStatus("ok");
-    setMessage(data.message);
+    setMessage(
+      data.emailSkipped
+        ? "Inscripción guardada. El email no pudo enviarse (configuración SMTP)."
+        : `${data.message ?? "Inscripción registrada."} Si no lo ves en unos minutos, revisá la carpeta de spam o correo no deseado.`
+    );
     setConfirmed({
       registrationId: data.registrationId,
       roundKey,
