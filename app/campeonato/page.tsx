@@ -1,5 +1,6 @@
+import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
-import CampeonatoClient from "@/components/CampeonatoClient";
+import StandingsTable from "@/components/StandingsTable";
 import { DbSetupBanner } from "@/components/ui";
 import type { Category } from "@/lib/types";
 import {
@@ -12,26 +13,33 @@ export const metadata = { title: "Campeonato | IAME Series Argentina" };
 
 export const dynamic = "force-dynamic";
 
-export default async function CampeonatoPage() {
+export default async function CampeonatoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cat?: string }>;
+}) {
+  const { cat: catSlug } = await searchParams;
   let dbReady = true;
   let categories: Category[] = [];
   let regularRounds = 10;
-  const standingsByCategory: Record<string, Awaited<ReturnType<typeof getStandings>>> = {};
+  let standings: Awaited<ReturnType<typeof getStandings>> = [];
 
   try {
     const season = await getActiveSeason();
     regularRounds = season?.regular_rounds ?? 10;
     categories = await getCategories();
-    if (season) {
-      await Promise.all(
-        categories.map(async (cat) => {
-          standingsByCategory[cat.id] = await getStandings(season.id, cat.id);
-        })
-      );
+    const activeCat =
+      categories.find((c) => c.slug === catSlug) ?? categories[0];
+
+    if (season && activeCat) {
+      standings = await getStandings(season.id, activeCat.id);
     }
   } catch {
     dbReady = false;
   }
+
+  const activeCat =
+    categories.find((c) => c.slug === catSlug) ?? categories[0];
 
   return (
     <div className="space-y-6">
@@ -42,7 +50,33 @@ export default async function CampeonatoPage() {
         subtitle={`Clasificación general por categoría — ${regularRounds} fechas etapa regular`}
       />
       {categories.length ? (
-        <CampeonatoClient categories={categories} standingsByCategory={standingsByCategory} />
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-2 border-b border-neutral-800 pb-3">
+            {categories.map((cat) => {
+              const isActive = activeCat?.id === cat.id;
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/campeonato?cat=${cat.slug}`}
+                  scroll={false}
+                  className={`px-3 py-2 text-[10px] font-semibold uppercase tracking-wide transition sm:text-xs ${
+                    isActive
+                      ? "bg-iame-navy text-white"
+                      : "border border-neutral-800 text-neutral-400 hover:text-white"
+                  }`}
+                  style={
+                    isActive && cat.color
+                      ? { backgroundColor: cat.color }
+                      : undefined
+                  }
+                >
+                  {cat.name}
+                </Link>
+              );
+            })}
+          </div>
+          <StandingsTable standings={standings} showSessions={false} />
+        </div>
       ) : (
         <p className="text-sm text-neutral-500">Sin categorías cargadas.</p>
       )}
