@@ -12,6 +12,7 @@ import {
 export const metadata = { title: "Campeonato | IAME Series Argentina" };
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export default async function CampeonatoPage({
   searchParams,
@@ -20,6 +21,7 @@ export default async function CampeonatoPage({
 }) {
   const { cat: catSlug } = await searchParams;
   let dbReady = true;
+  let dbError = "";
   let categories: Category[] = [];
   let regularRounds = 10;
   let standings: Awaited<ReturnType<typeof getStandings>> = [];
@@ -34,8 +36,9 @@ export default async function CampeonatoPage({
     if (season && activeCat) {
       standings = await getStandings(season.id, activeCat.id);
     }
-  } catch {
+  } catch (e) {
     dbReady = false;
+    dbError = e instanceof Error ? e.message : "No se pudo conectar a la base";
   }
 
   const activeCat =
@@ -43,12 +46,28 @@ export default async function CampeonatoPage({
 
   return (
     <div className="space-y-6">
-      {!dbReady && <DbSetupBanner />}
+      {!dbReady && (
+        <>
+          <DbSetupBanner />
+          {dbError && (
+            <p className="text-sm text-iame-red">
+              Error: {dbError}. Revisá las variables de Supabase en Vercel.
+            </p>
+          )}
+        </>
+      )}
       <PageHeader
         kicker="Posiciones"
         title="Campeonato"
         subtitle={`Clasificación general por categoría — ${regularRounds} fechas etapa regular`}
       />
+      {activeCat && dbReady && (
+        <p className="text-xs text-neutral-500">
+          {activeCat.name}: {standings.length} piloto
+          {standings.length === 1 ? "" : "s"} cargado
+          {standings.length === 1 ? "" : "s"}
+        </p>
+      )}
       {categories.length ? (
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2 border-b border-neutral-800 pb-3">
@@ -78,7 +97,15 @@ export default async function CampeonatoPage({
           <StandingsTable standings={standings} showSessions={false} />
         </div>
       ) : (
-        <p className="text-sm text-neutral-500">Sin categorías cargadas.</p>
+        <p className="text-sm text-neutral-500">
+          Sin categorías cargadas.{" "}
+          <a
+            href="/api/campeonato/status"
+            className="text-iame-sky underline-offset-2 hover:underline"
+          >
+            Ver estado de la base
+          </a>
+        </p>
       )}
     </div>
   );

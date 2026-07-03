@@ -3,6 +3,7 @@ import type { Standing } from "@/lib/types";
 interface StandingsTableProps {
   standings: Standing[];
   showSessions?: boolean;
+  emptyMessage?: string;
 }
 
 function PositionBadge({ position }: { position: number | null }) {
@@ -27,11 +28,12 @@ function PositionBadge({ position }: { position: number | null }) {
 export default function StandingsTable({
   standings,
   showSessions = true,
+  emptyMessage = "Sin posiciones cargadas para esta categoría todavía.",
 }: StandingsTableProps) {
   if (!standings.length) {
     return (
       <p className="border border-neutral-800 bg-neutral-900/50 px-4 py-8 text-center text-sm text-neutral-500">
-        Sin posiciones cargadas. Editá la tabla <code className="text-iame-sky">standings</code> en Supabase.
+        {emptyMessage}
       </p>
     );
   }
