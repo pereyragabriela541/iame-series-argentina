@@ -10,6 +10,8 @@ import {
 
 export const metadata = { title: "Campeonato | IAME Series Argentina" };
 
+export const dynamic = "force-dynamic";
+
 export default async function CampeonatoPage() {
   let dbReady = true;
   let categories: Category[] = [];
