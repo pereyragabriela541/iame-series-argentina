@@ -1,7 +1,12 @@
 import nodemailer from "nodemailer";
+import { Resend } from "resend";
+import { BRAND } from "@/lib/branding";
 
 const ORG_EMAIL = process.env.EMAIL_NOTIFY_TO ?? "iameseriesarg@gmail.com";
-const FROM_EMAIL =
+const FROM_RESEND =
+  process.env.EMAIL_FROM ??
+  "IAME Series Argentina <registracion@bsproyect.com>";
+const FROM_SMTP =
   process.env.EMAIL_FROM ??
   `IAME Series Argentina <iameseriesarg@gmail.com>`;
 
@@ -17,6 +22,14 @@ export interface InscripcionEmailData {
   team?: string;
   city?: string;
   birthDate?: string;
+}
+
+interface OutboundMail {
+  to: string;
+  replyTo?: string;
+  subject: string;
+  text: string;
+  html: string;
 }
 
 function escapeHtml(value: string): string {
@@ -43,6 +56,47 @@ function getTransporter() {
   });
 }
 
+function isEmailConfigured() {
+  return Boolean(process.env.RESEND_API_KEY || process.env.EMAIL_SMTP_PASS);
+}
+
+async function sendMail(mail: OutboundMail) {
+  if (process.env.RESEND_API_KEY) {
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { data, error } = await resend.emails.send({
+      from: FROM_RESEND,
+      to: mail.to,
+      replyTo: mail.replyTo,
+      subject: mail.subject,
+      text: mail.text,
+      html: mail.html,
+    });
+
+    if (error) {
+      console.error("[email/resend]", error);
+      throw new Error(error.message);
+    }
+
+    return { provider: "resend" as const, messageId: data?.id };
+  }
+
+  const transporter = getTransporter();
+  if (!transporter) {
+    throw new Error("EMAIL no configurado");
+  }
+
+  const info = await transporter.sendMail({
+    from: FROM_SMTP,
+    to: mail.to,
+    replyTo: mail.replyTo,
+    subject: mail.subject,
+    text: mail.text,
+    html: mail.html,
+  });
+
+  return { provider: "smtp" as const, messageId: info.messageId };
+}
+
 export function buildPilotEmail(data: InscripcionEmailData) {
   const subject = "Inscripción registrada — IAME Series Argentina";
   const text = [
@@ -57,7 +111,7 @@ export function buildPilotEmail(data: InscripcionEmailData) {
     "",
     "Ahora podés elegir tu turno en administración desde la misma página de inscripción.",
     "",
-    "Consultas: iameseriesarg@gmail.com",
+    `Consultas: ${BRAND.email}`,
     "",
     "IAME Series Argentina — BS Proyecta",
   ].join("\n");
@@ -75,7 +129,7 @@ export function buildPilotEmail(data: InscripcionEmailData) {
         <li>N° de kart: ${escapeHtml(data.kartNumber)}</li>
       </ul>
       <p><strong>Próximo paso:</strong> elegí tu turno en administración en la web de inscripción.</p>
-      <p style="font-size:13px;color:#5c6b7a">Consultas: <a href="mailto:iameseriesarg@gmail.com">iameseriesarg@gmail.com</a></p>
+      <p style="font-size:13px;color:#5c6b7a">Consultas: <a href="mailto:${BRAND.email}">${BRAND.email}</a></p>
     </div>
   `;
 
@@ -117,17 +171,15 @@ export function buildOrgEmail(data: InscripcionEmailData) {
 }
 
 export async function sendInscripcionEmails(data: InscripcionEmailData) {
-  const transporter = getTransporter();
-  if (!transporter) {
-    console.warn("[email] SMTP no configurado — EMAIL_SMTP_PASS faltante");
-    return { pilot: false, org: false, skipped: true };
+  if (!isEmailConfigured()) {
+    console.warn("[email] Sin RESEND_API_KEY ni EMAIL_SMTP_PASS");
+    return { pilot: false, org: false, skipped: true, provider: null };
   }
 
   const pilot = buildPilotEmail(data);
   const org = buildOrgEmail(data);
 
-  await transporter.sendMail({
-    from: FROM_EMAIL,
+  const pilotResult = await sendMail({
     to: data.email,
     replyTo: ORG_EMAIL,
     subject: pilot.subject,
@@ -135,8 +187,7 @@ export async function sendInscripcionEmails(data: InscripcionEmailData) {
     html: pilot.html,
   });
 
-  await transporter.sendMail({
-    from: FROM_EMAIL,
+  await sendMail({
     to: ORG_EMAIL,
     replyTo: data.email,
     subject: org.subject,
@@ -144,20 +195,23 @@ export async function sendInscripcionEmails(data: InscripcionEmailData) {
     html: org.html,
   });
 
-  return { pilot: true, org: true, skipped: false };
+  return {
+    pilot: true,
+    org: true,
+    skipped: false,
+    provider: pilotResult.provider,
+  };
 }
 
 export async function sendResendConfirmation(data: InscripcionEmailData) {
-  const transporter = getTransporter();
-  if (!transporter) {
-    return { pilot: false, org: false, skipped: true };
+  if (!isEmailConfigured()) {
+    return { pilot: false, org: false, skipped: true, provider: null };
   }
 
   const pilot = buildPilotEmail(data);
   const org = buildOrgEmail(data);
 
-  await transporter.sendMail({
-    from: FROM_EMAIL,
+  const pilotResult = await sendMail({
     to: data.email,
     replyTo: ORG_EMAIL,
     subject: `[Reenvío] ${pilot.subject}`,
@@ -165,8 +219,7 @@ export async function sendResendConfirmation(data: InscripcionEmailData) {
     html: pilot.html,
   });
 
-  await transporter.sendMail({
-    from: FROM_EMAIL,
+  await sendMail({
     to: ORG_EMAIL,
     replyTo: data.email,
     subject: `[Reenvío] ${org.subject}`,
@@ -174,5 +227,21 @@ export async function sendResendConfirmation(data: InscripcionEmailData) {
     html: org.html,
   });
 
-  return { pilot: true, org: true, skipped: false };
+  return {
+    pilot: true,
+    org: true,
+    skipped: false,
+    provider: pilotResult.provider,
+  };
+}
+
+export function isMicrosoftMailbox(email: string) {
+  const domain = email.split("@")[1]?.toLowerCase() ?? "";
+  return (
+    domain.endsWith("live.com") ||
+    domain.endsWith("hotmail.com") ||
+    domain.endsWith("outlook.com") ||
+    domain.endsWith("outlook.com.ar") ||
+    domain.endsWith("hotmail.com.ar")
+  );
 }

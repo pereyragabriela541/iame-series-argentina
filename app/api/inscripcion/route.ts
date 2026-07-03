@@ -117,7 +117,7 @@ export async function POST(request: Request) {
       emailSent: emailResult.pilot,
       emailSkipped: emailResult.skipped,
       message: emailResult.skipped
-        ? "Inscripción guardada. Configurá EMAIL_SMTP_PASS para enviar emails."
+        ? "Inscripción guardada. Configurá RESEND_API_KEY (recomendado) o EMAIL_SMTP_PASS."
         : "Inscripción registrada. Revisá tu email y elegí tu turno abajo.",
     });
   } catch (err) {

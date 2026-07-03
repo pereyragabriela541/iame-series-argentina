@@ -186,13 +186,11 @@ export default function InscriptionTurnoSection({
           Elegí día y horario para la verificación de documentación.
         </p>
         <p className="mt-2 text-xs text-neutral-500">
-          ¿No te llegó el email de confirmación? Revisá spam o correo no deseado
           {registration.email.includes("@live.") ||
           registration.email.includes("@hotmail.") ||
           registration.email.includes("@outlook.")
-            ? " (común en Outlook/Live)"
-            : ""}
-          .
+            ? "Outlook/Live suele bloquear mails enviados desde Gmail. Tu inscripción está guardada: podés reservar turno sin el email."
+            : "¿No te llegó el email? Revisá spam o correo no deseado."}
         </p>
         <button
           type="button"

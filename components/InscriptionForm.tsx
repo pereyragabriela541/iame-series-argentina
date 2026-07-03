@@ -101,10 +101,16 @@ export default function InscriptionForm({
     }
 
     setStatus("ok");
+    const outlookHint =
+      body.email.includes("@live.") ||
+      body.email.includes("@hotmail.") ||
+      body.email.includes("@outlook.")
+        ? " Si usás Outlook/Live, el mail puede no llegar: tu inscripción ya está guardada y podés elegir turno abajo."
+        : " Si no lo ves en unos minutos, revisá spam o correo no deseado.";
     setMessage(
       data.emailSkipped
-        ? "Inscripción guardada. El email no pudo enviarse (configuración SMTP)."
-        : `${data.message ?? "Inscripción registrada."} Si no lo ves en unos minutos, revisá la carpeta de spam o correo no deseado.`
+        ? "Inscripción guardada. El email no pudo enviarse (falta RESEND_API_KEY o EMAIL_SMTP_PASS)."
+        : `${data.message ?? "Inscripción registrada."}${outlookHint}`
     );
     setConfirmed({
       registrationId: data.registrationId,

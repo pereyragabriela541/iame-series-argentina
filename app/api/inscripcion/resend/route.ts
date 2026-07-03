@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     if (result.skipped) {
       return NextResponse.json({
         ok: false,
-        message: "SMTP no configurado. Agregá EMAIL_SMTP_PASS en .env.local",
+        message: "Email no configurado. Agregá RESEND_API_KEY o EMAIL_SMTP_PASS.",
       });
     }
 
