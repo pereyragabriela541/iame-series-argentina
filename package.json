@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "mobile:build:ios": "npm run build:ios --prefix mobile",
+    "mobile:submit:ios": "npm run submit:ios --prefix mobile"
   },
   "dependencies": {
+    "@next/third-parties": "^15.5.20",
     "@supabase/supabase-js": "^2.49.1",
     "next": "^15.2.4",
     "nodemailer": "^9.0.3",

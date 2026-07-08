@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import type { AppConfig } from "@/lib/types";
 import { getAppConfig } from "@/lib/queries";
 import { BRAND } from "@/lib/branding";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
+
+const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim();
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,9 +22,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: `${BRAND.name} | Sitio Oficial`,
   description:
-    "Sitio oficial de IAME Series Argentina: calendario, campeonato, resultados, inscripciones y noticias. Organizado por BS Proyecta.",
+    "Sitio oficial de IAME Series Argentina: calendario, campeonato, resultados, inscripciones y noticias. Organizado por BS Proyect.",
+  openGraph: {
+    title: `${BRAND.name} | Sitio Oficial`,
+    description:
+      "Calendario, campeonato, resultados, inscripciones y noticias del karting IAME en Argentina.",
+    url: SITE_URL,
+    siteName: BRAND.name,
+    locale: "es_AR",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function RootLayout({
@@ -52,6 +70,7 @@ export default async function RootLayout({
           year={temporada?.year ?? new Date().getFullYear()}
           organizer={temporada?.organizador ?? BRAND.organizer}
         />
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   );
