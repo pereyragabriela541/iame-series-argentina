@@ -11,9 +11,11 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
       className="group block border border-neutral-800 bg-neutral-900/30 transition hover:border-iame-red/50"
     >
       {article.image_url && (
-        <div
-          className="h-40 bg-cover bg-center"
-          style={{ backgroundImage: `url(${article.image_url})` }}
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={article.image_url}
+          alt=""
+          className="block w-full bg-neutral-950 object-contain"
         />
       )}
       <div className="p-4">

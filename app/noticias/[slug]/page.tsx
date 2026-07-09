@@ -35,9 +35,11 @@ export default async function NoticiaDetallePage({
         subtitle={formatDate(article.published_at)}
       />
       {article.image_url && (
-        <div
-          className="aspect-video bg-cover bg-center border border-neutral-800"
-          style={{ backgroundImage: `url(${article.image_url})` }}
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={article.image_url}
+          alt=""
+          className="block w-full border border-neutral-800 bg-neutral-950 object-contain"
         />
       )}
       <div className="prose prose-invert max-w-none text-neutral-300">
