@@ -103,7 +103,9 @@ export interface MediaImage {
   title: string | null;
   image_url: string;
   round_id: string | null;
+  section_key: string;
   sort_order: number;
+  rounds?: Pick<Round, "round_number" | "name"> | null;
 }
 
 export interface MediaVideo {
@@ -113,6 +115,21 @@ export interface MediaVideo {
   thumbnail_url: string | null;
   round_id: string | null;
   sort_order: number;
+  rounds?: Pick<Round, "round_number" | "name"> | null;
+}
+
+/** Textos editables de /imagenes y /videos (cabecera de página o bloque por fecha) */
+export interface MediaSection {
+  id: string;
+  media_type: "images" | "videos";
+  round_id: string | null;
+  section_key: string;
+  kicker: string | null;
+  title: string | null;
+  subtitle: string | null;
+  description: string | null;
+  sort_order: number;
+  is_published: boolean;
 }
 
 export interface Notification {

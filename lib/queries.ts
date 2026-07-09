@@ -3,6 +3,7 @@ import type {
   Category,
   FormDoc,
   MediaImage,
+  MediaSection,
   MediaVideo,
   NewsArticle,
   Notification,
@@ -141,20 +142,38 @@ export async function getMediaImages(): Promise<MediaImage[]> {
   const sb = createSupabaseServer();
   const { data } = await sb
     .from("media_images")
-    .select("*")
+    .select("*, rounds(round_number, name)")
     .eq("is_published", true)
     .order("sort_order");
-  return data ?? [];
+  return (data ?? []) as MediaImage[];
 }
 
 export async function getMediaVideos(): Promise<MediaVideo[]> {
   const sb = createSupabaseServer();
   const { data } = await sb
     .from("media_videos")
+    .select("*, rounds(round_number, name)")
+    .eq("is_published", true)
+    .order("sort_order");
+  return (data ?? []) as MediaVideo[];
+}
+
+export async function getMediaSections(
+  mediaType?: "images" | "videos",
+): Promise<MediaSection[]> {
+  const sb = createSupabaseServer();
+  let query = sb
+    .from("media_sections")
     .select("*")
     .eq("is_published", true)
     .order("sort_order");
-  return data ?? [];
+  if (mediaType) query = query.eq("media_type", mediaType);
+  const { data, error } = await query;
+  if (error) {
+    // Tabla aún no migrada
+    return [];
+  }
+  return (data ?? []) as MediaSection[];
 }
 
 export async function getNotifications(): Promise<Notification[]> {
