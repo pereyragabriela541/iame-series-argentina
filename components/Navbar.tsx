@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { NAV_LINKS } from "@/lib/branding";
@@ -18,15 +17,15 @@ export default function Navbar({ isLive = false, roundLabel }: NavbarProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-neutral-800 bg-neutral-950/95 backdrop-blur-sm">
       <div className="iame-gradient-bar" />
-      <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 sm:px-6 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-3">
-          <Image
+      <div className="mx-auto flex min-h-[4.5rem] max-w-7xl flex-wrap items-center justify-between gap-x-4 gap-y-2 overflow-visible px-4 py-2 sm:min-h-20 sm:px-6 lg:px-8">
+        <Link href="/" className="flex shrink-0 items-center overflow-visible py-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/assets/logo-iame.png"
             alt="IAME Series Argentina"
-            width={176}
-            height={160}
-            className="h-10 w-auto object-contain sm:h-11"
-            priority
+            className="h-12 w-auto max-w-none object-contain sm:h-14"
+            decoding="async"
+            fetchPriority="high"
           />
         </Link>
 
