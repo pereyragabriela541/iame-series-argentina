@@ -12,11 +12,11 @@ function PositionBadge({ position }: { position: number | null }) {
     <span
       className={`inline-flex h-7 w-7 items-center justify-center font-mono text-sm font-bold ${
         position === 1
-          ? "bg-iame-red text-white"
+          ? "bg-[#D4AF37] text-neutral-950"
           : position === 2
-            ? "bg-neutral-200 text-neutral-950"
+            ? "bg-[#C0C0C0] text-neutral-950"
             : position === 3
-              ? "bg-amber-700 text-white"
+              ? "bg-[#B87333] text-white"
               : "border border-neutral-700 text-neutral-300"
       }`}
     >
