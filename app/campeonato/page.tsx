@@ -8,8 +8,9 @@ import {
   getCategories,
   getStandings,
 } from "@/lib/queries";
+import { championshipMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Campeonato | IAME Series Argentina" };
+export const metadata = championshipMetadata;
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

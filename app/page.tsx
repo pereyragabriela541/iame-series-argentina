@@ -11,6 +11,9 @@ import {
   getRounds,
 } from "@/lib/queries";
 import type { AppConfig, NewsArticle, Round } from "@/lib/types";
+import { homeMetadata } from "@/lib/seo";
+
+export const metadata = homeMetadata;
 
 export default async function HomePage() {
   let season = null;

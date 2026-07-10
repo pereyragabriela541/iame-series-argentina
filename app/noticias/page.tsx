@@ -4,8 +4,9 @@ import NewsCard from "@/components/NewsCard";
 import { DbSetupBanner } from "@/components/ui";
 import type { NewsArticle } from "@/lib/types";
 import { getNews } from "@/lib/queries";
+import { newsMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Noticias | IAME Series Argentina" };
+export const metadata = newsMetadata;
 
 function pickFeaturedFlyer(news: NewsArticle[]) {
   return news.find((n) => n.slug === "fecha-5") ?? news.find((n) => n.image_url) ?? null;

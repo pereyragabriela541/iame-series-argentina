@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import type { AppConfig } from "@/lib/types";
 import { getAppConfig } from "@/lib/queries";
 import { BRAND } from "@/lib/branding";
+import { pageMetadata } from "@/lib/seo";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -22,14 +23,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: `${BRAND.name} | Sitio Oficial`,
-  description:
-    "Sitio oficial de IAME Series Argentina: calendario, campeonato, resultados, inscripciones y noticias. Organizado por BS Proyect.",
-  openGraph: {
+  ...pageMetadata({
     title: `${BRAND.name} | Sitio Oficial`,
     description:
-      "Calendario, campeonato, resultados, inscripciones y noticias del karting IAME en Argentina.",
+      "Sitio oficial de IAME Series Argentina y Champion Cup 2026: calendario de karting, campeonato, resultados en vivo, inscripción IAME y noticias del karting en Argentina.",
+  }),
+  metadataBase: new URL(SITE_URL),
+  openGraph: {
+    title: `${BRAND.name} | Champion Cup 2026`,
+    description:
+      "Calendario karting Argentina, inscripción IAME, campeonato y resultados en vivo del Champion Cup 2026.",
     url: SITE_URL,
     siteName: BRAND.name,
     locale: "es_AR",

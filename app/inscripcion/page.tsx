@@ -13,8 +13,9 @@ import {
   getCategories,
   getRounds,
 } from "@/lib/queries";
+import { inscriptionMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Inscripción | IAME Series Argentina" };
+export const metadata = inscriptionMetadata;
 
 export default async function InscripcionPage() {
   let enabled = true;

@@ -89,8 +89,8 @@ export default function HomeHero({ year, regularRounds }: HomeHeroProps) {
             {BRAND.name}
           </h1>
           <p className="mt-3 max-w-xl text-sm text-neutral-200 sm:text-base">
-            Calendario, campeonato, resultados en vivo e inscripciones oficiales.
-            Etapa regular: {regularRounds} fechas.
+            Calendario karting Argentina, campeonato Champion Cup {year}, resultados en vivo
+            e inscripción IAME. Sitio oficial de IAME Series Argentina.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

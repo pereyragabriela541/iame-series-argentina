@@ -3,8 +3,9 @@ import RoundCard from "@/components/RoundCard";
 import { DbSetupBanner } from "@/components/ui";
 import type { Round } from "@/lib/types";
 import { getActiveSeason, getAppConfig, getRounds } from "@/lib/queries";
+import { calendarMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Calendario | IAME Series Argentina" };
+export const metadata = calendarMetadata;
 
 export default async function CalendarioPage() {
   let rounds: Round[] = [];
