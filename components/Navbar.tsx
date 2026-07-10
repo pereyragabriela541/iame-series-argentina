@@ -23,9 +23,9 @@ export default function Navbar({ isLive = false, roundLabel }: NavbarProps) {
           <Image
             src="/assets/logo-iame.png"
             alt="IAME Series Argentina"
-            width={120}
-            height={40}
-            className="h-9 w-auto object-contain"
+            width={176}
+            height={160}
+            className="h-10 w-auto object-contain sm:h-11"
             priority
           />
         </Link>
