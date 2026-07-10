@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { LEGAL_LINKS, NAV_LINKS } from "@/lib/branding";
+import { NAV_LINKS } from "@/lib/branding";
 import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const links = [...NAV_LINKS, ...LEGAL_LINKS];
+  const links = [...NAV_LINKS];
   return links.map((link) => ({
     url: `${SITE_URL}${link.href === "/" ? "" : link.href}`,
     lastModified: new Date(),
