@@ -1,6 +1,6 @@
 import Link from "next/link";
 import HomeHero from "@/components/HomeHero";
-import NewsCard from "@/components/NewsCard";
+import FeaturedNewsFlyer from "@/components/FeaturedNewsFlyer";
 import RoundCard from "@/components/RoundCard";
 import RoundCountdown from "@/components/RoundCountdown";
 import { DbSetupBanner } from "@/components/ui";
@@ -23,7 +23,7 @@ export default async function HomePage() {
     [season, config, news] = await Promise.all([
       getActiveSeason(),
       getAppConfig(),
-      getNews(3),
+      getNews(),
     ]);
     if (season) rounds = await getRounds(season.id);
   } catch {
@@ -35,6 +35,8 @@ export default async function HomePage() {
     rounds
       .filter((r) => r.status === "upcoming" || r.status === "live")
       .sort((a, b) => a.round_number - b.round_number)[0] ?? rounds[0];
+
+  const featuredNews = news.find((n) => n.slug === "fecha-5") ?? news.find((n) => n.image_url) ?? null;
 
   return (
     <div className="space-y-10">
@@ -60,7 +62,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {news.length > 0 && (
+      {featuredNews && (
         <section>
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-lg font-bold uppercase text-white">Noticias</h2>
@@ -68,11 +70,7 @@ export default async function HomePage() {
               Ver todas
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map((n) => (
-              <NewsCard key={n.id} article={n} />
-            ))}
-          </div>
+          <FeaturedNewsFlyer article={featuredNews} showInscriptionCta />
         </section>
       )}
 
