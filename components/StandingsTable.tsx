@@ -1,4 +1,5 @@
 import type { Standing } from "@/lib/types";
+import { getPodiumBadgeStyle } from "@/lib/podium-styles";
 
 interface StandingsTableProps {
   standings: Standing[];
@@ -8,20 +9,30 @@ interface StandingsTableProps {
 
 function PositionBadge({ position }: { position: number | null }) {
   const pos = position ?? "—";
-  const podiumClass =
-    position === 1
-      ? "bg-gradient-to-br from-[#FFF4C2] via-[#FFD700] to-[#9A7B0A] text-[#1a1200] shadow-[0_0_14px_rgba(255,215,0,0.55),inset_0_1px_0_rgba(255,255,255,0.85),inset_0_-1px_0_rgba(120,90,10,0.35)] ring-1 ring-[#FFE566]/70"
-      : position === 2
-        ? "bg-gradient-to-br from-[#FFFFFF] via-[#D1D5DB] to-[#4B5563] text-[#111827] shadow-[0_0_12px_rgba(209,213,219,0.5),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(75,85,99,0.3)] ring-1 ring-white/60"
-        : position === 3
-          ? "bg-gradient-to-br from-[#F5D0A8] via-[#CD7F32] to-[#6B3A12] text-white shadow-[0_0_12px_rgba(205,127,50,0.5),inset_0_1px_0_rgba(255,230,200,0.45),inset_0_-1px_0_rgba(80,40,10,0.4)] ring-1 ring-[#E8A96A]/65"
-          : "border border-neutral-700 text-neutral-300";
+  const metal = getPodiumBadgeStyle(position);
+
+  if (!metal) {
+    return (
+      <span className="inline-flex h-7 w-7 items-center justify-center border border-neutral-700 font-mono text-sm font-bold text-neutral-300">
+        {pos}
+      </span>
+    );
+  }
 
   return (
     <span
-      className={`inline-flex h-7 w-7 items-center justify-center font-mono text-sm font-bold ${podiumClass}`}
+      className="relative inline-flex h-7 w-7 items-center justify-center overflow-hidden font-mono text-sm font-bold"
+      style={{
+        background: metal.background,
+        color: metal.color,
+        boxShadow: metal.boxShadow,
+      }}
     >
-      {pos}
+      <span
+        className="pointer-events-none absolute inset-0"
+        style={{ background: metal.shine }}
+      />
+      <span className="relative z-10">{pos}</span>
     </span>
   );
 }
