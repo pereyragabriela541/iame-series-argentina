@@ -1,4 +1,5 @@
-import { BRAND } from "@/lib/branding";
+import Link from "next/link";
+import { BRAND, LEGAL_LINKS } from "@/lib/branding";
 
 interface FooterProps {
   year?: number;
@@ -20,6 +21,14 @@ export default function Footer({
             </p>
             <p className="mt-1 text-xs text-neutral-500">
               Organizado por {organizer} · Temporada {year}
+              {LEGAL_LINKS.map((link) => (
+                <span key={link.href}>
+                  {" · "}
+                  <Link href={link.href} className="hover:text-neutral-300">
+                    {link.label}
+                  </Link>
+                </span>
+              ))}
             </p>
           </div>
           <a
