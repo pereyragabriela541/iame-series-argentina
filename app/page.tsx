@@ -2,6 +2,7 @@ import Link from "next/link";
 import HomeHero from "@/components/HomeHero";
 import NewsCard from "@/components/NewsCard";
 import RoundCard from "@/components/RoundCard";
+import RoundCountdown from "@/components/RoundCountdown";
 import { DbSetupBanner } from "@/components/ui";
 import {
   getActiveSeason,
@@ -54,6 +55,7 @@ export default async function HomePage() {
               Ver calendario
             </Link>
           </div>
+          <RoundCountdown round={nextRound} />
           <RoundCard round={nextRound} />
         </section>
       )}

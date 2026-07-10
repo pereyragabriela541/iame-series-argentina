@@ -58,3 +58,48 @@ export function formatRoundEventDates(round: {
 
   return `${fmt(start)} y ${fmt(end)}`;
 }
+
+const RACE_START_HOUR = 8;
+const RACE_END_HOUR = 20;
+const ARG_TZ_OFFSET = "-03:00";
+
+function toRaceInstant(date: string, hour: number): string {
+  return `${date}T${String(hour).padStart(2, "0")}:00:00${ARG_TZ_OFFSET}`;
+}
+
+/** Ventana de carrera para cuenta regresiva (inicio sábado 08:00 ART, fin domingo 20:00 ART). */
+export function getRoundEventWindow(round: {
+  round_number: number;
+  event_date?: string | null;
+  event_date_iso?: string | null;
+}): { start: string; end: string } | null {
+  if (round.event_date_iso) {
+    const startDate = round.event_date_iso.slice(0, 10);
+    const endDate = new Date(startDate + "T12:00:00");
+    endDate.setDate(endDate.getDate() + 1);
+    const endIso = endDate.toISOString().slice(0, 10);
+    return {
+      start: round.event_date_iso,
+      end: toRaceInstant(endIso, RACE_END_HOUR),
+    };
+  }
+
+  const official = ROUND_DATE_RANGES[round.round_number];
+  if (official) {
+    return {
+      start: toRaceInstant(official.start, RACE_START_HOUR),
+      end: toRaceInstant(official.end, RACE_END_HOUR),
+    };
+  }
+
+  if (!round.event_date) return null;
+
+  const endDate = new Date(round.event_date + "T12:00:00");
+  endDate.setDate(endDate.getDate() + 1);
+  const endIso = endDate.toISOString().slice(0, 10);
+
+  return {
+    start: toRaceInstant(round.event_date, RACE_START_HOUR),
+    end: toRaceInstant(endIso, RACE_END_HOUR),
+  };
+}
