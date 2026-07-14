@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "IAME Series Argentina",
-  organizer: "BS Proyecta",
-  email: "info@iameseriesargentina.com.ar",
+  organizer: "BS Proyect",
+  email: "iameseriesarg@gmail.com",
   colors: {
     navy: "#004A99",
     red: "#E30613",
@@ -27,4 +27,9 @@ export const NAV_LINKS = [
   { href: "/imagenes", label: "Imágenes" },
   { href: "/videos", label: "Videos" },
   { href: "/alertas", label: "Alertas" },
+] as const;
+
+export const LEGAL_LINKS = [
+  { href: "/privacidad", label: "Privacidad" },
+  { href: "/terminos", label: "Términos" },
 ] as const;
