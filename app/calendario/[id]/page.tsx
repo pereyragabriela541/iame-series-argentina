@@ -7,7 +7,6 @@ import {
   getRoundById,
   getRoundResults,
 } from "@/lib/queries";
-import { resultsCategoryName } from "@/lib/results-category-labels";
 import type { Category, RoundResult } from "@/lib/types";
 import { notFound } from "next/navigation";
 
@@ -73,7 +72,7 @@ export default async function RoundDetailPage({
               <PdfLink
                 key={r.id}
                 href={r.pdf_url}
-                label={`${resultsCategoryName(catMap[r.category_id]?.slug, catMap[r.category_id]?.name ?? "Categoría")} — ${r.label}`}
+                label={`${catMap[r.category_id]?.name ?? "Categoría"} — ${r.label}`}
               />
             ))}
           </div>

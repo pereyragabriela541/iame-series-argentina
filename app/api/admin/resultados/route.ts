@@ -5,7 +5,6 @@ import {
   unauthorizedResponse,
   verifyAdminExportToken,
 } from "@/lib/admin-export";
-import { resultsCategoryName } from "@/lib/results-category-labels";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +69,7 @@ export async function GET(request: Request) {
           .order("sort_order"),
         sb
           .from("categories")
-          .select("id, slug, name, sort_order")
+          .select("id, name, sort_order")
           .eq("is_active", true)
           .order("sort_order"),
       ]);
@@ -89,11 +88,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       rounds: rounds ?? [],
-      categories: (categories ?? []).map((category) => ({
-        id: category.id,
-        name: resultsCategoryName(category.slug, category.name),
-        sort_order: category.sort_order,
-      })),
+      categories: categories ?? [],
       results: results ?? [],
     });
   } catch (error) {
