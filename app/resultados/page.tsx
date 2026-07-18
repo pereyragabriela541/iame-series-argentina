@@ -13,6 +13,9 @@ import type { Category, Round } from "@/lib/types";
 
 export const metadata = { title: "Resultados | IAME Series Argentina" };
 
+// Sin esto la página queda estática y los PDF nuevos no aparecen hasta el próximo deploy.
+export const dynamic = "force-dynamic";
+
 export default async function ResultadosPage() {
   let rounds: Round[] = [];
   let categories: Category[] = [];
