@@ -8,6 +8,7 @@ import {
   getRoundResults,
   getRounds,
 } from "@/lib/queries";
+import { resultsCategoryName } from "@/lib/results-category-labels";
 
 import type { Category, Round } from "@/lib/types";
 
@@ -57,7 +58,7 @@ export default async function ResultadosPage() {
                       <PdfLink
                         key={r.id}
                         href={r.pdf_url}
-                        label={`${catMap[r.category_id]?.name ?? "?"} — ${r.label}`}
+                        label={`${resultsCategoryName(catMap[r.category_id]?.slug, catMap[r.category_id]?.name ?? "?")} — ${r.label}`}
                       />
                     ))}
                   </div>
