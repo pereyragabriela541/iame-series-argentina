@@ -4,6 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import PageHeader from "@/components/PageHeader";
+import {
+  RESULT_SESSION_LABELS,
+  groupRoundResultsByCategory,
+} from "@/lib/round-results-order";
 
 interface RoundOption {
   id: string;
@@ -15,6 +19,7 @@ interface RoundOption {
 interface CategoryOption {
   id: string;
   name: string;
+  sort_order: number;
 }
 
 interface ResultItem {
@@ -62,7 +67,7 @@ export default function CargarResultadosPage() {
   const [results, setResults] = useState<ResultItem[]>([]);
   const [roundId, setRoundId] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [label, setLabel] = useState("Resultados oficiales");
+  const [label, setLabel] = useState<string>(RESULT_SESSION_LABELS[0]);
   const [file, setFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -74,9 +79,9 @@ export default function CargarResultadosPage() {
     () => results.filter((result) => result.round_id === roundId),
     [results, roundId],
   );
-  const categoryNames = useMemo(
-    () => Object.fromEntries(categories.map((category) => [category.id, category.name])),
-    [categories],
+  const groupedResults = useMemo(
+    () => groupRoundResultsByCategory(selectedResults, categories),
+    [selectedResults, categories],
   );
 
   const loadMeta = useCallback(async (authToken: string) => {
@@ -293,16 +298,19 @@ export default function CargarResultadosPage() {
 
             <label className="block">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-                Nombre
+                Sesión
               </span>
-              <input
-                type="text"
+              <select
                 value={label}
                 onChange={(event) => setLabel(event.target.value)}
                 className="mt-2 w-full border border-neutral-700 bg-neutral-950 px-3 py-3 text-white"
-                placeholder="Ej: Final"
-                maxLength={100}
-              />
+              >
+                {RESULT_SESSION_LABELS.map((session) => (
+                  <option key={session} value={session}>
+                    {session}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="block">
@@ -332,33 +340,35 @@ export default function CargarResultadosPage() {
                 PDF cargados ({selectedResults.length})
               </h2>
               {selectedResults.length ? (
-                <div className="space-y-2">
-                  {selectedResults.map((result) => (
-                    <div
-                      key={result.id}
-                      className="flex items-center justify-between gap-3 border border-neutral-800 bg-neutral-950 p-3"
-                    >
-                      <a
-                        href={result.pdf_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="min-w-0 text-sm text-white underline"
-                      >
-                        <span className="block truncate">
-                          {categoryNames[result.category_id] ?? "Categoría"}
-                        </span>
-                        <span className="block truncate text-xs text-neutral-500">
-                          {result.label}
-                        </span>
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => void removeResult(result)}
-                        disabled={loading}
-                        className="shrink-0 px-2 py-2 text-[10px] font-bold uppercase text-iame-red"
-                      >
-                        Eliminar
-                      </button>
+                <div className="space-y-4">
+                  {groupedResults.map(({ category, results: categoryResults }) => (
+                    <div key={category.id} className="space-y-2">
+                      <h3 className="text-[11px] font-bold uppercase tracking-wider text-white">
+                        {category.name}
+                      </h3>
+                      {categoryResults.map((result) => (
+                        <div
+                          key={result.id}
+                          className="flex items-center justify-between gap-3 border border-neutral-800 bg-neutral-950 p-3"
+                        >
+                          <a
+                            href={result.pdf_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="min-w-0 truncate text-sm text-white underline"
+                          >
+                            {result.label}
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => void removeResult(result)}
+                            disabled={loading}
+                            className="shrink-0 px-2 py-2 text-[10px] font-bold uppercase text-iame-red"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>

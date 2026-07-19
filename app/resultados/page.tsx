@@ -8,6 +8,7 @@ import {
   getRoundResults,
   getRounds,
 } from "@/lib/queries";
+import { groupRoundResultsByCategory } from "@/lib/round-results-order";
 
 import type { Category, Round } from "@/lib/types";
 
@@ -40,7 +41,7 @@ export default async function ResultadosPage() {
         await Promise.all(
           finishedRounds.map(async (round) => {
             const results = await getRoundResults(round.id).catch(() => []);
-            const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
+            const groupedResults = groupRoundResultsByCategory(results, categories);
             return (
               <section key={round.id} className="space-y-3">
                 <div className="flex items-center justify-between border-b border-neutral-800 pb-2">
@@ -55,13 +56,22 @@ export default async function ResultadosPage() {
                   </Link>
                 </div>
                 {results.length ? (
-                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {results.map((r) => (
-                      <PdfLink
-                        key={r.id}
-                        href={r.pdf_url}
-                        label={`${catMap[r.category_id]?.name ?? "?"} — ${r.label}`}
-                      />
+                  <div className="space-y-4">
+                    {groupedResults.map(({ category, results: categoryResults }) => (
+                      <div key={category.id} className="space-y-2">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                          {category.name}
+                        </h3>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                          {categoryResults.map((result) => (
+                            <PdfLink
+                              key={result.id}
+                              href={result.pdf_url}
+                              label={result.label}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : (

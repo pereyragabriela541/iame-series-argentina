@@ -7,6 +7,7 @@ import {
   getRoundById,
   getRoundResults,
 } from "@/lib/queries";
+import { groupRoundResultsByCategory } from "@/lib/round-results-order";
 import type { Category, RoundResult } from "@/lib/types";
 import { notFound } from "next/navigation";
 
@@ -42,7 +43,7 @@ export default async function RoundDetailPage({
 
   if (!round) notFound();
 
-  const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
+  const groupedResults = groupRoundResultsByCategory(results, categories);
 
   return (
     <div className="space-y-6">
@@ -67,13 +68,22 @@ export default async function RoundDetailPage({
       <section>
         <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-white">Resultados</h2>
         {results.length ? (
-          <div className="grid gap-2 sm:grid-cols-2">
-            {results.map((r) => (
-              <PdfLink
-                key={r.id}
-                href={r.pdf_url}
-                label={`${catMap[r.category_id]?.name ?? "Categoría"} — ${r.label}`}
-              />
+          <div className="space-y-4">
+            {groupedResults.map(({ category, results: categoryResults }) => (
+              <div key={category.id} className="space-y-2">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  {category.name}
+                </h3>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {categoryResults.map((result) => (
+                    <PdfLink
+                      key={result.id}
+                      href={result.pdf_url}
+                      label={result.label}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         ) : (

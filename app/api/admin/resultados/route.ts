@@ -5,6 +5,7 @@ import {
   unauthorizedResponse,
   verifyAdminExportToken,
 } from "@/lib/admin-export";
+import { computeResultSortOrder } from "@/lib/round-results-order";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -42,10 +43,15 @@ async function validateRoundAndCategory(roundId: string, categoryId: string) {
   const sb = createSupabaseAdmin();
   const [{ data: round }, { data: category }] = await Promise.all([
     sb.from("rounds").select("id").eq("id", roundId).maybeSingle(),
-    sb.from("categories").select("id").eq("id", categoryId).maybeSingle(),
+    sb
+      .from("categories")
+      .select("id, sort_order")
+      .eq("id", categoryId)
+      .maybeSingle(),
   ]);
 
   if (!round || !category) throw new Error("Fecha o categoría inexistente");
+  return category;
 }
 
 export async function GET(request: Request) {
@@ -71,7 +77,7 @@ export async function GET(request: Request) {
           .from("categories")
           .select("id, name, sort_order")
           .eq("is_active", true)
-          .order("sort_order"),
+          .order("sort_order", { ascending: true }),
       ]);
     if (roundsError) throw roundsError;
     if (categoriesError) throw categoriesError;
@@ -135,7 +141,7 @@ export async function POST(request: Request) {
         return errorResponse("La ruta del archivo es inválida");
       }
 
-      await validateRoundAndCategory(roundId, categoryId);
+      const category = await validateRoundAndCategory(roundId, categoryId);
       const sb = createSupabaseAdmin();
       const slash = path.lastIndexOf("/");
       const folder = path.slice(0, slash);
@@ -149,10 +155,6 @@ export async function POST(request: Request) {
       }
 
       const { data: publicData } = sb.storage.from(BUCKET).getPublicUrl(path);
-      const { count } = await sb
-        .from("round_results")
-        .select("id", { count: "exact", head: true })
-        .eq("round_id", roundId);
       const { data: result, error } = await sb
         .from("round_results")
         .insert({
@@ -160,7 +162,7 @@ export async function POST(request: Request) {
           category_id: categoryId,
           label,
           pdf_url: publicData.publicUrl,
-          sort_order: count ?? 0,
+          sort_order: computeResultSortOrder(category.sort_order, label),
         })
         .select("id, round_id, category_id, label, pdf_url, sort_order")
         .single();
