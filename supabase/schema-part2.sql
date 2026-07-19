@@ -75,10 +75,9 @@ insert into categories (slug, name, short_name, sort_order, color) values
   ('60-mini-under', '60 MINI UNDER', '60U', 2, '#75BEE9'),
   ('junior', 'JUNIOR MY10', 'JMY10', 3, '#004A99'),
   ('senior', 'SENIOR MY10', 'SMY10', 4, '#004A99'),
-  ('master-my10', 'MASTER MY10', 'MMY10', 5, '#A7A9AC'),
+  ('master-gentleman', 'MASTER MY10 GENTLEMAN', 'MG10', 5, '#A7A9AC'),
   ('okn-junior', 'OKN JUNIOR', 'OKNJ', 6, '#E30613'),
   ('okn', 'OKN', 'OKN', 7, '#E30613'),
-  ('master-gentleman', 'MASTER MY10 GENTLEMAN', 'MG10', 8, '#A7A9AC'),
   ('senior-pro-390-honda', 'SENIOR 390 PRO/HONDA', 'S390H', 9, '#E30613'),
   ('academy', 'ACADEMY/HONDA', 'ACADH', 10, '#75BEE9')
 on conflict (slug) do update set
@@ -111,7 +110,7 @@ on conflict (season_id, round_number) do update set
   status = excluded.status;
 
 insert into app_config (key, value) values
-  ('temporada', '{"year": 2026, "nombre": "IAME Series Argentina", "organizador": "BS Proyecta", "inscripcion_habilitada": true}'),
+  ('temporada', '{"year": 2026, "nombre": "IAME Series Argentina", "organizador": "BS Proyect", "inscripcion_habilitada": true}'),
   ('contacto', '{"email": "info@iameseriesargentina.com.ar", "inscripciones_email": "inscripciones@iameseriesargentina.com.ar"}'),
   ('live', '{"is_live": false, "timing_url": "https://speedhive.mylaps.com/", "speedhive_url": "https://speedhive.mylaps.com/", "round_label": "Fecha 5"}'),
   ('transmision', '{"titulo": "Transmisión en Vivo", "url": "", "descripcion": "Seguí la transmisión oficial de IAME Series Argentina."}'),

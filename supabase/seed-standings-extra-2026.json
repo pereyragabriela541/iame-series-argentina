@@ -1,0 +1,40 @@
+{
+  "note": "Categorías adicionales — CAMPEONATO IAME 2026 (capturas Instagram / PDF). MASTER unificado en master-gentleman.",
+  "categories": {
+    "senior-pro-390-honda": [
+      [1, "RODRIGUEZ FACUNDO", 191],
+      [2, "TISONE JUAN", 184],
+      [3, "REGALLI HECTOR", 128],
+      [4, "ANDUJAR LUCIANA", 123],
+      [5, "MANSILLA MILAGROS", 122],
+      [6, "ZEBALLOS GASTON", 103],
+      [7, "CARDUCCI SANTIAGO", 95],
+      [8, "TORRES AGUSTIN", 92],
+      [9, "YANZON JUAN", 88],
+      [10, "CORONEL MATIAS", 74],
+      [11, "BRITEZ LEANDRO", 56],
+      [12, "RODRIGUEZ LUCAS", 47],
+      [13, "ANTONIOW VALENTIN", 34],
+      [14, "BUENO GUADALUPE", 31]
+    ],
+    "master-gentleman": [
+      [1, "FICHERA JAVIER", 182],
+      [2, "ELUSTONDO GUIDO", 180],
+      [3, "VILLAROEL JUAN", 153],
+      [4, "ALVARO OSCAR", 127],
+      [5, "NIETZEL JUAN M", 123, "603"],
+      [6, "BARCALA MARTIN", 118],
+      [7, "HERBSONMER MAURICIO", 111],
+      [8, "GONZALEZ MATIAS", 108],
+      [9, "PEREZ CLAUDIO", 89],
+      [10, "CASTELLANI AGUSTIN", 82],
+      [11, "CONSOLINI OMAR", 76],
+      [12, "LAWLER NICOLAS", 74],
+      [13, "MAGDALENO MARIANO", 52],
+      [14, "GIRALDEZ LEONARDO", 52],
+      [15, "TORRES NICOLAS", 48],
+      [16, "DE LUCCA GABRIEL", 44],
+      [17, "GAGLIARDI FRANCO", 30]
+    ]
+  }
+}
