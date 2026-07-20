@@ -7,7 +7,7 @@ insert into categories (slug, name, short_name, sort_order, color, is_active) va
   ('60-mini-under', '60 MINI UNDER', '60U', 2, '#75BEE9', true),
   ('junior', 'JUNIOR MY10', 'JMY10', 3, '#004A99', true),
   ('senior', 'SENIOR MY10', 'SMY10', 4, '#004A99', true),
-  ('master', 'MASTER MY10', 'MMY10', 5, '#A7A9AC', true),
+  ('master', 'MASTER MY10/GENTLEMAN', 'M/G', 5, '#A7A9AC', true),
   ('master-gentleman', 'GENTLEMAN', 'GENT', 6, '#A7A9AC', true),
   ('okn-junior', 'OKN JUNIOR', 'OKNJ', 7, '#E30613', true),
   ('okn', 'OKN', 'OKN', 8, '#E30613', true),

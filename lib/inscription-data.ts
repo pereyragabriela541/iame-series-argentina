@@ -67,7 +67,7 @@ export const INSCRIPTION_CATEGORIES: InscriptionCategoryOption[] = [
   { value: "60-mini-under", label: "60 MINI UNDER" },
   { value: "junior", label: "JUNIOR MY10" },
   { value: "senior", label: "SENIOR MY10" },
-  { value: "master", label: "MASTER MY10" },
+  { value: "master", label: "MASTER MY10/GENTLEMAN" },
   { value: "master-gentleman", label: "GENTLEMAN" },
   { value: "okn-junior", label: "OKN JUNIOR" },
   { value: "okn", label: "OKN" },
