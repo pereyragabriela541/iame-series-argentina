@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Renombra master → MASTER MY10/GENTLEMAN en Supabase. */
+/** Renombra master → MASTER MY10 en Supabase (Campeonato separado de Gentleman). */
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
@@ -23,7 +23,7 @@ const sb = createClient(
 
 const { data, error } = await sb
   .from("categories")
-  .update({ name: "MASTER MY10/GENTLEMAN", short_name: "M/G" })
+  .update({ name: "MASTER MY10", short_name: "MAS" })
   .eq("slug", "master")
   .select("slug, name, short_name");
 

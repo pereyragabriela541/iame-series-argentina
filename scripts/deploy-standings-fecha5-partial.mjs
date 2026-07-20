@@ -47,7 +47,7 @@ if (seasonErr || !season) {
 
 // Asegurar categorías master + gentleman
 const categoryUpserts = [
-  { slug: "master", name: "MASTER MY10/GENTLEMAN", short_name: "M/G", sort_order: 5, color: "#A7A9AC", is_active: true },
+  { slug: "master", name: "MASTER MY10", short_name: "MAS", sort_order: 5, color: "#A7A9AC", is_active: true },
   { slug: "master-gentleman", name: "GENTLEMAN", short_name: "GENT", sort_order: 6, color: "#A7A9AC", is_active: true },
   { slug: "okn-junior", name: "OKN JUNIOR", short_name: "OKNJ", sort_order: 7, color: "#E30613", is_active: true },
   { slug: "okn", name: "OKN", short_name: "OKN", sort_order: 8, color: "#E30613", is_active: true },

@@ -54,10 +54,18 @@ export interface RoundResultCategoryGroup {
   results: RoundResult[];
 }
 
+type CategoryForResults = Pick<Category, "id" | "name" | "sort_order" | "slug">;
+
+/** En Resultados Master+Gentleman corren juntos; en Campeonato van separados. */
+function resultsDisplayName(category: CategoryForResults): string {
+  if (category.slug === "master") return "MASTER MY10/GENTLEMAN";
+  return category.name;
+}
+
 /** Agrupa por categoría y ordena Manga 1 → Manga 2 → Clasificación → Sprint → Final. */
 export function groupRoundResultsByCategory(
   results: RoundResult[],
-  categories: Array<Pick<Category, "id" | "name" | "sort_order">>,
+  categories: CategoryForResults[],
 ): RoundResultCategoryGroup[] {
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
   const byCategory = new Map<string, RoundResult[]>();
@@ -78,10 +86,16 @@ export function groupRoundResultsByCategory(
   });
 
   return orderedCategoryIds.map((categoryId) => {
-    const category = catMap[categoryId] ?? {
+    const raw = catMap[categoryId] ?? {
       id: categoryId,
       name: "Categoría",
       sort_order: 999,
+      slug: "",
+    };
+    const category = {
+      id: raw.id,
+      sort_order: raw.sort_order,
+      name: resultsDisplayName(raw),
     };
     const sorted = [...(byCategory.get(categoryId) ?? [])].sort((a, b) => {
       const sessionDiff =

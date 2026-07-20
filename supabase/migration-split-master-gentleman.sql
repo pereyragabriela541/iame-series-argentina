@@ -3,7 +3,7 @@
 -- Ejecutar en Supabase → SQL Editor (antes del seed de standings Fecha 5).
 
 insert into categories (slug, name, short_name, sort_order, color, is_active) values
-  ('master', 'MASTER MY10/GENTLEMAN', 'M/G', 5, '#A7A9AC', true),
+  ('master', 'MASTER MY10', 'MAS', 5, '#A7A9AC', true),
   ('master-gentleman', 'GENTLEMAN', 'GENT', 6, '#A7A9AC', true),
   ('okn-junior', 'OKN JUNIOR', 'OKNJ', 7, '#E30613', true),
   ('okn', 'OKN', 'OKN', 8, '#E30613', true),
