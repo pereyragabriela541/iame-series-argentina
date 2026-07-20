@@ -9,7 +9,7 @@ import { newsMetadata } from "@/lib/seo";
 export const metadata = newsMetadata;
 
 function pickFeaturedFlyer(news: NewsArticle[]) {
-  return news.find((n) => n.slug === "fecha-5") ?? news.find((n) => n.image_url) ?? null;
+  return news.find((n) => n.image_url) ?? news[0] ?? null;
 }
 
 export default async function NoticiasPage() {

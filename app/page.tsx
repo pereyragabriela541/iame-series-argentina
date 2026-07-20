@@ -39,7 +39,7 @@ export default async function HomePage() {
       .filter((r) => r.status === "upcoming" || r.status === "live")
       .sort((a, b) => a.round_number - b.round_number)[0] ?? rounds[0];
 
-  const featuredNews = news.find((n) => n.slug === "fecha-5") ?? news.find((n) => n.image_url) ?? null;
+  const featuredNews = news.find((n) => n.image_url) ?? news[0] ?? null;
 
   return (
     <div className="space-y-10">
