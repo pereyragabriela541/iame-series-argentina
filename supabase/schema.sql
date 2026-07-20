@@ -133,6 +133,7 @@ create table if not exists media_images (
   title text,
   image_url text not null,
   round_id uuid references rounds(id) on delete set null,
+  section_key text not null default 'main',
   sort_order int not null default 0,
   is_published boolean not null default true,
   created_at timestamptz not null default now()
@@ -144,6 +145,21 @@ create table if not exists media_videos (
   video_url text not null,
   thumbnail_url text,
   round_id uuid references rounds(id) on delete set null,
+  sort_order int not null default 0,
+  is_published boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+-- Textos editables de /imagenes y /videos
+create table if not exists media_sections (
+  id uuid primary key default gen_random_uuid(),
+  media_type text not null check (media_type in ('images', 'videos')),
+  round_id uuid references rounds(id) on delete cascade,
+  section_key text not null default 'main',
+  kicker text,
+  title text,
+  subtitle text,
+  description text,
   sort_order int not null default 0,
   is_published boolean not null default true,
   created_at timestamptz not null default now()
@@ -202,6 +218,7 @@ alter table schedules enable row level security;
 alter table forms enable row level security;
 alter table media_images enable row level security;
 alter table media_videos enable row level security;
+alter table media_sections enable row level security;
 alter table notifications enable row level security;
 alter table app_config enable row level security;
 alter table registrations enable row level security;
@@ -218,6 +235,7 @@ create policy "public_read_schedules" on schedules for select using (is_publishe
 create policy "public_read_forms" on forms for select using (is_published = true);
 create policy "public_read_media_images" on media_images for select using (is_published = true);
 create policy "public_read_media_videos" on media_videos for select using (is_published = true);
+create policy "public_read_media_sections" on media_sections for select using (is_published = true);
 create policy "public_read_notifications" on notifications for select using (is_published = true);
 create policy "public_read_app_config" on app_config for select using (true);
 
@@ -231,12 +249,14 @@ on conflict (year) do update set is_active = true, regular_rounds = 10;
 
 -- Categorías oficiales 2026
 insert into categories (slug, name, short_name, sort_order, color) values
-  ('60-mini-under', '60 MINI/UNDER', '60MU', 1, '#75BEE9'),
-  ('junior', 'JUNIOR', 'JUN', 2, '#004A99'),
-  ('master-gentleman', 'MASTER/GENTLEMAN', 'M/G', 3, '#A7A9AC'),
-  ('senior', 'SENIOR', 'SEN', 4, '#004A99'),
-  ('okn-junior', 'OKN JUNIOR', 'OKNJ', 5, '#E30613'),
-  ('okn', 'OKN', 'OKN', 6, '#E30613'),
+  ('60-mini', '60 MINI', '60M', 1, '#75BEE9'),
+  ('60-mini-under', '60 MINI UNDER', '60U', 2, '#75BEE9'),
+  ('junior', 'JUNIOR MY10', 'JMY10', 3, '#004A99'),
+  ('senior', 'SENIOR MY10', 'SMY10', 4, '#004A99'),
+  ('master', 'MASTER MY10', 'MMY10', 5, '#A7A9AC'),
+  ('master-gentleman', 'GENTLEMAN', 'GENT', 6, '#A7A9AC'),
+  ('okn-junior', 'OKN JUNIOR', 'OKNJ', 7, '#E30613'),
+  ('okn', 'OKN', 'OKN', 8, '#E30613'),
   ('senior-pro-390-honda', 'SENIOR 390 PRO/HONDA', 'S390H', 9, '#E30613'),
   ('academy', 'ACADEMY/HONDA', 'ACADH', 10, '#75BEE9')
 on conflict (slug) do update set
@@ -271,7 +291,7 @@ on conflict (season_id, round_number) do update set
 
 -- Config global
 insert into app_config (key, value) values
-  ('temporada', '{"year": 2026, "nombre": "IAME Series Argentina", "organizador": "BS Proyecta", "inscripcion_habilitada": true}'),
+  ('temporada', '{"year": 2026, "nombre": "IAME Series Argentina", "organizador": "BS Proyect", "inscripcion_habilitada": true}'),
   ('contacto', '{"email": "info@iameseriesargentina.com.ar", "inscripciones_email": "inscripciones@iameseriesargentina.com.ar"}'),
   ('live', '{"is_live": false, "timing_url": "", "round_label": "Fecha 5"}'),
   ('transmision', '{"titulo": "Transmisión en Vivo", "url": "", "descripcion": "Seguí la transmisión oficial de IAME Series Argentina."}'),

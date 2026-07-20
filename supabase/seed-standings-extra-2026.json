@@ -1,5 +1,5 @@
 {
-  "note": "Categorías adicionales — CAMPEONATO IAME 2026 (capturas Instagram / PDF). MASTER unificado en master-gentleman.",
+  "note": "Categorías adicionales post Fecha 5. Master General + Gentleman separados (e-kart). Los (G) figuran en ambas.",
   "categories": {
     "senior-pro-390-honda": [
       [1, "RODRIGUEZ FACUNDO", 191],
@@ -17,24 +17,46 @@
       [13, "ANTONIOW VALENTIN", 34],
       [14, "BUENO GUADALUPE", 31]
     ],
+    "master": [
+      [1, "CATANIA AGUSTIN", 221, "671", 3],
+      [2, "CASSINO DAMIAN", 204, "637", 2],
+      [3, "ELUSTONDO GUIDO", 201, "617", 0],
+      [4, "FICHERA JAVIER", 195, "603", 0],
+      [5, "VILLARROEL JUAN", 155, "678", 0],
+      [6, "HERBSONMER MAURICIO", 143, "625", 0],
+      [7, "ALVARO OSCAR", 131, "605", 0],
+      [8, "NIETZEL JUAN M", 114, "614", 0],
+      [9, "BARCALA MARTIN", 104, "607", 0],
+      [10, "GONZALEZ MATIAS", 104, "606", 0],
+      [11, "CONSOLINI OMAR", 84, "608", 0],
+      [12, "CASTELLANI AGUSTIN", 81, "633", 0],
+      [13, "TORRES NICOLAS", 81, "619", 0],
+      [14, "PEREZ CLAUDIO", 79, "610", 0],
+      [15, "LAWLER NICOLAS", 76, "613", 0],
+      [16, "DE LUCCA GABRIEL", 72, "672", 0],
+      [17, "AGNOLI IGNACIO", 54, "615", 0],
+      [18, "GIRALDEZ LEONARDO", 52, "609", 0],
+      [19, "MAGDALENO MARIANO", 41, "627", 0],
+      [20, "GAGLIARDI FRANCO", 24, "674", 0]
+    ],
     "master-gentleman": [
-      [1, "FICHERA JAVIER", 182],
-      [2, "ELUSTONDO GUIDO", 180],
-      [3, "VILLAROEL JUAN", 153],
-      [4, "ALVARO OSCAR", 127],
-      [5, "NIETZEL JUAN M", 123, "603"],
-      [6, "BARCALA MARTIN", 118],
-      [7, "HERBSONMER MAURICIO", 111],
-      [8, "GONZALEZ MATIAS", 108],
-      [9, "PEREZ CLAUDIO", 89],
-      [10, "CASTELLANI AGUSTIN", 82],
-      [11, "CONSOLINI OMAR", 76],
-      [12, "LAWLER NICOLAS", 74],
-      [13, "MAGDALENO MARIANO", 52],
-      [14, "GIRALDEZ LEONARDO", 52],
-      [15, "TORRES NICOLAS", 48],
-      [16, "DE LUCCA GABRIEL", 44],
-      [17, "GAGLIARDI FRANCO", 30]
+      [1, "ELUSTONDO GUIDO", 225, "617", 0],
+      [2, "FICHERA JAVIER", 214, "603", 0],
+      [3, "VILLARROEL JUAN", 180, "678", 0],
+      [4, "HERBSONMER MAURICIO", 161, "625", 0],
+      [5, "ALVARO OSCAR", 151, "605", 0],
+      [6, "NIETZEL JUAN M", 135, "614", 0],
+      [7, "GONZALEZ MATIAS", 126, "606", 0],
+      [8, "BARCALA MARTIN", 123, "607", 0],
+      [9, "CASTELLANI AGUSTIN", 97, "633", 0],
+      [10, "CONSOLINI OMAR", 97, "608", 0],
+      [11, "PEREZ CLAUDIO", 96, "610", 0],
+      [12, "LAWLER NICOLAS", 92, "613", 0],
+      [13, "TORRES NICOLAS", 87, "619", 0],
+      [14, "DE LUCCA GABRIEL", 79, "672", 0],
+      [15, "GIRALDEZ LEONARDO", 62, "609", 0],
+      [16, "MAGDALENO MARIANO", 52, "627", 0],
+      [17, "GAGLIARDI FRANCO", 30, "674", 0]
     ]
   }
 }

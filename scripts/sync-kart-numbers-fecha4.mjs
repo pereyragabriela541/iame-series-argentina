@@ -38,7 +38,8 @@ const SHEET_TO_SLUG = {
   OKN: "okn",
   "JUNIOR OLD": "junior",
   "SENIOR OLD": "senior",
-  "MASTER OLD": "master-gentleman",
+  "MASTER OLD": "master",
+  "GENTLEMAN": "master-gentleman",
   "HONDA 390": "senior-pro-390-honda",
   ACADEMY: "academy",
 };

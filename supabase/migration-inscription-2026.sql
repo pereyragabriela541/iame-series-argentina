@@ -7,12 +7,14 @@ alter table registrations
 update seasons set regular_rounds = 10 where year = 2026;
 
 insert into categories (slug, name, short_name, sort_order, color) values
-  ('60-mini-under', '60 MINI/UNDER', '60MU', 1, '#75BEE9'),
-  ('junior', 'JUNIOR', 'JUN', 2, '#004A99'),
-  ('master-gentleman', 'MASTER/GENTLEMAN', 'M/G', 3, '#A7A9AC'),
-  ('senior', 'SENIOR', 'SEN', 4, '#004A99'),
-  ('okn-junior', 'OKN JUNIOR', 'OKNJ', 5, '#E30613'),
-  ('okn', 'OKN', 'OKN', 6, '#E30613'),
+  ('60-mini', '60 MINI', '60M', 1, '#75BEE9'),
+  ('60-mini-under', '60 MINI UNDER', '60U', 2, '#75BEE9'),
+  ('junior', 'JUNIOR MY10', 'JMY10', 3, '#004A99'),
+  ('senior', 'SENIOR MY10', 'SMY10', 4, '#004A99'),
+  ('master', 'MASTER MY10', 'MMY10', 5, '#A7A9AC'),
+  ('master-gentleman', 'GENTLEMAN', 'GENT', 6, '#A7A9AC'),
+  ('okn-junior', 'OKN JUNIOR', 'OKNJ', 7, '#E30613'),
+  ('okn', 'OKN', 'OKN', 8, '#E30613'),
   ('senior-pro-390-honda', 'SENIOR 390 PRO/HONDA', 'S390H', 9, '#E30613'),
   ('academy', 'ACADEMY/HONDA', 'ACADH', 10, '#75BEE9')
 on conflict (slug) do update set

@@ -1,12 +1,8 @@
--- Categorías oficiales IAME Series Argentina 2026
--- Ejecutar en Supabase → SQL Editor
--- MASTER y GENTLEMAN separados (corren juntas; los G puntúan en ambas)
+-- Separar MASTER MY10 y GENTLEMAN (como 60 Mini / 60 Mini Under).
+-- Corren juntas, pero los (G) puntúan en ambas tablas.
+-- Ejecutar en Supabase → SQL Editor (antes del seed de standings Fecha 5).
 
 insert into categories (slug, name, short_name, sort_order, color, is_active) values
-  ('60-mini', '60 MINI', '60M', 1, '#75BEE9', true),
-  ('60-mini-under', '60 MINI UNDER', '60U', 2, '#75BEE9', true),
-  ('junior', 'JUNIOR MY10', 'JMY10', 3, '#004A99', true),
-  ('senior', 'SENIOR MY10', 'SMY10', 4, '#004A99', true),
   ('master', 'MASTER MY10', 'MMY10', 5, '#A7A9AC', true),
   ('master-gentleman', 'GENTLEMAN', 'GENT', 6, '#A7A9AC', true),
   ('okn-junior', 'OKN JUNIOR', 'OKNJ', 7, '#E30613', true),
@@ -20,7 +16,7 @@ on conflict (slug) do update set
   color = excluded.color,
   is_active = true;
 
--- Alias viejo unificado
+-- Alias viejo
 update categories
 set is_active = false, sort_order = 99
 where slug = 'master-my10';
