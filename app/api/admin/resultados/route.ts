@@ -75,7 +75,7 @@ export async function GET(request: Request) {
           .order("sort_order"),
         sb
           .from("categories")
-          .select("id, name, sort_order")
+          .select("id, name, sort_order, slug")
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
       ]);

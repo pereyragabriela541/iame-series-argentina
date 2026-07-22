@@ -20,6 +20,7 @@ interface CategoryOption {
   id: string;
   name: string;
   sort_order: number;
+  slug: string;
 }
 
 interface ResultItem {
