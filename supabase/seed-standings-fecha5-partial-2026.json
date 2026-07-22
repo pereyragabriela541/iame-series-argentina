@@ -132,18 +132,18 @@
       [7, "MANTA VALENTINO", 123, "81", 0],
       [8, "BTESH MAXIMO", 117, "35", 0],
       [9, "GORLERO P JOAQUIN", 115, "86", 0],
-      [10, "DELICH BAUTISTA", 110, "", 0],
+      [10, "DELICH BAUTISTA", 110, "36", 0],
       [11, "SAA MARTIN", 105, "5", 1],
       [12, "PIZARRO AGUSTIN", 90, "28", 0],
       [13, "ECHARRI SALVADOR", 79, "14", 0],
       [14, "GONZALEZ TIZIANO", 62, "40", 0],
       [15, "FALIVENE THIAGO", 55, "46", 0],
-      [16, "BIAGI SANTIAGO", 54, "", 0],
-      [17, "MATTAR RICARDO", 42, "", 0],
-      [18, "QUEVEDO KEVIN", 40, "", 0],
-      [19, "THIAGO DIAZ", 20, "", 0],
-      [20, "BIAGIOLI FAUSTO", 14, "", 0],
-      [21, "GOBBI MAXIMILIANO", 13, "", 0]
+      [16, "BIAGI SANTIAGO", 54, "87", 0],
+      [17, "MATTAR RICARDO", 42, "16", 0],
+      [18, "QUEVEDO KEVIN", 40, "73", 0],
+      [19, "THIAGO DIAZ", 20, "1", 0],
+      [20, "BIAGIOLI FAUSTO", 14, "88", 0],
+      [21, "GOBBI MAXIMILIANO", 13, "41", 0]
     ],
     "okn-junior": [
       [1, "DIAZ QUAGLIA IGNACIO", 235, "128", 1],
@@ -152,16 +152,16 @@
       [4, "BISCEGLIA BRUNO", 214, "116", 0],
       [5, "MINICUCCI ENZO", 172, "132", 0],
       [6, "MANASSERO VALENTINO", 151, "108", 0],
-      [7, "GONZALEZ CONO PEDRO", 129, "118", 0],
-      [8, "TABORDA IAN", 129, "133", 0],
+      [7, "TABORDA IAN", 129, "133", 0],
+      [8, "GONZALEZ CONO PEDRO", 129, "118", 0],
       [9, "CARREIRA RAMIRO", 112, "114", 0],
       [10, "ALVAREZ STORNI MATEO", 108, "134", 0],
       [11, "ROBBIANI AGUSTIN", 92, "111", 0],
       [12, "CAVAZZON NICOLAS", 85, "117", 0],
-      [13, "TETI MATEO", 60, "", 0],
+      [13, "TETI MATEO", 60, "113", 0],
       [14, "GOMEZ BAUTISTA", 50, "138", 0],
-      [15, "ALARCON PEDRO", 45, "", 0],
-      [16, "BIAGIOLI MAXIMO", 12, "", 0]
+      [15, "ALARCON PEDRO", 45, "135", 0],
+      [16, "BIAGIOLI MAXIMO", 12, "137", 0]
     ]
   }
 }
