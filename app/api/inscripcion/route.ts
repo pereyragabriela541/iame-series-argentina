@@ -4,11 +4,14 @@ import {
   sendInscripcionEmails,
   type InscripcionEmailData,
 } from "@/lib/email/inscripcion";
-import { findRoundLabel } from "@/lib/inscription-data";
+import { findRoundLabel, isDualPilotRound } from "@/lib/inscription-data";
 import { normalizeDniKey } from "@/lib/turnos-utils";
 
-const PRIVACY_TEXT =
-  "Autorizo a IAME Series Argentina (BS Proyecta) al tratamiento de mis datos conforme a la política de privacidad, con fines deportivos e informativos.";
+const PRIVACY_CONSENT_MESSAGE =
+  "Debés aceptar la política de privacidad y los términos y condiciones.";
+
+const PRIVACY_CONSENT_TEXT =
+  "Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos personales conforme a la política de privacidad y los términos y condiciones.";
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +19,13 @@ export async function POST(request: Request) {
     const dniKey = normalizeDniKey(body.dni);
     const roundKey = String(body.round_key ?? body.round_id ?? "").trim();
     const email = String(body.email ?? "").trim().toLowerCase();
+    const dualPilot = isDualPilotRound(roundKey);
+    const guestFullName = String(body.guest_full_name ?? "").trim();
+    const guestDni = String(body.guest_dni ?? "").trim();
+    const guestBirthDate = body.guest_birth_date
+      ? String(body.guest_birth_date).trim()
+      : "";
+    const guestDniKey = guestDni ? normalizeDniKey(guestDni) : "";
 
     if (!dniKey || dniKey.length < 7) {
       return NextResponse.json({ error: "DNI inválido" }, { status: 400 });
@@ -24,10 +34,48 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email requerido" }, { status: 400 });
     }
     if (!body.privacy_consent) {
-      return NextResponse.json({ error: "Debés aceptar el consentimiento" }, { status: 400 });
+      return NextResponse.json({ error: PRIVACY_CONSENT_MESSAGE }, { status: 400 });
     }
     if (!roundKey) {
       return NextResponse.json({ error: "Seleccioná una fecha" }, { status: 400 });
+    }
+    if (dualPilot) {
+      if (!String(body.full_name ?? "").trim()) {
+        return NextResponse.json(
+          { error: "Completá el nombre del piloto titular" },
+          { status: 400 },
+        );
+      }
+      if (!body.birth_date) {
+        return NextResponse.json(
+          { error: "Completá la fecha de nacimiento del titular" },
+          { status: 400 },
+        );
+      }
+      if (!guestFullName) {
+        return NextResponse.json(
+          { error: "Completá el nombre del piloto invitado" },
+          { status: 400 },
+        );
+      }
+      if (!guestDniKey || guestDniKey.length < 7) {
+        return NextResponse.json(
+          { error: "DNI del invitado inválido" },
+          { status: 400 },
+        );
+      }
+      if (!guestBirthDate) {
+        return NextResponse.json(
+          { error: "Completá la fecha de nacimiento del invitado" },
+          { status: 400 },
+        );
+      }
+      if (guestDniKey === dniKey) {
+        return NextResponse.json(
+          { error: "El DNI del titular y del invitado deben ser distintos" },
+          { status: 400 },
+        );
+      }
     }
 
     const sb = createSupabaseAdmin();
@@ -70,9 +118,21 @@ export async function POST(request: Request) {
       team: String(body.team ?? "").trim() || null,
       city: String(body.city ?? "").trim() || null,
       privacy_consent: true,
-      privacy_consent_text: PRIVACY_TEXT,
+      privacy_consent_text: PRIVACY_CONSENT_TEXT,
       origen: "web",
-      extra: { round_label: roundLabel, category_label: categoryLabel },
+      extra: {
+        round_label: roundLabel,
+        category_label: categoryLabel,
+        ...(dualPilot
+          ? {
+              format: "titular_invitado",
+              guest_full_name: guestFullName,
+              guest_dni: guestDni,
+              guest_dni_key: guestDniKey,
+              guest_birth_date: guestBirthDate,
+            }
+          : {}),
+      },
     };
 
     const { data: reg, error } = await sb
@@ -97,6 +157,13 @@ export async function POST(request: Request) {
       team: payload.team ?? undefined,
       city: payload.city ?? undefined,
       birthDate: payload.birth_date ?? undefined,
+      ...(dualPilot
+        ? {
+            guestFullName,
+            guestDni,
+            guestBirthDate,
+          }
+        : {}),
     };
 
     const emailResult = await sendInscripcionEmails(emailData);
@@ -118,7 +185,7 @@ export async function POST(request: Request) {
       emailSkipped: emailResult.skipped,
       message: emailResult.skipped
         ? "Inscripción guardada. Configurá RESEND_API_KEY (recomendado) o EMAIL_SMTP_PASS."
-        : "Inscripción registrada. Revisá tu email y elegí tu turno abajo.",
+        : "Tu inscripción aún no está completa. Para confirmarla, debés reservar tu turno y finalizar el trámite de manera presencial.",
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error interno";

@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import InscriptionTurnoSection from "@/components/InscriptionTurnoSection";
 import {
   findRoundLabel,
+  isDualPilotRound,
   type InscriptionCategoryOption,
   type InscriptionRoundOption,
   isUuid,
@@ -24,8 +26,20 @@ interface ConfirmedRegistration {
   fullName: string;
 }
 
-const PRIVACY_TEXT =
-  "Autorizo a IAME Series Argentina (BS Proyecta) al tratamiento de mis datos personales con fines deportivos e informativos.";
+const PRIVACY_TEXT = (
+  <>
+    Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos personales
+    conforme a la{" "}
+    <Link href="/privacidad" className="text-iame-sky hover:underline">
+      política de privacidad
+    </Link>{" "}
+    y los{" "}
+    <Link href="/terminos" className="text-iame-sky hover:underline">
+      términos y condiciones
+    </Link>
+    .
+  </>
+);
 
 export default function InscriptionForm({
   rounds,
@@ -35,6 +49,8 @@ export default function InscriptionForm({
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
   const [confirmed, setConfirmed] = useState<ConfirmedRegistration | null>(null);
+  const [selectedRound, setSelectedRound] = useState("");
+  const dualPilot = isDualPilotRound(selectedRound);
 
   if (!enabled) {
     return (
@@ -58,6 +74,7 @@ export default function InscriptionForm({
     const roundOption = rounds.find((r) => r.value === roundValue);
     const roundKey = roundValue;
     const roundIdUuid = roundOption?.roundId ?? (isUuid(roundValue) ? roundValue : null);
+    const isDual = isDualPilotRound(roundKey);
 
     const body = {
       round_key: roundKey,
@@ -74,6 +91,11 @@ export default function InscriptionForm({
       team: String(fd.get("team") ?? "").trim(),
       city: String(fd.get("city") ?? "").trim(),
       privacy_consent: fd.get("privacy_consent") === "on",
+      guest_full_name: isDual
+        ? String(fd.get("guest_full_name") ?? "").trim()
+        : undefined,
+      guest_dni: isDual ? String(fd.get("guest_dni") ?? "").trim() : undefined,
+      guest_birth_date: isDual ? fd.get("guest_birth_date") || null : undefined,
     };
 
     const res = await fetch("/api/inscripcion", {
@@ -101,16 +123,10 @@ export default function InscriptionForm({
     }
 
     setStatus("ok");
-    const outlookHint =
-      body.email.includes("@live.") ||
-      body.email.includes("@hotmail.") ||
-      body.email.includes("@outlook.")
-        ? " Si usás Outlook/Live, el mail puede no llegar: tu inscripción ya está guardada y podés elegir turno abajo."
-        : " Si no lo ves en unos minutos, revisá spam o correo no deseado.";
     setMessage(
       data.emailSkipped
         ? "Inscripción guardada. El email no pudo enviarse (falta RESEND_API_KEY o EMAIL_SMTP_PASS)."
-        : `${data.message ?? "Inscripción registrada."}${outlookHint}`
+        : "Tu inscripción aún no está completa. Para confirmarla, debés reservar tu turno y finalizar el trámite de manera presencial."
     );
     setConfirmed({
       registrationId: data.registrationId,
@@ -140,7 +156,13 @@ export default function InscriptionForm({
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
               Fecha
             </label>
-            <select name="round_id" className={inputClass} required defaultValue="">
+            <select
+              name="round_id"
+              className={inputClass}
+              required
+              value={selectedRound}
+              onChange={(e) => setSelectedRound(e.target.value)}
+            >
               <option value="" disabled>
                 Seleccionar fecha
               </option>
@@ -151,6 +173,15 @@ export default function InscriptionForm({
               ))}
             </select>
           </div>
+
+          {dualPilot ? (
+            <div className="sm:col-span-2 border border-neutral-800 bg-neutral-950/60 px-4 py-3">
+              <p className="text-xs leading-relaxed text-neutral-400">
+                Fecha 6 es de dos pilotos (titular e invitado). Completá los datos
+                de ambos.
+              </p>
+            </div>
+          ) : null}
 
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
@@ -181,19 +212,73 @@ export default function InscriptionForm({
             />
           </div>
 
+          <div className="sm:col-span-2">
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-iame-sky">
+              {dualPilot ? "Piloto titular" : "Datos del piloto"}
+            </p>
+          </div>
+
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Nombre completo
+              {dualPilot ? "Nombre completo del titular" : "Nombre completo"}
             </label>
             <input name="full_name" className={inputClass} required />
           </div>
 
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              DNI
+              {dualPilot ? "DNI del titular" : "DNI"}
             </label>
             <input name="dni" className={inputClass} required />
           </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Fecha de nacimiento del titular" : "Fecha de nacimiento"}
+            </label>
+            <input
+              name="birth_date"
+              type="date"
+              className={inputClass}
+              required={dualPilot}
+            />
+          </div>
+
+          {dualPilot ? (
+            <>
+              <div className="sm:col-span-2">
+                <p className="mb-2 mt-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-iame-sky">
+                  Piloto invitado
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                  Nombre completo del invitado
+                </label>
+                <input name="guest_full_name" className={inputClass} required />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                  DNI del invitado
+                </label>
+                <input name="guest_dni" className={inputClass} required />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                  Fecha de nacimiento del invitado
+                </label>
+                <input
+                  name="guest_birth_date"
+                  type="date"
+                  className={inputClass}
+                  required
+                />
+              </div>
+            </>
+          ) : null}
 
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
@@ -207,13 +292,6 @@ export default function InscriptionForm({
               Teléfono
             </label>
             <input name="phone" className={inputClass} />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Fecha de nacimiento
-            </label>
-            <input name="birth_date" type="date" className={inputClass} />
           </div>
 
           <div>

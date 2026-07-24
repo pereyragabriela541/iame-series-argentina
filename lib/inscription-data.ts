@@ -1,4 +1,4 @@
-import { getRoundDateLabel } from "@/lib/calendar-dates";
+import { formatRoundEventDates } from "@/lib/calendar-dates";
 import type { Category, Round } from "@/lib/types";
 
 export interface InscriptionRoundOption {
@@ -12,62 +12,34 @@ export interface InscriptionCategoryOption {
   label: string;
 }
 
-const INSCRIPTION_CIRCUITS: Record<number, string> = {
-  1: "Kartódromo de BS AS",
-  2: "Kartódromo Ramiro Tot, Baradero",
-  3: "Kartódromo de BS AS",
-  4: "Kartódromo Internacional de Zárate",
-  5: "Kartódromo de BS AS",
-  6: "Kartódromo Ramiro Tot, Baradero",
-  7: "Kartódromo de BS AS",
-  8: "Kartódromo a confirmar",
-  9: "Kartódromo de BS AS",
-  10: "Kartódromo de BS AS",
-  11: "Kartódromo a confirmar",
-};
-
-function buildInscriptionLabel(roundNumber: number, suffix = ""): string {
-  const name =
-    roundNumber === 11 ? "Final IAME Argentina" : `Fecha ${roundNumber}`;
-  const dates = getRoundDateLabel(roundNumber);
-  const circuit = INSCRIPTION_CIRCUITS[roundNumber];
-  return `${name} — ${dates} — ${circuit}${suffix}`;
-}
-
-/** Calendario oficial 2026 — IAME Series Argentina */
+/**
+ * Fallback solo si Supabase no responde.
+ * Las fechas/circuitos reales vienen de `rounds` vía `roundsToOptions`.
+ */
 export const INSCRIPTION_ROUNDS: InscriptionRoundOption[] = [
-  { value: "fecha-1", label: buildInscriptionLabel(1) },
-  { value: "fecha-2", label: buildInscriptionLabel(2) },
-  { value: "fecha-3", label: buildInscriptionLabel(3) },
-  { value: "fecha-4", label: buildInscriptionLabel(4) },
-  { value: "fecha-5", label: buildInscriptionLabel(5) },
-  { value: "fecha-6", label: buildInscriptionLabel(6, " (2 pilotos)") },
-  { value: "fecha-7", label: buildInscriptionLabel(7) },
-  { value: "fecha-8", label: buildInscriptionLabel(8) },
-  { value: "fecha-9", label: buildInscriptionLabel(9) },
-  { value: "fecha-10", label: buildInscriptionLabel(10) },
-  { value: "final-iame", label: buildInscriptionLabel(11) },
+  { value: "fecha-1", label: "Fecha 1" },
+  { value: "fecha-2", label: "Fecha 2" },
+  { value: "fecha-3", label: "Fecha 3" },
+  { value: "fecha-4", label: "Fecha 4" },
+  { value: "fecha-5", label: "Fecha 5" },
+  { value: "fecha-6", label: "Fecha 6" },
+  { value: "fecha-7", label: "Fecha 7" },
+  { value: "fecha-8", label: "Fecha 8" },
+  { value: "fecha-9", label: "Fecha 9" },
+  { value: "fecha-10", label: "Fecha 10" },
+  { value: "final-iame", label: "Final IAME Argentina" },
 ];
 
-const FINISHED_ROUND_KEYS = new Set([
-  "fecha-1",
-  "fecha-2",
-  "fecha-3",
-  "fecha-4",
-]);
+/** Fallback vacío: sin rounds de DB no se listan fechas (evita calendario viejo). */
+export const INSCRIPTION_ROUNDS_OPEN: InscriptionRoundOption[] = [];
 
-/** Fechas abiertas a inscripción (sin las ya finalizadas) */
-export const INSCRIPTION_ROUNDS_OPEN = INSCRIPTION_ROUNDS.filter(
-  (r) => !FINISHED_ROUND_KEYS.has(r.value)
-);
-
-/** Categorías oficiales 2026 */
+/** Fallback de categorías si Supabase no responde. */
 export const INSCRIPTION_CATEGORIES: InscriptionCategoryOption[] = [
   { value: "60-mini", label: "60 MINI" },
   { value: "60-mini-under", label: "60 MINI UNDER" },
   { value: "junior", label: "JUNIOR MY10" },
   { value: "senior", label: "SENIOR MY10" },
-  { value: "master", label: "MASTER MY10/GENTLEMAN" },
+  { value: "master", label: "MASTER MY10" },
   { value: "master-gentleman", label: "GENTLEMAN" },
   { value: "okn-junior", label: "OKN JUNIOR" },
   { value: "okn", label: "OKN" },
@@ -88,13 +60,11 @@ export function roundNumberToKey(roundNumber: number): string {
 }
 
 function roundToInscriptionLabel(r: Round): string {
-  const dates = getRoundDateLabel(r.round_number);
-  const suffix =
-    r.round_number === 6 ? " (2 pilotos)" : "";
-  if (r.circuit) {
-    return `${r.name} — ${dates} — ${r.circuit}${suffix}`;
-  }
-  return `${r.name} — ${dates}${suffix}`;
+  const dates = formatRoundEventDates(r);
+  const parts = [r.name];
+  if (dates && dates !== "—") parts.push(dates);
+  if (r.circuit) parts.push(r.circuit);
+  return parts.join(" — ");
 }
 
 export function roundsToOptions(rounds: Round[]): InscriptionRoundOption[] {
@@ -129,3 +99,9 @@ export function findRoundLabel(
 ): string {
   return options.find((o) => o.value === value)?.label ?? value;
 }
+
+/** Fecha 6: inscripción titular + piloto invitado (solo esa fecha). */
+export function isDualPilotRound(roundKey: string): boolean {
+  return roundKey === "fecha-6";
+}
+
