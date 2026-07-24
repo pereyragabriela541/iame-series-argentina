@@ -232,14 +232,14 @@ export default function InscriptionForm({
             <input name="dni" className={inputClass} required />
           </div>
 
-          <div>
+          <div className={dualPilot ? "sm:col-span-2" : undefined}>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
               {dualPilot ? "Fecha de nacimiento del titular" : "Fecha de nacimiento"}
             </label>
             <input
               name="birth_date"
               type="date"
-              className={inputClass}
+              className={`${inputClass} min-w-0`}
               required={dualPilot}
             />
           </div>
@@ -266,14 +266,14 @@ export default function InscriptionForm({
                 <input name="guest_dni" className={inputClass} required />
               </div>
 
-              <div>
+              <div className="sm:col-span-2">
                 <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
                   Fecha de nacimiento del invitado
                 </label>
                 <input
                   name="guest_birth_date"
                   type="date"
-                  className={inputClass}
+                  className={`${inputClass} min-w-0`}
                   required
                 />
               </div>
@@ -301,7 +301,7 @@ export default function InscriptionForm({
             <input name="team" className={inputClass} />
           </div>
 
-          <div className="sm:col-span-2">
+          <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
               {dualPilot ? "Ciudad (solo titular)" : "Ciudad"}
             </label>
