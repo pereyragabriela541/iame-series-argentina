@@ -234,7 +234,9 @@ export default function InscriptionForm({
 
           <div className={dualPilot ? "sm:col-span-2" : undefined}>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Fecha de nacimiento del titular" : "Fecha de nacimiento"}
+              {dualPilot
+                ? "Fecha de nacimiento del titular"
+                : "Fecha de nacimiento"}
             </label>
             <input
               name="birth_date"
@@ -242,6 +244,34 @@ export default function InscriptionForm({
               className={`${inputClass} min-w-0`}
               required={dualPilot}
             />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Email (solo titular)" : "Email"}
+            </label>
+            <input name="email" type="email" className={inputClass} required />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Teléfono (solo titular)" : "Teléfono"}
+            </label>
+            <input name="phone" className={inputClass} />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Equipo" : "Equipo / Escudería"}
+            </label>
+            <input name="team" className={inputClass} />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Ciudad (solo titular)" : "Ciudad"}
+            </label>
+            <input name="city" className={inputClass} />
           </div>
 
           {dualPilot ? (
@@ -279,34 +309,6 @@ export default function InscriptionForm({
               </div>
             </>
           ) : null}
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Email
-            </label>
-            <input name="email" type="email" className={inputClass} required />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Teléfono (solo titular)" : "Teléfono"}
-            </label>
-            <input name="phone" className={inputClass} />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Equipo / Escudería (solo titular)" : "Equipo / Escudería"}
-            </label>
-            <input name="team" className={inputClass} />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Ciudad (solo titular)" : "Ciudad"}
-            </label>
-            <input name="city" className={inputClass} />
-          </div>
 
           <div className="sm:col-span-2">
             <label className="flex items-start gap-3 text-xs text-neutral-400">
