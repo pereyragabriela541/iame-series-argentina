@@ -53,6 +53,7 @@ export interface Standing {
   points: number;
   position: number | null;
   wins: number;
+  presentismo?: number | null;
   clasif: number | null;
   m1: number | null;
   m2: number | null;

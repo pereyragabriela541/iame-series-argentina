@@ -67,6 +67,9 @@ export default function StandingsTable({
             <th className="px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
               Pts
             </th>
+            <th className="px-3 py-2.5 text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+              Pres
+            </th>
             {showSessions && (
               <>
                 <th className="px-2 py-2.5 text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
@@ -117,6 +120,9 @@ export default function StandingsTable({
               </td>
               <td className="px-3 py-2 text-right font-mono text-sm font-bold text-iame-red">
                 {p.points}
+              </td>
+              <td className="px-3 py-2 text-center font-mono text-xs text-neutral-300">
+                {p.presentismo ?? 0}
               </td>
               {showSessions && (
                 <>

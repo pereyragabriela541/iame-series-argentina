@@ -70,7 +70,7 @@ for (const slug of slugs) {
   if (!pilots.length) continue;
 
   const rows = pilots.map((entry) => {
-    const [position, pilot_name, points, number, wins] = entry;
+    const [position, pilot_name, points, number, wins, presentismo] = entry;
     return {
       season_id: season.id,
       category_id: categoryId,
@@ -80,6 +80,7 @@ for (const slug of slugs) {
       points,
       position,
       wins: wins ?? (position === 1 ? 1 : 0),
+      presentismo: presentismo ?? 0,
       clasif: 0,
       m1: 0,
       m2: 0,

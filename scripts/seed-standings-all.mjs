@@ -73,7 +73,7 @@ for (const [slug, pilots] of Object.entries(categories)) {
   }
 
   for (const entry of pilots) {
-    const [position, pilot_name, points, number, wins] = entry;
+    const [position, pilot_name, points, number, wins, presentismo] = entry;
     rows.push({
       season_id: season.id,
       category_id: categoryId,
@@ -83,6 +83,7 @@ for (const [slug, pilots] of Object.entries(categories)) {
       points,
       position,
       wins: wins ?? (position === 1 ? 1 : 0),
+      presentismo: presentismo ?? 0,
       clasif: 0,
       m1: 0,
       m2: 0,

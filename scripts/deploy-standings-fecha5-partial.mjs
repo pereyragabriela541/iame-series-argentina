@@ -97,7 +97,7 @@ for (const slug of slugs) {
   }
 
   const rows = seed.categories[slug].map((entry) => {
-    const [position, pilot_name, points, number, wins] = entry;
+    const [position, pilot_name, points, number, wins, presentismo] = entry;
     const pilot_number =
       number && String(number).trim()
         ? String(number).trim()
@@ -111,6 +111,7 @@ for (const slug of slugs) {
       points,
       position,
       wins: wins ?? 0,
+      presentismo: presentismo ?? 0,
       clasif: 0,
       m1: 0,
       m2: 0,
