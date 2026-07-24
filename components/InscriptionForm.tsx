@@ -289,21 +289,21 @@ export default function InscriptionForm({
 
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Teléfono
+              {dualPilot ? "Teléfono (solo titular)" : "Teléfono"}
             </label>
             <input name="phone" className={inputClass} />
           </div>
 
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Equipo / Escudería
+              {dualPilot ? "Equipo / Escudería (solo titular)" : "Equipo / Escudería"}
             </label>
             <input name="team" className={inputClass} />
           </div>
 
           <div className="sm:col-span-2">
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Ciudad
+              {dualPilot ? "Ciudad (solo titular)" : "Ciudad"}
             </label>
             <input name="city" className={inputClass} />
           </div>
