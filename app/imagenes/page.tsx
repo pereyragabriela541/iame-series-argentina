@@ -1,3 +1,4 @@
+import GalleryCarousel from "@/components/GalleryCarousel";
 import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner, EmptyState } from "@/components/ui";
 import {
@@ -15,30 +16,6 @@ import type { MediaImage, MediaSection, Round } from "@/lib/types";
 
 export const metadata = { title: "Imágenes | IAME Series Argentina" };
 export const dynamic = "force-dynamic";
-
-function GalleryGrid({ images }: { images: MediaImage[] }) {
-  return (
-    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-      {images.map((img) => (
-        <a
-          key={img.id}
-          href={img.image_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group overflow-hidden border border-neutral-800"
-        >
-          <div
-            className="aspect-video bg-cover bg-center transition group-hover:scale-105"
-            style={{ backgroundImage: `url(${img.image_url})` }}
-          />
-          {img.title && (
-            <p className="px-3 py-2 text-xs font-semibold uppercase text-white">{img.title}</p>
-          )}
-        </a>
-      ))}
-    </div>
-  );
-}
 
 export default async function ImagenesPage() {
   let images: MediaImage[] = [];
@@ -93,7 +70,7 @@ export default async function ImagenesPage() {
                       {block.subtitle}
                     </p>
                   )}
-                  <GalleryGrid images={block.images} />
+                  <GalleryCarousel images={block.images} />
                 </div>
               ))
             ) : section.roundNumber != null ? (
