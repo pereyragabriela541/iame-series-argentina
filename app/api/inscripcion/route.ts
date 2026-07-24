@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
+import { uploadDuoPhoto } from "@/lib/inscription-duo-photos";
 import {
   sendInscripcionEmails,
   type InscripcionEmailData,
@@ -7,16 +8,53 @@ import {
 import { findRoundLabel, isDualPilotRound } from "@/lib/inscription-data";
 import { normalizeDniKey } from "@/lib/turnos-utils";
 
+export const runtime = "nodejs";
+
 const PRIVACY_CONSENT_MESSAGE =
   "Debés aceptar la política de privacidad y los términos y condiciones.";
 
 const PRIVACY_CONSENT_TEXT =
   "Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos personales conforme a la política de privacidad y los términos y condiciones.";
 
+type Body = Record<string, unknown>;
+
+async function parseBody(request: Request): Promise<{
+  body: Body;
+  photoTitular: File | null;
+  photoInvitado: File | null;
+}> {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("multipart/form-data")) {
+    const fd = await request.formData();
+    const body: Body = {};
+    let photoTitular: File | null = null;
+    let photoInvitado: File | null = null;
+    for (const [key, value] of fd.entries()) {
+      if (key === "photo_titular" && value instanceof File && value.size > 0) {
+        photoTitular = value;
+        continue;
+      }
+      if (key === "photo_invitado" && value instanceof File && value.size > 0) {
+        photoInvitado = value;
+        continue;
+      }
+      if (typeof value === "string") body[key] = value;
+    }
+    body.privacy_consent =
+      body.privacy_consent === "on" ||
+      body.privacy_consent === "true" ||
+      body.privacy_consent === true;
+    return { body, photoTitular, photoInvitado };
+  }
+
+  const body = (await request.json()) as Body;
+  return { body, photoTitular: null, photoInvitado: null };
+}
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const dniKey = normalizeDniKey(body.dni);
+    const { body, photoTitular, photoInvitado } = await parseBody(request);
+    const dniKey = normalizeDniKey(String(body.dni ?? ""));
     const roundKey = String(body.round_key ?? body.round_id ?? "").trim();
     const email = String(body.email ?? "").trim().toLowerCase();
     const dualPilot = isDualPilotRound(roundKey);
@@ -76,6 +114,18 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
+      if (!photoTitular) {
+        return NextResponse.json(
+          { error: "Subí la foto del piloto titular" },
+          { status: 400 },
+        );
+      }
+      if (!photoInvitado) {
+        return NextResponse.json(
+          { error: "Subí la foto del piloto invitado" },
+          { status: 400 },
+        );
+      }
     }
 
     const sb = createSupabaseAdmin();
@@ -94,15 +144,31 @@ export async function POST(request: Request) {
           registrationId: existing.id,
           alreadyRegistered: true,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     const roundLabel =
-      body.round_label ||
+      String(body.round_label ?? "") ||
       findRoundLabel(roundKey, [{ value: roundKey, label: roundKey }]);
 
     const categoryLabel = String(body.category_label ?? body.category_slug ?? "");
+    const folderKey = `${dniKey}_${guestDniKey || "solo"}`;
+
+    let photoTitularUrl: string | undefined;
+    let photoInvitadoUrl: string | undefined;
+    if (dualPilot && photoTitular && photoInvitado) {
+      photoTitularUrl = await uploadDuoPhoto({
+        file: photoTitular,
+        registrationKey: folderKey,
+        role: "titular",
+      });
+      photoInvitadoUrl = await uploadDuoPhoto({
+        file: photoInvitado,
+        registrationKey: folderKey,
+        role: "invitado",
+      });
+    }
 
     const payload = {
       round_id: body.round_id_uuid || null,
@@ -130,6 +196,9 @@ export async function POST(request: Request) {
               guest_dni: guestDni,
               guest_dni_key: guestDniKey,
               guest_birth_date: guestBirthDate,
+              photo_titular_url: photoTitularUrl,
+              photo_invitado_url: photoInvitadoUrl,
+              show_in_duos: true,
             }
           : {}),
       },
@@ -156,7 +225,7 @@ export async function POST(request: Request) {
       phone: payload.phone ?? undefined,
       team: payload.team ?? undefined,
       city: payload.city ?? undefined,
-      birthDate: payload.birth_date ?? undefined,
+      birthDate: payload.birth_date ? String(payload.birth_date) : undefined,
       ...(dualPilot
         ? {
             guestFullName,

@@ -14,6 +14,8 @@ import type {
   Season,
   Standing,
 } from "@/lib/types";
+import type { Fecha6Duo } from "@/lib/fecha6-duos";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export async function getActiveSeason(): Promise<Season | null> {
@@ -106,6 +108,42 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
     .eq("is_published", true)
     .single();
   return data;
+}
+
+/** Dúos Fecha 6 con fotos (titular + invitado), más recientes primero. */
+export async function getFecha6Duos(limit = 200): Promise<Fecha6Duo[]> {
+  const sb = createSupabaseAdmin();
+  const { data, error } = await sb
+    .from("registrations")
+    .select("id, full_name, kart_number, extra, created_at")
+    .eq("round_key", "fecha-6")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  const duos: Fecha6Duo[] = [];
+  for (const row of data ?? []) {
+    const extra = (row.extra ?? {}) as Record<string, unknown>;
+    if (extra.format !== "titular_invitado") continue;
+    if (extra.show_in_duos === false) continue;
+    const photoTitularUrl = String(extra.photo_titular_url ?? "").trim();
+    const photoInvitadoUrl = String(extra.photo_invitado_url ?? "").trim();
+    const guestName = String(extra.guest_full_name ?? "").trim();
+    if (!photoTitularUrl || !photoInvitadoUrl || !guestName) continue;
+
+    duos.push({
+      id: row.id,
+      titularName: row.full_name,
+      guestName,
+      kartNumber: row.kart_number ?? "",
+      categoryLabel: String(extra.category_label ?? ""),
+      photoTitularUrl,
+      photoInvitadoUrl,
+      createdAt: row.created_at,
+    });
+  }
+  return duos;
 }
 
 export async function getRegulations(): Promise<Regulation[]> {

@@ -65,7 +65,8 @@ export default function InscriptionForm({
     setStatus("loading");
     setMessage("");
 
-    const fd = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
     const roundValue = String(fd.get("round_id") ?? "").trim();
     const categorySlug = String(fd.get("category_slug") ?? "").trim();
     const categoryLabel =
@@ -76,33 +77,59 @@ export default function InscriptionForm({
     const roundIdUuid = roundOption?.roundId ?? (isUuid(roundValue) ? roundValue : null);
     const isDual = isDualPilotRound(roundKey);
 
-    const body = {
-      round_key: roundKey,
-      round_id_uuid: roundIdUuid,
-      round_label: roundLabel,
-      category_slug: categorySlug,
-      category_label: categoryLabel,
-      full_name: String(fd.get("full_name") ?? "").trim(),
-      dni: String(fd.get("dni") ?? "").trim(),
-      email: String(fd.get("email") ?? "").trim(),
-      phone: String(fd.get("phone") ?? "").trim(),
-      birth_date: fd.get("birth_date") || null,
-      kart_number: String(fd.get("kart_number") ?? "").trim(),
-      team: String(fd.get("team") ?? "").trim(),
-      city: String(fd.get("city") ?? "").trim(),
-      privacy_consent: fd.get("privacy_consent") === "on",
-      guest_full_name: isDual
-        ? String(fd.get("guest_full_name") ?? "").trim()
-        : undefined,
-      guest_dni: isDual ? String(fd.get("guest_dni") ?? "").trim() : undefined,
-      guest_birth_date: isDual ? fd.get("guest_birth_date") || null : undefined,
-    };
+    const fullName = String(fd.get("full_name") ?? "").trim();
+    const dni = String(fd.get("dni") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
 
-    const res = await fetch("/api/inscripcion", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    let res: Response;
+    if (isDual) {
+      const payload = new FormData();
+      payload.set("round_key", roundKey);
+      if (roundIdUuid) payload.set("round_id_uuid", roundIdUuid);
+      payload.set("round_label", roundLabel);
+      payload.set("category_slug", categorySlug);
+      payload.set("category_label", categoryLabel);
+      payload.set("full_name", fullName);
+      payload.set("dni", dni);
+      payload.set("email", email);
+      payload.set("phone", String(fd.get("phone") ?? "").trim());
+      payload.set("birth_date", String(fd.get("birth_date") ?? ""));
+      payload.set("kart_number", String(fd.get("kart_number") ?? "").trim());
+      payload.set("team", String(fd.get("team") ?? "").trim());
+      payload.set("city", String(fd.get("city") ?? "").trim());
+      payload.set("privacy_consent", fd.get("privacy_consent") === "on" ? "true" : "");
+      payload.set("guest_full_name", String(fd.get("guest_full_name") ?? "").trim());
+      payload.set("guest_dni", String(fd.get("guest_dni") ?? "").trim());
+      payload.set("guest_birth_date", String(fd.get("guest_birth_date") ?? ""));
+      const photoTitular = fd.get("photo_titular");
+      const photoInvitado = fd.get("photo_invitado");
+      if (photoTitular instanceof File) payload.set("photo_titular", photoTitular);
+      if (photoInvitado instanceof File) payload.set("photo_invitado", photoInvitado);
+
+      res = await fetch("/api/inscripcion", { method: "POST", body: payload });
+    } else {
+      const body = {
+        round_key: roundKey,
+        round_id_uuid: roundIdUuid,
+        round_label: roundLabel,
+        category_slug: categorySlug,
+        category_label: categoryLabel,
+        full_name: fullName,
+        dni,
+        email,
+        phone: String(fd.get("phone") ?? "").trim(),
+        birth_date: fd.get("birth_date") || null,
+        kart_number: String(fd.get("kart_number") ?? "").trim(),
+        team: String(fd.get("team") ?? "").trim(),
+        city: String(fd.get("city") ?? "").trim(),
+        privacy_consent: fd.get("privacy_consent") === "on",
+      };
+      res = await fetch("/api/inscripcion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    }
 
     const data = await res.json();
 
@@ -112,9 +139,9 @@ export default function InscriptionForm({
           registrationId: data.registrationId,
           roundKey,
           roundLabel,
-          dni: body.dni,
-          email: body.email,
-          fullName: body.full_name,
+          dni,
+          email,
+          fullName,
         });
       }
       setStatus("error");
@@ -132,9 +159,9 @@ export default function InscriptionForm({
       registrationId: data.registrationId,
       roundKey,
       roundLabel,
-      dni: body.dni,
-      email: body.email,
-      fullName: body.full_name,
+      dni,
+      email,
+      fullName,
     });
   }
 
@@ -178,7 +205,8 @@ export default function InscriptionForm({
             <div className="sm:col-span-2 border border-neutral-800 bg-neutral-950/60 px-4 py-3">
               <p className="text-xs leading-relaxed text-neutral-400">
                 Fecha 6 es de dos pilotos (titular e invitado). Completá los datos
-                de ambos.
+                de ambos y subí una foto de cada uno. Los dúos se publican en
+                Noticias.
               </p>
             </div>
           ) : null}
@@ -232,47 +260,32 @@ export default function InscriptionForm({
             <input name="dni" className={inputClass} required />
           </div>
 
-          <div className={dualPilot ? "sm:col-span-2" : undefined}>
+          <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot
-                ? "Fecha de nacimiento del titular"
-                : "Fecha de nacimiento"}
+              {dualPilot ? "Fecha de nacimiento del titular" : "Fecha de nacimiento"}
             </label>
             <input
               name="birth_date"
               type="date"
-              className={`${inputClass} min-w-0`}
+              className={inputClass}
               required={dualPilot}
             />
           </div>
 
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Email (solo titular)" : "Email"}
-            </label>
-            <input name="email" type="email" className={inputClass} required />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Teléfono (solo titular)" : "Teléfono"}
-            </label>
-            <input name="phone" className={inputClass} />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Equipo" : "Equipo / Escudería"}
-            </label>
-            <input name="team" className={inputClass} />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              {dualPilot ? "Ciudad (solo titular)" : "Ciudad"}
-            </label>
-            <input name="city" className={inputClass} />
-          </div>
+          {dualPilot ? (
+            <div>
+              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                Foto del titular
+              </label>
+              <input
+                name="photo_titular"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+                className="w-full text-sm text-neutral-300 file:mr-3 file:border-0 file:bg-iame-navy file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
+              />
+            </div>
+          ) : null}
 
           {dualPilot ? (
             <>
@@ -296,19 +309,60 @@ export default function InscriptionForm({
                 <input name="guest_dni" className={inputClass} required />
               </div>
 
-              <div className="sm:col-span-2">
+              <div>
                 <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
                   Fecha de nacimiento del invitado
                 </label>
                 <input
                   name="guest_birth_date"
                   type="date"
-                  className={`${inputClass} min-w-0`}
+                  className={inputClass}
                   required
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                  Foto del invitado
+                </label>
+                <input
+                  name="photo_invitado"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                  className="w-full text-sm text-neutral-300 file:mr-3 file:border-0 file:bg-iame-navy file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
                 />
               </div>
             </>
           ) : null}
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              Email
+            </label>
+            <input name="email" type="email" className={inputClass} required />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Teléfono (solo titular)" : "Teléfono"}
+            </label>
+            <input name="phone" className={inputClass} />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Equipo / Escudería (solo titular)" : "Equipo / Escudería"}
+            </label>
+            <input name="team" className={inputClass} />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              {dualPilot ? "Ciudad (solo titular)" : "Ciudad"}
+            </label>
+            <input name="city" className={inputClass} />
+          </div>
 
           <div className="sm:col-span-2">
             <label className="flex items-start gap-3 text-xs text-neutral-400">
