@@ -27,7 +27,7 @@ select
   array['2026-08-06'::date, '2026-08-07'::date],
   '11:00', '17:00', 5, 1,
   'Administración — Kartódromo Ramiro Tot, Baradero',
-  'Presentate 10 minutos antes de tu turno con DNI y comprobante de inscripción. Fecha 6: titular + piloto invitado.'
+  null
 from rounds r
 where r.round_number = 6
 on conflict (round_key) do update set

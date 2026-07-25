@@ -24,7 +24,6 @@ export default function InscriptionTurnoSection({
   const [activo, setActivo] = useState(false);
   const [eventoNombre, setEventoNombre] = useState("");
   const [ubicacion, setUbicacion] = useState<string | null>(null);
-  const [instrucciones, setInstrucciones] = useState<string | null>(null);
   const [byFecha, setByFecha] = useState<Record<string, TurnoSlot[]>>({});
   const [selectedFecha, setSelectedFecha] = useState("");
   const [selectedSlot, setSelectedSlot] = useState<TurnoSlot | null>(null);
@@ -54,7 +53,6 @@ export default function InscriptionTurnoSection({
           horaFin: reservaData.reserva.hora_fin,
         });
         setUbicacion(reservaData.reserva.ubicacion);
-        setInstrucciones(reservaData.reserva.instrucciones);
         setLoading(false);
         return;
       }
@@ -68,7 +66,6 @@ export default function InscriptionTurnoSection({
         setActivo(true);
         setEventoNombre(data.config.evento_nombre);
         setUbicacion(data.config.ubicacion);
-        setInstrucciones(data.config.instrucciones);
         setByFecha(data.byFecha ?? {});
         const fechas = Object.keys(data.byFecha ?? {});
         if (fechas.length) setSelectedFecha(fechas[0]);
@@ -116,7 +113,6 @@ export default function InscriptionTurnoSection({
       horaFin: data.hora_fin,
     });
     setUbicacion(data.ubicacion ?? ubicacion);
-    setInstrucciones(data.instrucciones ?? instrucciones);
     setStatus("ok");
   }
 
@@ -156,7 +152,6 @@ export default function InscriptionTurnoSection({
         hora={ticket.hora}
         horaFin={ticket.horaFin}
         ubicacion={ubicacion}
-        instrucciones={instrucciones}
         eventoNombre={eventoNombre}
       />
     );

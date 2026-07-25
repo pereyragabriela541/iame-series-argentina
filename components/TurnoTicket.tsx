@@ -6,7 +6,6 @@ interface TurnoTicketProps {
   hora: string;
   horaFin: string;
   ubicacion?: string | null;
-  instrucciones?: string | null;
   eventoNombre?: string;
 }
 
@@ -16,7 +15,6 @@ export default function TurnoTicket({
   hora,
   horaFin,
   ubicacion,
-  instrucciones,
   eventoNombre,
 }: TurnoTicketProps) {
   const fechaFmt = new Date(fecha + "T12:00:00").toLocaleDateString("es-AR", {
@@ -49,11 +47,6 @@ export default function TurnoTicket({
           </p>
         )}
       </div>
-      {instrucciones && (
-        <p className="mt-4 border-l-2 border-iame-navy pl-3 text-xs text-neutral-400">
-          {instrucciones}
-        </p>
-      )}
       <p className="mt-4 text-[10px] uppercase tracking-wider text-neutral-500">
         Guardá este código. Presentalo en administración.
       </p>
