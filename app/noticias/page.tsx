@@ -1,4 +1,3 @@
-import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import FeaturedNewsFlyer from "@/components/FeaturedNewsFlyer";
 import Fecha6DuosGrid from "@/components/Fecha6DuosGrid";
@@ -35,11 +34,7 @@ export default async function NoticiasPage() {
     <div className="space-y-6">
       {!dbReady && <DbSetupBanner />}
       <PageHeader kicker="Novedades" title="Noticias" subtitle="Comunicados oficiales del campeonato" />
-      {featured ? (
-        <FeaturedNewsFlyer article={featured} showInscriptionCta />
-      ) : dbReady ? (
-        <p className="text-sm text-neutral-500">No hay noticias publicadas.</p>
-      ) : null}
+      {featured ? <FeaturedNewsFlyer article={featured} showInscriptionCta /> : null}
 
       <section className="space-y-4 border border-neutral-800 bg-neutral-900/30 p-5 sm:p-6">
         <div className="space-y-2">
@@ -49,16 +44,6 @@ export default async function NoticiasPage() {
           <h2 className="text-lg font-bold uppercase tracking-wide text-white">
             Dúos inscriptos
           </h2>
-          <p className="text-sm leading-relaxed text-neutral-400">
-            Titular + piloto invitado. Las fotos se publican al completar la
-            inscripción en la web.
-          </p>
-          <Link
-            href="/noticias/duos-fecha-6"
-            className="inline-block text-[10px] font-semibold uppercase tracking-widest text-iame-sky hover:underline"
-          >
-            Ver nota completa →
-          </Link>
         </div>
         <Fecha6DuosGrid duos={duos} />
       </section>
