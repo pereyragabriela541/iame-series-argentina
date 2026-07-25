@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import * as WebBrowser from "expo-web-browser";
 
 import InscriptionTurnoSection from "@/components/InscriptionTurnoSection";
@@ -19,6 +20,8 @@ import { BRAND } from "@/lib/theme";
 
 const PRIVACY_URL = resolveMediaUrl("/privacidad");
 const TERMS_URL = resolveMediaUrl("/terminos");
+
+type PickedPhoto = { uri: string; name: string; type: string };
 
 function formatBirthDateInput(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 8);
@@ -40,6 +43,61 @@ function birthDateToIso(value: string): string | null {
     return null;
   }
   return `${year}-${month}-${day}`;
+}
+
+async function pickPhoto(): Promise<PickedPhoto | null> {
+  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!perm.granted) return null;
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    quality: 0.85,
+  });
+  if (result.canceled || !result.assets?.[0]) return null;
+  const asset = result.assets[0];
+  const uri = asset.uri;
+  const ext = (uri.split(".").pop() || "jpg").toLowerCase().split("?")[0];
+  const type =
+    asset.mimeType ||
+    (ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg");
+  const name = `foto.${ext === "png" || ext === "webp" ? ext : "jpg"}`;
+  return { uri, name, type };
+}
+
+function PhotoPickerField({
+  label,
+  photo,
+  onPick,
+  onClear,
+}: {
+  label: string;
+  photo: PickedPhoto | null;
+  onPick: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <View style={styles.photoBlock}>
+      <Text style={styles.photoLabel}>{label}</Text>
+      {photo ? (
+        <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
+      ) : (
+        <Pressable style={styles.photoEmpty} onPress={onPick}>
+          <Text style={styles.photoEmptyText}>Elegir foto (JPG, PNG o WebP)</Text>
+        </Pressable>
+      )}
+      <View style={styles.photoActions}>
+        <Pressable style={styles.photoBtn} onPress={onPick}>
+          <Text style={styles.photoBtnText}>
+            {photo ? "Cambiar foto" : "Subir foto"}
+          </Text>
+        </Pressable>
+        {photo ? (
+          <Pressable style={styles.photoBtnDanger} onPress={onClear}>
+            <Text style={styles.photoBtnDangerText}>Quitar foto</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
 }
 
 interface ConfirmedRegistration {
@@ -72,6 +130,8 @@ export default function InscriptionForm({
   const [guestFullName, setGuestFullName] = useState("");
   const [guestDni, setGuestDni] = useState("");
   const [guestBirthDate, setGuestBirthDate] = useState("");
+  const [photoTitular, setPhotoTitular] = useState<PickedPhoto | null>(null);
+  const [photoInvitado, setPhotoInvitado] = useState<PickedPhoto | null>(null);
   const [kartNumber, setKartNumber] = useState("");
   const [team, setTeam] = useState("");
   const [city, setCity] = useState("");
@@ -126,6 +186,11 @@ export default function InscriptionForm({
         setMessage("Completá nombre, DNI y fecha de nacimiento del invitado.");
         return;
       }
+      if (!photoTitular || !photoInvitado) {
+        setStatus("error");
+        setMessage("Subí la foto del titular y del invitado.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -157,6 +222,8 @@ export default function InscriptionForm({
             guest_full_name: guestFullName.trim(),
             guest_dni: guestDni.trim(),
             guest_birth_date: birthDateToIso(guestBirthDate),
+            photo_titular: photoTitular,
+            photo_invitado: photoInvitado,
           }
         : {}),
     };
@@ -213,7 +280,8 @@ export default function InscriptionForm({
         <View style={styles.notice}>
           <Text style={styles.noticeText}>
             Fecha 6 es de dos pilotos (titular e invitado). Completá los datos
-            de ambos.
+            de ambos y subí una foto de cada uno. Los dúos se publican en
+            Noticias.
           </Text>
         </View>
       ) : null}
@@ -257,6 +325,18 @@ export default function InscriptionForm({
         keyboardType="number-pad"
         placeholder="DD-MM-AAAA"
       />
+      {dualPilot ? (
+        <PhotoPickerField
+          label="Foto del titular *"
+          photo={photoTitular}
+          onPick={() => {
+            void pickPhoto().then((p) => {
+              if (p) setPhotoTitular(p);
+            });
+          }}
+          onClear={() => setPhotoTitular(null)}
+        />
+      ) : null}
 
       {dualPilot ? (
         <>
@@ -280,6 +360,16 @@ export default function InscriptionForm({
             }
             keyboardType="number-pad"
             placeholder="DD-MM-AAAA"
+          />
+          <PhotoPickerField
+            label="Foto del invitado *"
+            photo={photoInvitado}
+            onPick={() => {
+              void pickPhoto().then((p) => {
+                if (p) setPhotoInvitado(p);
+              });
+            }}
+            onClear={() => setPhotoInvitado(null)}
           />
         </>
       ) : null}
@@ -386,6 +476,58 @@ const styles = StyleSheet.create({
     color: BRAND.colors.muted,
     fontSize: 13,
     lineHeight: 19,
+  },
+  photoBlock: { marginBottom: 12 },
+  photoLabel: {
+    color: BRAND.colors.muted,
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  photoPreview: {
+    width: 160,
+    height: 160,
+    borderWidth: 1,
+    borderColor: BRAND.colors.border,
+    backgroundColor: "#0a0a0a",
+  },
+  photoEmpty: {
+    borderWidth: 1,
+    borderStyle: "dashed",
+    borderColor: BRAND.colors.border,
+    paddingVertical: 28,
+    paddingHorizontal: 12,
+    alignItems: "center",
+  },
+  photoEmptyText: { color: BRAND.colors.muted, fontSize: 12 },
+  photoActions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8 },
+  photoBtn: {
+    borderWidth: 1,
+    borderColor: BRAND.colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  photoBtnText: {
+    color: BRAND.colors.muted,
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+  },
+  photoBtnDanger: {
+    borderWidth: 1,
+    borderColor: BRAND.colors.border,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  photoBtnDangerText: {
+    color: BRAND.colors.red,
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 1,
+    textTransform: "uppercase",
   },
   disabled: {
     color: BRAND.colors.muted,
