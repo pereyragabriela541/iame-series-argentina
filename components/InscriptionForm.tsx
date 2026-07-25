@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import InscriptionDuoPhotosEditor from "@/components/InscriptionDuoPhotosEditor";
+import InscriptionPhotoField from "@/components/InscriptionPhotoField";
 import InscriptionTurnoSection from "@/components/InscriptionTurnoSection";
 import {
   findRoundLabel,
@@ -28,6 +30,40 @@ interface ConfirmedRegistration {
   fullName: string;
   categoryLabel?: string;
   kartNumber?: string;
+  dualPilot?: boolean;
+  photoTitularUrl?: string | null;
+  photoInvitadoUrl?: string | null;
+  guestFullName?: string | null;
+}
+
+function toConfirmed(r: {
+  registrationId: string;
+  roundKey: string;
+  roundLabel: string;
+  dni: string;
+  email: string;
+  fullName: string;
+  categoryLabel?: string;
+  kartNumber?: string | null;
+  dualPilot?: boolean;
+  photoTitularUrl?: string | null;
+  photoInvitadoUrl?: string | null;
+  guestFullName?: string | null;
+}): ConfirmedRegistration {
+  return {
+    registrationId: r.registrationId,
+    roundKey: r.roundKey,
+    roundLabel: r.roundLabel,
+    dni: r.dni,
+    email: r.email,
+    fullName: r.fullName,
+    categoryLabel: r.categoryLabel,
+    kartNumber: r.kartNumber ?? undefined,
+    dualPilot: Boolean(r.dualPilot),
+    photoTitularUrl: r.photoTitularUrl ?? null,
+    photoInvitadoUrl: r.photoInvitadoUrl ?? null,
+    guestFullName: r.guestFullName ?? null,
+  };
 }
 
 const PRIVACY_TEXT = (
@@ -57,6 +93,14 @@ export default function InscriptionForm({
   const [resumeLoading, setResumeLoading] = useState(Boolean(resumeId));
   const [resumeError, setResumeError] = useState("");
   const [selectedRound, setSelectedRound] = useState("");
+  const [lookupCodigo, setLookupCodigo] = useState("");
+  const [lookupStatus, setLookupStatus] = useState<
+    "idle" | "loading" | "error"
+  >("idle");
+  const [lookupMessage, setLookupMessage] = useState("");
+  const [editCodigo, setEditCodigo] = useState<string | null>(null);
+  const [photoTitular, setPhotoTitular] = useState<File | null>(null);
+  const [photoInvitado, setPhotoInvitado] = useState<File | null>(null);
   const dualPilot = isDualPilotRound(selectedRound);
 
   useEffect(() => {
@@ -80,21 +124,12 @@ export default function InscriptionForm({
           }
           return;
         }
-        const r = data.registration;
         if (!cancelled) {
-          setConfirmed({
-            registrationId: r.registrationId,
-            roundKey: r.roundKey,
-            roundLabel: r.roundLabel,
-            dni: r.dni,
-            email: r.email,
-            fullName: r.fullName,
-            categoryLabel: r.categoryLabel,
-            kartNumber: r.kartNumber,
-          });
+          setConfirmed(toConfirmed(data.registration));
+          setEditCodigo(null);
           setStatus("ok");
           setMessage(
-            "Inscripción encontrada. Reservá tu turno para finalizar el trámite."
+            "Inscripción encontrada. Reservá tu turno. Para editar fotos, ingresá el código del turno."
           );
         }
       } catch {
@@ -110,6 +145,43 @@ export default function InscriptionForm({
       cancelled = true;
     };
   }, [resumeId]);
+
+  async function handleLookupByCodigo(e: React.FormEvent) {
+    e.preventDefault();
+    const codigo = lookupCodigo.trim().toUpperCase().replace(/\s+/g, "");
+    if (!codigo || codigo.length < 6) {
+      setLookupStatus("error");
+      setLookupMessage("Ingresá el código de tu turno (ej. IAME-XXXX).");
+      return;
+    }
+
+    setLookupStatus("loading");
+    setLookupMessage("");
+    try {
+      const res = await fetch(
+        `/api/inscripcion?codigo=${encodeURIComponent(codigo)}`
+      );
+      const data = await res.json();
+      if (!res.ok || !data.registration) {
+        setLookupStatus("error");
+        setLookupMessage(data.error ?? "No encontramos ese código de turno.");
+        return;
+      }
+      setConfirmed(toConfirmed(data.registration));
+      setEditCodigo(data.canEditPhotos ? String(data.codigo || codigo) : null);
+      setStatus("ok");
+      setMessage(
+        data.canEditPhotos
+          ? "Turno verificado. Ya podés editar o quitar las fotos."
+          : "Inscripción cargada."
+      );
+      setLookupStatus("idle");
+      setLookupMessage("");
+    } catch {
+      setLookupStatus("error");
+      setLookupMessage("No se pudo verificar el código. Probá de nuevo.");
+    }
+  }
 
   if (!enabled && !resumeId) {
     return (
@@ -148,6 +220,11 @@ export default function InscriptionForm({
 
     let res: Response;
     if (isDual) {
+      if (!photoTitular || !photoInvitado) {
+        setStatus("error");
+        setMessage("Subí la foto del titular y del invitado (o volvé a elegirlas).");
+        return;
+      }
       const payload = new FormData();
       payload.set("round_key", roundKey);
       if (roundIdUuid) payload.set("round_id_uuid", roundIdUuid);
@@ -166,10 +243,8 @@ export default function InscriptionForm({
       payload.set("guest_full_name", String(fd.get("guest_full_name") ?? "").trim());
       payload.set("guest_dni", String(fd.get("guest_dni") ?? "").trim());
       payload.set("guest_birth_date", String(fd.get("guest_birth_date") ?? ""));
-      const photoTitular = fd.get("photo_titular");
-      const photoInvitado = fd.get("photo_invitado");
-      if (photoTitular instanceof File) payload.set("photo_titular", photoTitular);
-      if (photoInvitado instanceof File) payload.set("photo_invitado", photoInvitado);
+      payload.set("photo_titular", photoTitular);
+      payload.set("photo_invitado", photoInvitado);
 
       res = await fetch("/api/inscripcion", { method: "POST", body: payload });
     } else {
@@ -201,17 +276,28 @@ export default function InscriptionForm({
     const kartNumber = String(fd.get("kart_number") ?? "").trim();
 
     if (!res.ok) {
-      if (data.alreadyRegistered && data.registrationId) {
-        setConfirmed({
-          registrationId: data.registrationId,
-          roundKey,
-          roundLabel,
-          dni,
-          email,
-          fullName,
-          categoryLabel,
-          kartNumber,
-        });
+      if (data.alreadyRegistered && (data.registration || data.registrationId)) {
+        setConfirmed(
+          data.registration
+            ? toConfirmed(data.registration)
+            : {
+                registrationId: data.registrationId,
+                roundKey,
+                roundLabel,
+                dni,
+                email,
+                fullName,
+                categoryLabel,
+                kartNumber,
+                dualPilot: isDual,
+              }
+        );
+        setEditCodigo(null);
+        setStatus("ok");
+        setMessage(
+          "Ya estabas inscripto. Reservá tu turno. Para editar fotos, ingresá el código del turno."
+        );
+        return;
       }
       setStatus("error");
       setMessage(data.error ?? "Error al inscribirse");
@@ -219,6 +305,7 @@ export default function InscriptionForm({
     }
 
     setStatus("ok");
+    setEditCodigo(null);
     setMessage(
       data.emailSkipped
         ? "Inscripción guardada. El email no pudo enviarse (falta RESEND_API_KEY o EMAIL_SMTP_PASS)."
@@ -233,19 +320,40 @@ export default function InscriptionForm({
       fullName,
       categoryLabel,
       kartNumber,
+      dualPilot: isDual,
+      photoTitularUrl: data.photoTitularUrl ?? null,
+      photoInvitadoUrl: data.photoInvitadoUrl ?? null,
     });
   }
 
   const inputClass =
     "w-full border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-neutral-600 focus:border-iame-navy focus:outline-none";
 
+  const showDuo =
+    Boolean(confirmed) &&
+    (confirmed!.dualPilot || isDualPilotRound(confirmed!.roundKey));
+
   if (confirmed) {
     return (
       <div className="space-y-8">
         <div className="space-y-3 border border-neutral-800 bg-neutral-900/30 p-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-green-500">
-            Paso 1 — Inscripción registrada
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-green-500">
+              Paso 1 — Inscripción registrada
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmed(null);
+                setEditCodigo(null);
+                setStatus("idle");
+                setMessage("");
+              }}
+              className="text-[10px] font-semibold uppercase tracking-widest text-iame-sky hover:underline"
+            >
+              Volver al formulario
+            </button>
+          </div>
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
@@ -296,6 +404,86 @@ export default function InscriptionForm({
             </p>
           ) : null}
         </div>
+
+        {showDuo && editCodigo ? (
+          <InscriptionDuoPhotosEditor
+            registrationId={confirmed.registrationId}
+            codigo={editCodigo}
+            initialTitularUrl={confirmed.photoTitularUrl}
+            initialInvitadoUrl={confirmed.photoInvitadoUrl}
+          />
+        ) : null}
+
+        {showDuo && !editCodigo ? (
+          <div className="space-y-4 border border-neutral-800 bg-neutral-900/30 p-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-iame-sky">
+              Fotos del dúo
+            </p>
+            <p className="text-xs text-neutral-400">
+              Para cambiar o quitar las fotos necesitás el código de tu turno
+              (el del mail o ticket, ej. IAME-XXXX). Así nadie más puede tocar
+              tus fotos.
+            </p>
+            {(confirmed.photoTitularUrl || confirmed.photoInvitadoUrl) && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {confirmed.photoTitularUrl ? (
+                  <div>
+                    <p className="mb-1 text-[10px] uppercase tracking-widest text-neutral-500">
+                      Titular
+                    </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={confirmed.photoTitularUrl}
+                      alt="Titular"
+                      className="aspect-square w-full max-w-[220px] object-cover border border-neutral-700"
+                    />
+                  </div>
+                ) : null}
+                {confirmed.photoInvitadoUrl ? (
+                  <div>
+                    <p className="mb-1 text-[10px] uppercase tracking-widest text-neutral-500">
+                      Invitado
+                    </p>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={confirmed.photoInvitadoUrl}
+                      alt="Invitado"
+                      className="aspect-square w-full max-w-[220px] object-cover border border-neutral-700"
+                    />
+                  </div>
+                ) : null}
+              </div>
+            )}
+            <form
+              onSubmit={handleLookupByCodigo}
+              className="flex flex-col gap-3 sm:flex-row sm:items-end"
+            >
+              <div className="flex-1">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                  Código de turno
+                </label>
+                <input
+                  value={lookupCodigo}
+                  onChange={(e) => setLookupCodigo(e.target.value.toUpperCase())}
+                  className={inputClass}
+                  placeholder="IAME-XXXX"
+                  autoCapitalize="characters"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={lookupStatus === "loading"}
+                className="bg-iame-navy px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-navy/80 disabled:opacity-50"
+              >
+                {lookupStatus === "loading" ? "Verificando..." : "Desbloquear edición"}
+              </button>
+            </form>
+            {lookupMessage ? (
+              <p className="text-sm text-iame-red">{lookupMessage}</p>
+            ) : null}
+          </div>
+        ) : null}
+
         <InscriptionTurnoSection registration={confirmed} />
       </div>
     );
@@ -308,6 +496,44 @@ export default function InscriptionForm({
           {resumeError}
         </p>
       ) : null}
+
+      <form
+        onSubmit={handleLookupByCodigo}
+        className="space-y-3 border border-iame-navy/40 bg-iame-navy/10 p-5"
+      >
+        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-iame-sky">
+          ¿Ya tenés turno?
+        </p>
+        <p className="text-xs text-neutral-400">
+          Ingresá el código de tu turno para cargar tu inscripción y editar o
+          quitar las fotos. Sin el código, nadie puede modificar fotos ajenas.
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1">
+            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+              Código de turno
+            </label>
+            <input
+              value={lookupCodigo}
+              onChange={(e) => setLookupCodigo(e.target.value.toUpperCase())}
+              className={inputClass}
+              placeholder="IAME-XXXX"
+              autoCapitalize="characters"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={lookupStatus === "loading"}
+            className="bg-iame-navy px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-navy/80 disabled:opacity-50"
+          >
+            {lookupStatus === "loading" ? "Buscando..." : "Cargar e editar fotos"}
+          </button>
+        </div>
+        {lookupMessage ? (
+          <p className="text-sm text-iame-red">{lookupMessage}</p>
+        ) : null}
+      </form>
+
       <form
         onSubmit={handleSubmit}
         className="space-y-4 border border-neutral-800 bg-neutral-900/30 p-6"
@@ -411,18 +637,12 @@ export default function InscriptionForm({
           </div>
 
           {dualPilot ? (
-            <div>
-              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-                Foto del titular
-              </label>
-              <input
-                name="photo_titular"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                required
-                className="w-full text-sm text-neutral-300 file:mr-3 file:border-0 file:bg-iame-navy file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
-              />
-            </div>
+            <InscriptionPhotoField
+              name="photo_titular"
+              label="Foto del titular"
+              required
+              onFileChange={setPhotoTitular}
+            />
           ) : null}
 
           {dualPilot ? (
@@ -459,18 +679,12 @@ export default function InscriptionForm({
                 />
               </div>
 
-              <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-                  Foto del invitado
-                </label>
-                <input
-                  name="photo_invitado"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  required
-                  className="w-full text-sm text-neutral-300 file:mr-3 file:border-0 file:bg-iame-navy file:px-3 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-wider file:text-white"
-                />
-              </div>
+              <InscriptionPhotoField
+                name="photo_invitado"
+                label="Foto del invitado"
+                required
+                onFileChange={setPhotoInvitado}
+              />
             </>
           ) : null}
 

@@ -18,6 +18,34 @@ const PRIVACY_CONSENT_TEXT =
 
 type Body = Record<string, unknown>;
 
+function mapRegistrationResponse(data: {
+  id: string;
+  full_name: string;
+  email: string;
+  dni: string;
+  round_key: string;
+  kart_number: string | null;
+  category_slug: string | null;
+  extra: unknown;
+}) {
+  const extra = (data.extra as Record<string, string> | null) ?? {};
+  return {
+    registrationId: data.id,
+    roundKey: data.round_key,
+    roundLabel: extra.round_label ?? data.round_key,
+    dni: data.dni,
+    email: data.email,
+    fullName: data.full_name,
+    kartNumber: data.kart_number,
+    categorySlug: data.category_slug,
+    categoryLabel: extra.category_label ?? data.category_slug,
+    dualPilot: extra.format === "titular_invitado",
+    photoTitularUrl: extra.photo_titular_url || null,
+    photoInvitadoUrl: extra.photo_invitado_url || null,
+    guestFullName: extra.guest_full_name || null,
+  };
+}
+
 async function parseBody(request: Request): Promise<{
   body: Body;
   photoTitular: File | null;
@@ -132,7 +160,9 @@ export async function POST(request: Request) {
 
     const { data: existing } = await sb
       .from("registrations")
-      .select("id, email_confirmacion_enviada_at")
+      .select(
+        "id, full_name, email, dni, round_key, kart_number, category_slug, extra, email_confirmacion_enviada_at"
+      )
       .eq("round_key", roundKey)
       .eq("dni_key", dniKey)
       .maybeSingle();
@@ -140,9 +170,11 @@ export async function POST(request: Request) {
     if (existing) {
       return NextResponse.json(
         {
-          error: "Ya existe una inscripción con este DNI para la fecha seleccionada.",
+          error:
+            "Ya existe una inscripción con este DNI para la fecha seleccionada.",
           registrationId: existing.id,
           alreadyRegistered: true,
+          registration: mapRegistrationResponse(existing),
         },
         { status: 409 },
       );
@@ -253,6 +285,9 @@ export async function POST(request: Request) {
       registrationId: reg.id,
       emailSent: emailResult.pilot,
       emailSkipped: emailResult.skipped,
+      photoTitularUrl: photoTitularUrl ?? null,
+      photoInvitadoUrl: photoInvitadoUrl ?? null,
+      dualPilot,
       message: emailResult.skipped
         ? "Inscripción guardada. Configurá RESEND_API_KEY (recomendado) o EMAIL_SMTP_PASS."
         : "Tu inscripción aún no está completa. Para confirmarla, debés reservar tu turno y finalizar el trámite de manera presencial.",
@@ -266,11 +301,58 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const registrationId = searchParams.get("id")?.trim() ?? "";
+  const codigo = String(searchParams.get("codigo") ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "");
   const dni = searchParams.get("dni");
   const roundKey = searchParams.get("round_key");
 
   try {
     const sb = createSupabaseAdmin();
+
+    if (codigo) {
+      const { data: reserva, error: reservaError } = await sb
+        .from("reservas_turnos")
+        .select("registration_id, codigo")
+        .eq("codigo", codigo)
+        .maybeSingle();
+
+      if (reservaError) {
+        return NextResponse.json({ error: reservaError.message }, { status: 500 });
+      }
+      if (!reserva?.registration_id) {
+        return NextResponse.json(
+          { error: "No encontramos un turno con ese código." },
+          { status: 404 },
+        );
+      }
+
+      const { data, error } = await sb
+        .from("registrations")
+        .select(
+          "id, full_name, email, dni, round_key, kart_number, category_slug, extra, email_confirmacion_enviada_at"
+        )
+        .eq("id", reserva.registration_id)
+        .maybeSingle();
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      if (!data) {
+        return NextResponse.json(
+          { error: "Inscripción no encontrada para ese código." },
+          { status: 404 },
+        );
+      }
+
+      return NextResponse.json({
+        exists: true,
+        canEditPhotos: true,
+        codigo: reserva.codigo,
+        registration: mapRegistrationResponse(data),
+      });
+    }
 
     if (registrationId) {
       const { data, error } = await sb
@@ -288,20 +370,10 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Inscripción no encontrada" }, { status: 404 });
       }
 
-      const extra = (data.extra as Record<string, string> | null) ?? {};
       return NextResponse.json({
         exists: true,
-        registration: {
-          registrationId: data.id,
-          roundKey: data.round_key,
-          roundLabel: extra.round_label ?? data.round_key,
-          dni: data.dni,
-          email: data.email,
-          fullName: data.full_name,
-          kartNumber: data.kart_number,
-          categorySlug: data.category_slug,
-          categoryLabel: extra.category_label ?? data.category_slug,
-        },
+        canEditPhotos: false,
+        registration: mapRegistrationResponse(data),
       });
     }
 
@@ -311,14 +383,28 @@ export async function GET(request: Request) {
 
     const dniKey = normalizeDniKey(dni);
 
-    const { data } = await sb
+    const { data, error } = await sb
       .from("registrations")
-      .select("id, full_name, email, kart_number, category_slug, email_confirmacion_enviada_at")
+      .select(
+        "id, full_name, email, dni, round_key, kart_number, category_slug, extra, email_confirmacion_enviada_at"
+      )
       .eq("round_key", roundKey)
       .eq("dni_key", dniKey)
       .maybeSingle();
 
-    return NextResponse.json({ exists: !!data, registration: data });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data) {
+      return NextResponse.json({ exists: false, registration: null, canEditPhotos: false });
+    }
+
+    return NextResponse.json({
+      exists: true,
+      canEditPhotos: false,
+      registration: mapRegistrationResponse(data),
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error";
     return NextResponse.json({ error: message }, { status: 500 });
