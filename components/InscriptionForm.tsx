@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InscriptionTurnoSection from "@/components/InscriptionTurnoSection";
 import {
   findRoundLabel,
@@ -15,6 +15,8 @@ interface InscriptionFormProps {
   rounds: InscriptionRoundOption[];
   categories: InscriptionCategoryOption[];
   enabled: boolean;
+  /** Si viene del mail (?rid=), precarga la inscripción y muestra solo el turno. */
+  resumeId?: string;
 }
 
 interface ConfirmedRegistration {
@@ -24,6 +26,8 @@ interface ConfirmedRegistration {
   dni: string;
   email: string;
   fullName: string;
+  categoryLabel?: string;
+  kartNumber?: string;
 }
 
 const PRIVACY_TEXT = (
@@ -45,18 +49,79 @@ export default function InscriptionForm({
   rounds,
   categories,
   enabled,
+  resumeId,
 }: InscriptionFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
   const [confirmed, setConfirmed] = useState<ConfirmedRegistration | null>(null);
+  const [resumeLoading, setResumeLoading] = useState(Boolean(resumeId));
+  const [resumeError, setResumeError] = useState("");
   const [selectedRound, setSelectedRound] = useState("");
   const dualPilot = isDualPilotRound(selectedRound);
 
-  if (!enabled) {
+  useEffect(() => {
+    if (!resumeId) return;
+
+    let cancelled = false;
+    (async () => {
+      setResumeLoading(true);
+      setResumeError("");
+      try {
+        const res = await fetch(
+          `/api/inscripcion?id=${encodeURIComponent(resumeId)}`
+        );
+        const data = await res.json();
+        if (!res.ok || !data.registration) {
+          if (!cancelled) {
+            setResumeError(
+              data.error ??
+                "No encontramos tu inscripción. Completá el formulario o pedí un nuevo link."
+            );
+          }
+          return;
+        }
+        const r = data.registration;
+        if (!cancelled) {
+          setConfirmed({
+            registrationId: r.registrationId,
+            roundKey: r.roundKey,
+            roundLabel: r.roundLabel,
+            dni: r.dni,
+            email: r.email,
+            fullName: r.fullName,
+            categoryLabel: r.categoryLabel,
+            kartNumber: r.kartNumber,
+          });
+          setStatus("ok");
+          setMessage(
+            "Inscripción encontrada. Reservá tu turno para finalizar el trámite."
+          );
+        }
+      } catch {
+        if (!cancelled) {
+          setResumeError("No se pudo cargar tu inscripción. Probá de nuevo.");
+        }
+      } finally {
+        if (!cancelled) setResumeLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resumeId]);
+
+  if (!enabled && !resumeId) {
     return (
       <p className="border border-neutral-800 bg-neutral-900/50 px-4 py-8 text-center text-sm text-neutral-500">
         Las inscripciones no están habilitadas en este momento.
       </p>
+    );
+  }
+
+  if (resumeLoading) {
+    return (
+      <p className="text-sm text-neutral-500">Cargando tu inscripción...</p>
     );
   }
 
@@ -133,6 +198,8 @@ export default function InscriptionForm({
 
     const data = await res.json();
 
+    const kartNumber = String(fd.get("kart_number") ?? "").trim();
+
     if (!res.ok) {
       if (data.alreadyRegistered && data.registrationId) {
         setConfirmed({
@@ -142,6 +209,8 @@ export default function InscriptionForm({
           dni,
           email,
           fullName,
+          categoryLabel,
+          kartNumber,
         });
       }
       setStatus("error");
@@ -162,14 +231,83 @@ export default function InscriptionForm({
       dni,
       email,
       fullName,
+      categoryLabel,
+      kartNumber,
     });
   }
 
   const inputClass =
     "w-full border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-neutral-600 focus:border-iame-navy focus:outline-none";
 
+  if (confirmed) {
+    return (
+      <div className="space-y-8">
+        <div className="space-y-3 border border-neutral-800 bg-neutral-900/30 p-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-green-500">
+            Paso 1 — Inscripción registrada
+          </p>
+          <dl className="grid gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
+                Piloto
+              </dt>
+              <dd className="text-white">{confirmed.fullName}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
+                Fecha
+              </dt>
+              <dd className="text-white">{confirmed.roundLabel}</dd>
+            </div>
+            {confirmed.categoryLabel ? (
+              <div>
+                <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
+                  Categoría
+                </dt>
+                <dd className="text-white">{confirmed.categoryLabel}</dd>
+              </div>
+            ) : null}
+            {confirmed.kartNumber ? (
+              <div>
+                <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
+                  N° Kart
+                </dt>
+                <dd className="text-white">{confirmed.kartNumber}</dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
+                Email
+              </dt>
+              <dd className="text-white">{confirmed.email}</dd>
+            </div>
+            <div>
+              <dt className="text-[10px] uppercase tracking-widest text-neutral-500">
+                DNI
+              </dt>
+              <dd className="text-white">{confirmed.dni}</dd>
+            </div>
+          </dl>
+          {message ? (
+            <p
+              className={`text-sm ${status === "ok" ? "text-green-400" : "text-iame-red"}`}
+            >
+              {message}
+            </p>
+          ) : null}
+        </div>
+        <InscriptionTurnoSection registration={confirmed} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
+      {resumeError ? (
+        <p className="border border-iame-red/40 bg-iame-red/10 px-4 py-3 text-sm text-iame-red">
+          {resumeError}
+        </p>
+      ) : null}
       <form
         onSubmit={handleSubmit}
         className="space-y-4 border border-neutral-800 bg-neutral-900/30 p-6"
@@ -391,8 +529,6 @@ export default function InscriptionForm({
           {status === "loading" ? "Enviando..." : "Enviar inscripción"}
         </button>
       </form>
-
-      {confirmed && <InscriptionTurnoSection registration={confirmed} />}
     </div>
   );
 }

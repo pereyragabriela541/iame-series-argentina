@@ -12,6 +12,7 @@ const FROM_SMTP =
   `IAME Series Argentina <iameseriesarg@gmail.com>`;
 
 export interface InscripcionEmailData {
+  registrationId: string;
   nombreCompleto: string;
   email: string;
   dni: string;
@@ -160,15 +161,23 @@ function eventoCierreKba(roundKey?: string): string {
   return "";
 }
 
+/** Deep link: abre /inscripcion con la inscripción precargada (solo reserva de turno). */
+export function buildInscripcionTurnoUrl(registrationId: string) {
+  const id = String(registrationId ?? "").trim();
+  if (!id) return `${SITE_URL}/inscripcion`;
+  return `${SITE_URL}/inscripcion?rid=${encodeURIComponent(id)}`;
+}
+
 /** Mail al piloto: inscripción registrada pero falta reservar turno. */
 export function buildInscripcionPendienteEmail(data: {
   nombreCompleto: string;
   eventoNombre: string;
   roundKey?: string;
+  registrationId?: string;
 }) {
   const evento = data.eventoNombre.trim() || "IAME Series Argentina";
   const cierre = eventoCierreKba(data.roundKey);
-  const inscripcionUrl = `${SITE_URL}/inscripcion`;
+  const inscripcionUrl = buildInscripcionTurnoUrl(data.registrationId ?? "");
   const subject = "⚠️ Inscripción no finalizada — IAME Series Argentina";
 
   const text = [
@@ -266,6 +275,7 @@ export async function sendInscripcionEmails(data: InscripcionEmailData) {
     nombreCompleto: data.nombreCompleto,
     eventoNombre: data.roundLabel,
     roundKey: data.roundKey,
+    registrationId: data.registrationId,
   });
   const org = buildOrgEmail(data);
 
@@ -302,6 +312,7 @@ export async function sendResendConfirmation(data: InscripcionEmailData) {
     nombreCompleto: data.nombreCompleto,
     eventoNombre: data.roundLabel,
     roundKey: data.roundKey,
+    registrationId: data.registrationId,
   });
   const org = buildOrgEmail(data);
 

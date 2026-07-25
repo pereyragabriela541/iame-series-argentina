@@ -215,6 +215,7 @@ export async function POST(request: Request) {
     }
 
     const emailData: InscripcionEmailData = {
+      registrationId: reg.id,
       nombreCompleto: payload.full_name,
       email,
       dni: payload.dni,
@@ -264,15 +265,50 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const registrationId = searchParams.get("id")?.trim() ?? "";
   const dni = searchParams.get("dni");
   const roundKey = searchParams.get("round_key");
 
-  if (!dni || !roundKey) {
-    return NextResponse.json({ error: "Parámetros faltantes" }, { status: 400 });
-  }
-
   try {
     const sb = createSupabaseAdmin();
+
+    if (registrationId) {
+      const { data, error } = await sb
+        .from("registrations")
+        .select(
+          "id, full_name, email, dni, round_key, kart_number, category_slug, extra, email_confirmacion_enviada_at"
+        )
+        .eq("id", registrationId)
+        .maybeSingle();
+
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      if (!data) {
+        return NextResponse.json({ error: "Inscripción no encontrada" }, { status: 404 });
+      }
+
+      const extra = (data.extra as Record<string, string> | null) ?? {};
+      return NextResponse.json({
+        exists: true,
+        registration: {
+          registrationId: data.id,
+          roundKey: data.round_key,
+          roundLabel: extra.round_label ?? data.round_key,
+          dni: data.dni,
+          email: data.email,
+          fullName: data.full_name,
+          kartNumber: data.kart_number,
+          categorySlug: data.category_slug,
+          categoryLabel: extra.category_label ?? data.category_slug,
+        },
+      });
+    }
+
+    if (!dni || !roundKey) {
+      return NextResponse.json({ error: "Parámetros faltantes" }, { status: 400 });
+    }
+
     const dniKey = normalizeDniKey(dni);
 
     const { data } = await sb

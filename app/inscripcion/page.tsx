@@ -17,7 +17,14 @@ import { inscriptionMetadata } from "@/lib/seo";
 
 export const metadata = inscriptionMetadata;
 
-export default async function InscripcionPage() {
+export default async function InscripcionPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ rid?: string }>;
+}) {
+  const { rid } = await searchParams;
+  const resumeId = typeof rid === "string" ? rid.trim() : "";
+
   let enabled = true;
   let dbReady = true;
 
@@ -44,12 +51,17 @@ export default async function InscripcionPage() {
       <PageHeader
         kicker="Oficial"
         title="Inscripción"
-        subtitle="Formulario de inscripción al Campeonato IAME Series Argentina 2026"
+        subtitle={
+          resumeId
+            ? "Completá tu inscripción reservando el turno de administración"
+            : "Formulario de inscripción al Campeonato IAME Series Argentina"
+        }
       />
       <InscriptionForm
         rounds={roundOptions}
         categories={categoryOptions}
         enabled={enabled}
+        resumeId={resumeId || undefined}
       />
     </div>
   );

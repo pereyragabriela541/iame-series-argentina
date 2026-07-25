@@ -42,6 +42,7 @@ export async function POST(request: Request) {
     const extra = (reg.extra as Record<string, string>) ?? {};
 
     const result = await sendResendConfirmation({
+      registrationId: reg.id,
       nombreCompleto: reg.full_name,
       email: reg.email,
       dni: reg.dni,
@@ -73,7 +74,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       message:
-        "Emails reenviados al piloto y a iameseriesarg@gmail.com con el detalle de la inscripción.",
+        "Emails reenviados al piloto y a iameseriesarg@gmail.com.",
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error";
