@@ -506,7 +506,7 @@ export default function InscriptionForm({
         </p>
         <p className="text-xs text-neutral-400">
           Ingresá el código de tu turno para cargar tu inscripción y editar o
-          quitar las fotos. Sin el código, nadie puede modificar fotos ajenas.
+          quitar las fotos.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
