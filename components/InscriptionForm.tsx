@@ -690,7 +690,7 @@ export default function InscriptionForm({
 
           <div>
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Email
+              {dualPilot ? "Email del titular" : "Email"}
             </label>
             <input name="email" type="email" className={inputClass} required />
           </div>
