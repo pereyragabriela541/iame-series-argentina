@@ -314,7 +314,9 @@ export default function InscriptionForm({
         <View style={[styles.checkbox, privacy && styles.checkboxOn]} />
         <Text style={styles.checkText}>
           Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis
-          datos personales conforme a la{" "}
+          datos personales (y, si corresponde, del piloto invitado y de las
+          fotografías cargadas, inclusive su publicación en Noticias) conforme
+          a la{" "}
           <Text
             style={styles.checkLink}
             onPress={() => void WebBrowser.openBrowserAsync(PRIVACY_URL)}

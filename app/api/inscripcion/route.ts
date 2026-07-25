@@ -14,7 +14,7 @@ const PRIVACY_CONSENT_MESSAGE =
   "Debés aceptar la política de privacidad y los términos y condiciones.";
 
 const PRIVACY_CONSENT_TEXT =
-  "Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos personales conforme a la política de privacidad y los términos y condiciones.";
+  "Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos personales (y, si corresponde, del piloto invitado y de las fotografías cargadas, inclusive su publicación en Noticias) conforme a la política de privacidad y los términos y condiciones.";
 
 type Body = Record<string, unknown>;
 
