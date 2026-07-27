@@ -1,7 +1,7 @@
 import { BRAND } from "@/lib/branding";
 import { SITE_URL } from "@/lib/site";
 
-export const LEGAL_LAST_UPDATED = "25 de julio de 2026";
+export const LEGAL_LAST_UPDATED = "27 de julio de 2026";
 
 export interface LegalSection {
   title: string;
@@ -59,7 +59,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     title: "5. Base de consentimiento",
     paragraphs: [
       "El tratamiento se realiza con tu consentimiento expreso al completar formularios, crear una cuenta o aceptar esta política, y cuando sea necesario para la ejecución de la inscripción, el uso de la app o el cumplimiento de obligaciones legales.",
-      "El acceso a la aplicación móvil puede requerir registro e inicio de sesión. Al crear una cuenta aceptás esta política y los términos de uso vigentes.",
+      "Podés navegar el contenido público de la aplicación móvil (noticias, calendario, resultados, documentos y secciones informativas) sin crear una cuenta. El registro e inicio de sesión son necesarios para gestionar tu perfil de piloto, la foto de cuenta y las alertas push. Al crear una cuenta aceptás esta política y los términos de uso vigentes.",
       "Cuando la inscripción incluye piloto invitado y fotografías, quien completa el formulario declara actuar como titular o en representación autorizada, y acepta el tratamiento y la eventual publicación de esos datos e imágenes conforme a esta política y a los términos vigentes.",
     ],
   },
@@ -74,8 +74,19 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   {
     title: "7. Cesión y encargados",
     paragraphs: [
-      "No vendemos ni comercializamos datos personales. Podemos compartirlos con proveedores que nos prestan servicios tecnológicos estrictamente necesarios —por ejemplo hosting, base de datos, autenticación, almacenamiento de archivos (fotos de perfil y fotos de inscripción) y envío de correos o notificaciones push— bajo obligaciones de confidencialidad y seguridad.",
-      "La publicación de dúos en Noticias implica la difusión pública de las imágenes y nombres asociados en el sitio web del campeonato.",
+      "No vendemos ni comercializamos datos personales. Podemos compartirlos con proveedores que nos prestan servicios tecnológicos estrictamente necesarios para operar el sitio y la app, bajo obligaciones de confidencialidad y seguridad. En particular, pueden intervenir:",
+    ],
+    list: [
+      "Supabase: autenticación, base de datos y almacenamiento de archivos (foto de perfil y fotos de inscripción de dúos)",
+      "Expo (Expo Push Notifications): entrega de notificaciones push a dispositivos que las hayan habilitado",
+      "Proveedores de hosting y despliegue del sitio y de las APIs (por ejemplo, la infraestructura donde corre www.bsproyect.com)",
+      "Proveedores de correo electrónico para confirmaciones de cuenta, inscripciones y comunicaciones operativas del campeonato",
+    ],
+  },
+  {
+    title: "7.1. Difusión pública y publicidad",
+    paragraphs: [
+      "La publicación de dúos en Noticias implica la difusión pública de las imágenes y nombres asociados en el sitio web y en la app del campeonato.",
       "No utilizamos tus datos para publicidad personalizada de terceros ni para seguimiento (tracking) entre apps o sitios con fines publicitarios.",
     ],
   },
@@ -155,9 +166,9 @@ export const TERMS_SECTIONS: LegalSection[] = [
   {
     title: "4. Cuenta de usuario (aplicación móvil)",
     paragraphs: [
-      "El uso de la aplicación móvil puede requerir crear una cuenta e iniciar sesión con correo electrónico y contraseña.",
+      "Podés usar el contenido informativo de la aplicación móvil sin crear una cuenta. Crear una cuenta e iniciar sesión con correo electrónico y contraseña es necesario para gestionar tu perfil de piloto, tu foto de cuenta y las alertas push del campeonato.",
       "Te comprometés a proporcionar datos veraces en tu perfil (incluyendo, si corresponde, número de kart, categoría, equipo y chasis) y a mantener actualizada tu información.",
-      "La foto de perfil es opcional y de tu exclusiva responsabilidad en cuanto a derechos de imagen y contenido.",
+      "La foto de perfil (foto de cuenta) es opcional: se usa para mostrarse en tu sección Cuenta dentro de la app y no se publica automáticamente en Noticias ni en la grilla de dúos. Es de tu exclusiva responsabilidad en cuanto a derechos de imagen y contenido.",
       "Podés eliminar tu cuenta en cualquier momento desde la sección Cuenta de la app. La eliminación borra el acceso y los datos de perfil asociados, conforme a la Política de Privacidad.",
       "La organización puede suspender o cancelar cuentas ante uso indebido, datos falsos o incumplimiento de estos términos o de los reglamentos del campeonato.",
     ],
@@ -188,7 +199,8 @@ export const TERMS_SECTIONS: LegalSection[] = [
     title: "7. Derechos de imagen y contenido subido",
     paragraphs: [
       "Al subir fotografías en la inscripción o en el perfil de la app, garantizás que tenés derecho a hacerlo y que no vulnerás derechos de terceros.",
-      "Otorgás a la organización una autorización no exclusiva para almacenar, reproducir y publicar esas imágenes en el sitio, materiales oficiales del campeonato y comunicaciones vinculadas al evento, en los términos de la Política de Privacidad.",
+      "Foto de perfil (cuenta): otorgás a la organización una autorización no exclusiva para almacenarla y mostrarla en tu perfil dentro de la app, conforme a la Política de Privacidad. Esa foto no se publica por sí sola en la sección Noticias ni en la grilla de dúos.",
+      "Fotos de inscripción en fechas con formato titular + invitado (dúos): otorgás a la organización una autorización no exclusiva para almacenar, reproducir y publicar esas imágenes y los nombres asociados en el sitio, la app (Noticias / dúos), materiales oficiales del campeonato y comunicaciones vinculadas al evento, conforme a la Política de Privacidad.",
       "La organización puede retirar contenidos que considere inadecuados, ilegales o contrarios a estos términos o a los reglamentos.",
     ],
   },

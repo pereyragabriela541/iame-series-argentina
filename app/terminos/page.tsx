@@ -6,7 +6,7 @@ import { LEGAL_LAST_UPDATED, TERMS_SECTIONS } from "@/lib/legal-content";
 export const metadata = {
   title: "Términos y Condiciones | IAME Series Argentina",
   description:
-    "Términos y condiciones de uso del sitio oficial de IAME Series Argentina.",
+    "Términos y condiciones de uso del sitio y de la aplicación móvil oficial de IAME Series Argentina.",
 };
 
 export default function TerminosPage() {
@@ -15,7 +15,7 @@ export default function TerminosPage() {
       <PageHeader
         kicker="Legal"
         title="Términos y Condiciones"
-        subtitle="Condiciones de uso del sitio web oficial del campeonato"
+        subtitle="Condiciones de uso del sitio web y de la app oficial del campeonato"
       />
       <LegalDocument sections={TERMS_SECTIONS} lastUpdated={LEGAL_LAST_UPDATED} />
       <p className="text-xs text-neutral-500">
