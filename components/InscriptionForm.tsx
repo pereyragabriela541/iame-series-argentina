@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import InscriptionDuoPhotosEditor from "@/components/InscriptionDuoPhotosEditor";
 import InscriptionPhotoField from "@/components/InscriptionPhotoField";
 import InscriptionTurnoSection from "@/components/InscriptionTurnoSection";
+import { compressImageForUpload } from "@/lib/compress-image-client";
 import {
   findRoundLabel,
   isDualPilotRound,
@@ -201,7 +202,7 @@ export default function InscriptionForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("loading");
-    setMessage("");
+    setMessage("Preparando inscripción...");
 
     const form = e.currentTarget;
     const fd = new FormData(form);
@@ -218,113 +219,170 @@ export default function InscriptionForm({
     const fullName = String(fd.get("full_name") ?? "").trim();
     const dni = String(fd.get("dni") ?? "").trim();
     const email = String(fd.get("email") ?? "").trim();
-
-    let res: Response;
-    if (isDual) {
-      if (!photoTitular || !photoInvitado) {
-        setStatus("error");
-        setMessage("Subí la foto del titular y del invitado (o volvé a elegirlas).");
-        return;
-      }
-      const payload = new FormData();
-      payload.set("round_key", roundKey);
-      if (roundIdUuid) payload.set("round_id_uuid", roundIdUuid);
-      payload.set("round_label", roundLabel);
-      payload.set("category_slug", categorySlug);
-      payload.set("category_label", categoryLabel);
-      payload.set("full_name", fullName);
-      payload.set("dni", dni);
-      payload.set("email", email);
-      payload.set("phone", String(fd.get("phone") ?? "").trim());
-      payload.set("birth_date", String(fd.get("birth_date") ?? ""));
-      payload.set("kart_number", String(fd.get("kart_number") ?? "").trim());
-      payload.set("team", String(fd.get("team") ?? "").trim());
-      payload.set("city", String(fd.get("city") ?? "").trim());
-      payload.set("privacy_consent", fd.get("privacy_consent") === "on" ? "true" : "");
-      payload.set("guest_full_name", String(fd.get("guest_full_name") ?? "").trim());
-      payload.set("guest_dni", String(fd.get("guest_dni") ?? "").trim());
-      payload.set("guest_birth_date", String(fd.get("guest_birth_date") ?? ""));
-      payload.set("photo_titular", photoTitular);
-      payload.set("photo_invitado", photoInvitado);
-
-      res = await fetch("/api/inscripcion", { method: "POST", body: payload });
-    } else {
-      const body = {
-        round_key: roundKey,
-        round_id_uuid: roundIdUuid,
-        round_label: roundLabel,
-        category_slug: categorySlug,
-        category_label: categoryLabel,
-        full_name: fullName,
-        dni,
-        email,
-        phone: String(fd.get("phone") ?? "").trim(),
-        birth_date: fd.get("birth_date") || null,
-        kart_number: String(fd.get("kart_number") ?? "").trim(),
-        team: String(fd.get("team") ?? "").trim(),
-        city: String(fd.get("city") ?? "").trim(),
-        privacy_consent: fd.get("privacy_consent") === "on",
-      };
-      res = await fetch("/api/inscripcion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    }
-
-    const data = await res.json();
-
     const kartNumber = String(fd.get("kart_number") ?? "").trim();
 
-    if (!res.ok) {
-      if (data.alreadyRegistered && (data.registration || data.registrationId)) {
-        setConfirmed(
-          data.registration
-            ? toConfirmed(data.registration)
-            : {
-                registrationId: data.registrationId,
-                roundKey,
-                roundLabel,
-                dni,
-                email,
-                fullName,
-                categoryLabel,
-                kartNumber,
-                dualPilot: isDual,
-              }
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 90_000);
+
+    try {
+      let res: Response;
+      if (isDual) {
+        if (!photoTitular || !photoInvitado) {
+          setStatus("error");
+          setMessage("Subí la foto del titular y del invitado (o volvé a elegirlas).");
+          return;
+        }
+
+        setMessage("Comprimiendo fotos...");
+        const [titularCompressed, invitadoCompressed] = await Promise.all([
+          compressImageForUpload(photoTitular),
+          compressImageForUpload(photoInvitado),
+        ]);
+
+        const payload = new FormData();
+        payload.set("round_key", roundKey);
+        if (roundIdUuid) payload.set("round_id_uuid", roundIdUuid);
+        payload.set("round_label", roundLabel);
+        payload.set("category_slug", categorySlug);
+        payload.set("category_label", categoryLabel);
+        payload.set("full_name", fullName);
+        payload.set("dni", dni);
+        payload.set("email", email);
+        payload.set("phone", String(fd.get("phone") ?? "").trim());
+        payload.set("birth_date", String(fd.get("birth_date") ?? ""));
+        payload.set("kart_number", kartNumber);
+        payload.set("team", String(fd.get("team") ?? "").trim());
+        payload.set("city", String(fd.get("city") ?? "").trim());
+        payload.set(
+          "privacy_consent",
+          fd.get("privacy_consent") === "on" ? "true" : "",
         );
-        setEditCodigo(null);
-        setStatus("ok");
+        payload.set(
+          "guest_full_name",
+          String(fd.get("guest_full_name") ?? "").trim(),
+        );
+        payload.set("guest_dni", String(fd.get("guest_dni") ?? "").trim());
+        payload.set(
+          "guest_birth_date",
+          String(fd.get("guest_birth_date") ?? ""),
+        );
+        payload.set("photo_titular", titularCompressed);
+        payload.set("photo_invitado", invitadoCompressed);
+
+        setMessage("Enviando inscripción y fotos...");
+        res = await fetch("/api/inscripcion", {
+          method: "POST",
+          body: payload,
+          signal: controller.signal,
+        });
+      } else {
+        const body = {
+          round_key: roundKey,
+          round_id_uuid: roundIdUuid,
+          round_label: roundLabel,
+          category_slug: categorySlug,
+          category_label: categoryLabel,
+          full_name: fullName,
+          dni,
+          email,
+          phone: String(fd.get("phone") ?? "").trim(),
+          birth_date: fd.get("birth_date") || null,
+          kart_number: kartNumber,
+          team: String(fd.get("team") ?? "").trim(),
+          city: String(fd.get("city") ?? "").trim(),
+          privacy_consent: fd.get("privacy_consent") === "on",
+        };
+        setMessage("Enviando inscripción...");
+        res = await fetch("/api/inscripcion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        });
+      }
+
+      const raw = await res.text();
+      let data: Record<string, unknown> = {};
+      try {
+        data = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+      } catch {
+        setStatus("error");
         setMessage(
-          "Ya estabas inscripto. Reservá tu turno. Para editar fotos, ingresá el código del turno."
+          res.status === 413
+            ? "Las fotos son demasiado pesadas para el servidor. Probá con JPG más chicos."
+            : `Error del servidor (${res.status}). Probá de nuevo en unos minutos.`,
         );
         return;
       }
-      setStatus("error");
-      setMessage(data.error ?? "Error al inscribirse");
-      return;
-    }
 
-    setStatus("ok");
-    setEditCodigo(null);
-    setMessage(
-      data.emailSkipped
-        ? "Inscripción guardada. El email no pudo enviarse (falta RESEND_API_KEY o EMAIL_SMTP_PASS)."
-        : "Tu inscripción aún no está completa. Para confirmarla, debés reservar tu turno y finalizar el trámite de manera presencial."
-    );
-    setConfirmed({
-      registrationId: data.registrationId,
-      roundKey,
-      roundLabel,
-      dni,
-      email,
-      fullName,
-      categoryLabel,
-      kartNumber,
-      dualPilot: isDual,
-      photoTitularUrl: data.photoTitularUrl ?? null,
-      photoInvitadoUrl: data.photoInvitadoUrl ?? null,
-    });
+      if (!res.ok) {
+        if (
+          data.alreadyRegistered &&
+          (data.registration || data.registrationId)
+        ) {
+          setConfirmed(
+            data.registration
+              ? toConfirmed(
+                  data.registration as Parameters<typeof toConfirmed>[0],
+                )
+              : {
+                  registrationId: String(data.registrationId),
+                  roundKey,
+                  roundLabel,
+                  dni,
+                  email,
+                  fullName,
+                  categoryLabel,
+                  kartNumber,
+                  dualPilot: isDual,
+                },
+          );
+          setEditCodigo(null);
+          setStatus("ok");
+          setMessage(
+            "Ya estabas inscripto. Reservá tu turno. Para editar fotos, ingresá el código del turno.",
+          );
+          return;
+        }
+        setStatus("error");
+        setMessage(String(data.error ?? "Error al inscribirse"));
+        return;
+      }
+
+      setStatus("ok");
+      setEditCodigo(null);
+      setMessage(
+        data.emailSkipped
+          ? "Inscripción guardada. El email no pudo enviarse; reservá tu turno igual."
+          : "Tu inscripción aún no está completa. Para confirmarla, debés reservar tu turno y finalizar el trámite de manera presencial.",
+      );
+      setConfirmed({
+        registrationId: String(data.registrationId),
+        roundKey,
+        roundLabel,
+        dni,
+        email,
+        fullName,
+        categoryLabel,
+        kartNumber,
+        dualPilot: isDual,
+        photoTitularUrl: (data.photoTitularUrl as string | null) ?? null,
+        photoInvitadoUrl: (data.photoInvitadoUrl as string | null) ?? null,
+      });
+    } catch (err) {
+      setStatus("error");
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setMessage(
+          "La inscripción tardó demasiado. Revisá tu conexión y probá con fotos más livianas.",
+        );
+      } else if (err instanceof Error) {
+        setMessage(err.message);
+      } else {
+        setMessage("No se pudo completar la inscripción. Probá de nuevo.");
+      }
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
   }
 
   const inputClass =
@@ -638,12 +696,18 @@ export default function InscriptionForm({
           </div>
 
           {dualPilot ? (
-            <InscriptionPhotoField
-              name="photo_titular"
-              label="Foto del titular"
-              required
-              onFileChange={setPhotoTitular}
-            />
+            <div className="sm:col-span-2 space-y-2">
+              <InscriptionPhotoField
+                name="photo_titular"
+                label="Foto del titular"
+                required
+                onFileChange={setPhotoTitular}
+              />
+              <p className="text-[10px] text-neutral-500">
+                JPG, PNG o WebP · se comprimen antes de enviar (ideal menos de 3
+                MB c/u)
+              </p>
+            </div>
           ) : null}
 
           {dualPilot ? (
@@ -731,7 +795,15 @@ export default function InscriptionForm({
         </div>
 
         {message && (
-          <p className={`text-sm ${status === "ok" ? "text-green-400" : "text-iame-red"}`}>
+          <p
+            className={`text-sm ${
+              status === "ok"
+                ? "text-green-400"
+                : status === "loading"
+                  ? "text-neutral-400"
+                  : "text-iame-red"
+            }`}
+          >
             {message}
           </p>
         )}
@@ -741,7 +813,7 @@ export default function InscriptionForm({
           disabled={status === "loading"}
           className="w-full bg-iame-red px-6 py-3 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-iame-red/90 disabled:opacity-50 sm:w-auto"
         >
-          {status === "loading" ? "Enviando..." : "Enviar inscripción"}
+          {status === "loading" ? "Procesando..." : "Enviar inscripción"}
         </button>
       </form>
     </div>

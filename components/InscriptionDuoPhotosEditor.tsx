@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import InscriptionPhotoField from "@/components/InscriptionPhotoField";
+import { compressImageForUpload } from "@/lib/compress-image-client";
 
 interface InscriptionDuoPhotosEditorProps {
   registrationId: string;
@@ -37,40 +38,62 @@ export default function InscriptionDuoPhotosEditor({
   async function savePhotos() {
     if (!dirty || !codigo) return;
     setStatus("loading");
-    setMessage("");
+    setMessage("Preparando fotos...");
 
-    const fd = new FormData();
-    fd.set("registration_id", registrationId);
-    fd.set("codigo", codigo);
-    if (titularFile) fd.set("photo_titular", titularFile);
-    if (invitadoFile) fd.set("photo_invitado", invitadoFile);
-    if (removeTitular && !titularFile) fd.set("remove_photo_titular", "1");
-    if (removeInvitado && !invitadoFile) fd.set("remove_photo_invitado", "1");
+    try {
+      const fd = new FormData();
+      fd.set("registration_id", registrationId);
+      fd.set("codigo", codigo);
+      if (titularFile) {
+        fd.set("photo_titular", await compressImageForUpload(titularFile));
+      }
+      if (invitadoFile) {
+        fd.set("photo_invitado", await compressImageForUpload(invitadoFile));
+      }
+      if (removeTitular && !titularFile) fd.set("remove_photo_titular", "1");
+      if (removeInvitado && !invitadoFile) fd.set("remove_photo_invitado", "1");
 
-    const res = await fetch("/api/inscripcion/fotos", {
-      method: "PATCH",
-      body: fd,
-    });
-    const data = await res.json();
+      setMessage("Guardando...");
+      const res = await fetch("/api/inscripcion/fotos", {
+        method: "PATCH",
+        body: fd,
+      });
+      const raw = await res.text();
+      let data: Record<string, unknown> = {};
+      try {
+        data = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+      } catch {
+        setStatus("error");
+        setMessage("Error del servidor al guardar las fotos. Probá de nuevo.");
+        return;
+      }
 
-    if (!res.ok) {
+      if (!res.ok) {
+        setStatus("error");
+        setMessage(String(data.error ?? "No se pudieron actualizar las fotos"));
+        return;
+      }
+
+      setTitularUrl((data.photoTitularUrl as string | null) ?? null);
+      setInvitadoUrl((data.photoInvitadoUrl as string | null) ?? null);
+      setTitularFile(null);
+      setInvitadoFile(null);
+      setRemoveTitular(false);
+      setRemoveInvitado(false);
+      setStatus("ok");
+      setMessage(
+        data.showInDuos
+          ? "Fotos actualizadas. El dúo se muestra en Noticias."
+          : "Fotos actualizadas. Si falta alguna, el dúo no aparece en Noticias.",
+      );
+    } catch (err) {
       setStatus("error");
-      setMessage(data.error ?? "No se pudieron actualizar las fotos");
-      return;
+      setMessage(
+        err instanceof Error
+          ? err.message
+          : "No se pudieron actualizar las fotos.",
+      );
     }
-
-    setTitularUrl(data.photoTitularUrl);
-    setInvitadoUrl(data.photoInvitadoUrl);
-    setTitularFile(null);
-    setInvitadoFile(null);
-    setRemoveTitular(false);
-    setRemoveInvitado(false);
-    setStatus("ok");
-    setMessage(
-      data.showInDuos
-        ? "Fotos actualizadas. El dúo se muestra en Noticias."
-        : "Fotos actualizadas. Si falta alguna, el dúo no aparece en Noticias.",
-    );
   }
 
   return (

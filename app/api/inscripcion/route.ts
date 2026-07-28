@@ -9,6 +9,8 @@ import { findRoundLabel, isDualPilotRound } from "@/lib/inscription-data";
 import { normalizeDniKey } from "@/lib/turnos-utils";
 
 export const runtime = "nodejs";
+/** Subida de 2 fotos + emails: evitar corte prematuro en serverless. */
+export const maxDuration = 60;
 
 const PRIVACY_CONSENT_MESSAGE =
   "Debés aceptar la política de privacidad y los términos y condiciones.";
@@ -190,16 +192,18 @@ export async function POST(request: Request) {
     let photoTitularUrl: string | undefined;
     let photoInvitadoUrl: string | undefined;
     if (dualPilot && photoTitular && photoInvitado) {
-      photoTitularUrl = await uploadDuoPhoto({
-        file: photoTitular,
-        registrationKey: folderKey,
-        role: "titular",
-      });
-      photoInvitadoUrl = await uploadDuoPhoto({
-        file: photoInvitado,
-        registrationKey: folderKey,
-        role: "invitado",
-      });
+      [photoTitularUrl, photoInvitadoUrl] = await Promise.all([
+        uploadDuoPhoto({
+          file: photoTitular,
+          registrationKey: folderKey,
+          role: "titular",
+        }),
+        uploadDuoPhoto({
+          file: photoInvitado,
+          registrationKey: folderKey,
+          role: "invitado",
+        }),
+      ]);
     }
 
     const payload = {
@@ -268,9 +272,25 @@ export async function POST(request: Request) {
         : {}),
     };
 
-    const emailResult = await sendInscripcionEmails(emailData);
+    let emailResult: Awaited<ReturnType<typeof sendInscripcionEmails>> = {
+      pilot: false,
+      org: false,
+      skipped: true,
+      provider: null,
+    };
+    try {
+      emailResult = await sendInscripcionEmails(emailData);
+    } catch (emailErr) {
+      console.error("[inscripcion] email:", emailErr);
+      emailResult = {
+        pilot: false,
+        org: false,
+        skipped: true,
+        provider: null,
+      };
+    }
 
-    if (!emailResult.skipped) {
+    if (!emailResult.skipped && emailResult.pilot) {
       await sb
         .from("registrations")
         .update({
@@ -284,12 +304,12 @@ export async function POST(request: Request) {
       ok: true,
       registrationId: reg.id,
       emailSent: emailResult.pilot,
-      emailSkipped: emailResult.skipped,
+      emailSkipped: emailResult.skipped || !emailResult.pilot,
       photoTitularUrl: photoTitularUrl ?? null,
       photoInvitadoUrl: photoInvitadoUrl ?? null,
       dualPilot,
-      message: emailResult.skipped
-        ? "Inscripción guardada. Configurá RESEND_API_KEY (recomendado) o EMAIL_SMTP_PASS."
+      message: emailResult.skipped || !emailResult.pilot
+        ? "Inscripción guardada. El email de confirmación no pudo enviarse; reservá tu turno igual."
         : "Tu inscripción aún no está completa. Para confirmarla, debés reservar tu turno y finalizar el trámite de manera presencial.",
     });
   } catch (err) {
