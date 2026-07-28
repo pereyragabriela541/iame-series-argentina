@@ -110,14 +110,14 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
   return data;
 }
 
-/** Dúos Fecha 6 con fotos (titular + invitado), más recientes primero. */
+/** Dúos Fecha 6 con fotos (titular + invitado). */
 export async function getFecha6Duos(limit = 200): Promise<Fecha6Duo[]> {
   const sb = createSupabaseAdmin();
   const { data, error } = await sb
     .from("registrations")
-    .select("id, full_name, kart_number, extra, created_at")
+    .select("id, full_name, kart_number, category_slug, extra, created_at")
     .eq("round_key", "fecha-6")
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: true })
     .limit(limit);
 
   if (error) throw error;
@@ -132,12 +132,18 @@ export async function getFecha6Duos(limit = 200): Promise<Fecha6Duo[]> {
     const guestName = String(extra.guest_full_name ?? "").trim();
     if (!photoTitularUrl || !photoInvitadoUrl || !guestName) continue;
 
+    const categorySlug = String(row.category_slug ?? "").trim();
+    const categoryLabel = String(
+      extra.category_label ?? categorySlug ?? "",
+    ).trim();
+
     duos.push({
       id: row.id,
       titularName: row.full_name,
       guestName,
       kartNumber: row.kart_number ?? "",
-      categoryLabel: String(extra.category_label ?? ""),
+      categorySlug,
+      categoryLabel,
       photoTitularUrl,
       photoInvitadoUrl,
       createdAt: row.created_at,
