@@ -1,5 +1,7 @@
 import { BRAND } from "@/lib/branding";
 
+const APP_DEEP_LINK = "iame-series://login";
+
 export default async function AuthConfirmadoPage({
   searchParams,
 }: {
@@ -21,6 +23,14 @@ export default async function AuthConfirmadoPage({
           El enlace puede haber vencido. Volvé a la app, creá la cuenta de nuevo
           o pedí un nuevo mail de confirmación.
         </p>
+      ) : null}
+      {ok ? (
+        <a
+          href={APP_DEEP_LINK}
+          className="mt-8 inline-block bg-iame-red px-6 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
+        >
+          Abrir la app
+        </a>
       ) : null}
     </main>
   );
