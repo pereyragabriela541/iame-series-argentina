@@ -1,6 +1,6 @@
-import Link from "next/link";
-
 import { BRAND } from "@/lib/branding";
+
+const APP_DEEP_LINK = "iame-series://login";
 
 export default async function AuthConfirmadoPage({
   searchParams,
@@ -18,17 +18,27 @@ export default async function AuthConfirmadoPage({
       <h1 className="mt-4 text-2xl font-bold uppercase text-white">
         {ok ? "Email confirmado" : "No se pudo confirmar"}
       </h1>
-      <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-        {ok
-          ? "Tu cuenta ya está activa. Abrí la app IAME Series en el teléfono e iniciá sesión con tu email y contraseña."
-          : "El enlace puede haber vencido. Volvé a la app, creá la cuenta de nuevo o pedí un nuevo mail de confirmación."}
-      </p>
-      <Link
-        href="/"
-        className="mt-8 inline-block bg-iame-red px-6 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
-      >
-        Ir al sitio
-      </Link>
+      {!ok ? (
+        <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+          El enlace puede haber vencido. Volvé a la app, creá la cuenta de nuevo
+          o pedí un nuevo mail de confirmación.
+        </p>
+      ) : null}
+      {ok ? (
+        <a
+          href={APP_DEEP_LINK}
+          className="mt-8 inline-block bg-iame-red px-6 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
+        >
+          Abrir la app
+        </a>
+      ) : (
+        <a
+          href="/"
+          className="mt-8 inline-block bg-iame-red px-6 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
+        >
+          Ir al sitio
+        </a>
+      )}
     </main>
   );
 }
