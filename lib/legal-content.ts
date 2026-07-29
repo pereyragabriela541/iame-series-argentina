@@ -105,6 +105,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       "La eliminación de la cuenta de la app no borra automáticamente las inscripciones, turnos ni las fotos de dúos publicadas en el sitio del campeonato. Para esas solicitudes escribinos a la dirección de contacto de esta política.",
       "La eliminación de la cuenta es definitiva: no se trata de una desactivación temporal. Si solo querés dejar de usar la app sin borrar datos, usá Cerrar sesión.",
       `Si no podés acceder a la app (por ejemplo, perdiste el dispositivo), escribinos a ${BRAND.email} desde el correo de la cuenta para solicitar la eliminación. Completamos esas solicitudes en un plazo razonable, generalmente dentro de los 30 días.`,
+      `También podés consultar los pasos y el detalle de datos borrados o conservados en ${SITE_URL}/eliminar-cuenta.`,
     ],
   },
   {
