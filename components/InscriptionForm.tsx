@@ -67,6 +67,28 @@ function toConfirmed(r: {
   };
 }
 
+async function hasExistingTurno(roundKey: string, dni: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `/api/turnos/reservar?round_key=${encodeURIComponent(roundKey)}&dni=${encodeURIComponent(dni)}`,
+    );
+    const data = await res.json();
+    return Boolean(data?.reserva);
+  } catch {
+    return false;
+  }
+}
+
+function foundInscriptionMessage(hasTurno: boolean, alreadyRegistered = false) {
+  const head = alreadyRegistered
+    ? "Ya estabas inscripto."
+    : "Inscripción encontrada.";
+  const turnoPart = hasTurno
+    ? "Ya tenés turno reservado."
+    : "Reservá tu turno.";
+  return `${head} ${turnoPart} Para editar fotos, ingresá el código del turno.`;
+}
+
 const PRIVACY_TEXT = (
   <>
     Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos
@@ -127,12 +149,13 @@ export default function InscriptionForm({
           return;
         }
         if (!cancelled) {
-          setConfirmed(toConfirmed(data.registration));
+          const reg = toConfirmed(data.registration);
+          const hasTurno = await hasExistingTurno(reg.roundKey, reg.dni);
+          if (cancelled) return;
+          setConfirmed(reg);
           setEditCodigo(null);
           setStatus("ok");
-          setMessage(
-            "Inscripción encontrada. Reservá tu turno. Para editar fotos, ingresá el código del turno."
-          );
+          setMessage(foundInscriptionMessage(hasTurno));
         }
       } catch {
         if (!cancelled) {
@@ -320,28 +343,26 @@ export default function InscriptionForm({
           data.alreadyRegistered &&
           (data.registration || data.registrationId)
         ) {
-          setConfirmed(
-            data.registration
-              ? toConfirmed(
-                  data.registration as Parameters<typeof toConfirmed>[0],
-                )
-              : {
-                  registrationId: String(data.registrationId),
-                  roundKey,
-                  roundLabel,
-                  dni,
-                  email,
-                  fullName,
-                  categoryLabel,
-                  kartNumber,
-                  dualPilot: isDual,
-                },
-          );
+          const reg = data.registration
+            ? toConfirmed(
+                data.registration as Parameters<typeof toConfirmed>[0],
+              )
+            : {
+                registrationId: String(data.registrationId),
+                roundKey,
+                roundLabel,
+                dni,
+                email,
+                fullName,
+                categoryLabel,
+                kartNumber,
+                dualPilot: isDual,
+              };
+          const hasTurno = await hasExistingTurno(reg.roundKey, reg.dni);
+          setConfirmed(reg);
           setEditCodigo(null);
           setStatus("ok");
-          setMessage(
-            "Ya estabas inscripto. Reservá tu turno. Para editar fotos, ingresá el código del turno.",
-          );
+          setMessage(foundInscriptionMessage(hasTurno, true));
           return;
         }
         setStatus("error");
@@ -543,7 +564,14 @@ export default function InscriptionForm({
           </div>
         ) : null}
 
-        <InscriptionTurnoSection registration={confirmed} />
+        <InscriptionTurnoSection
+          registration={confirmed}
+          onTurnoReservado={() =>
+            setMessage(
+              "Inscripción encontrada. Ya tenés turno reservado. Para editar fotos, ingresá el código del turno.",
+            )
+          }
+        />
       </div>
     );
   }

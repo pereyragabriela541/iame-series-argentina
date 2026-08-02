@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TurnoTicket from "@/components/TurnoTicket";
 import { formatFechaLarga, type TurnoSlot } from "@/lib/turnos-utils";
 
@@ -15,10 +15,13 @@ interface ConfirmedRegistration {
 
 interface InscriptionTurnoSectionProps {
   registration: ConfirmedRegistration;
+  /** Avisa al padre cuando ya hay (o se acaba de crear) un turno. */
+  onTurnoReservado?: () => void;
 }
 
 export default function InscriptionTurnoSection({
   registration,
+  onTurnoReservado,
 }: InscriptionTurnoSectionProps) {
   const [loading, setLoading] = useState(true);
   const [activo, setActivo] = useState(false);
@@ -37,6 +40,8 @@ export default function InscriptionTurnoSection({
     hora: string;
     horaFin: string;
   } | null>(null);
+  const onTurnoReservadoRef = useRef(onTurnoReservado);
+  onTurnoReservadoRef.current = onTurnoReservado;
 
   const loadTurnos = useCallback(async () => {
     setLoading(true);
@@ -53,6 +58,7 @@ export default function InscriptionTurnoSection({
           horaFin: reservaData.reserva.hora_fin,
         });
         setUbicacion(reservaData.reserva.ubicacion);
+        onTurnoReservadoRef.current?.();
         setLoading(false);
         return;
       }
@@ -114,6 +120,7 @@ export default function InscriptionTurnoSection({
     });
     setUbicacion(data.ubicacion ?? ubicacion);
     setStatus("ok");
+    onTurnoReservadoRef.current?.();
   }
 
   async function reenviarEmail() {
