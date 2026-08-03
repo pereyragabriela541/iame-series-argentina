@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -7,11 +7,10 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  View,
 } from "react-native";
-import { useFocusEffect } from "expo-router";
 
 import PageHeader from "@/components/PageHeader";
+import PrimaryButton from "@/components/PrimaryButton";
 import Screen from "@/components/Screen";
 import { formatRoundEventDates, getRoundKicker } from "@/lib/calendar-dates";
 import {
@@ -19,6 +18,7 @@ import {
   getRoundById,
   getRoundResults,
 } from "@/lib/queries";
+import { getRoundFlyerBlurb } from "@/lib/round-flyers";
 import { resolveMediaUrl } from "@/lib/site";
 import { BRAND } from "@/lib/theme";
 import type { Category, Round, RoundResult } from "@/lib/types";
@@ -48,6 +48,7 @@ export default function RoundDetailScreen() {
   );
 
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
+  const flyerBlurb = round ? getRoundFlyerBlurb(round.round_number) : null;
 
   return (
     <Screen>
@@ -64,12 +65,24 @@ export default function RoundDetailScreen() {
           />
 
           {round.flyer_url ? (
-            <Image
-              source={{ uri: resolveMediaUrl(round.flyer_url) }}
-              style={styles.flyer}
-              resizeMode="contain"
-              accessibilityLabel={`Flyer ${round.name}`}
-            />
+            <>
+              <Image
+                source={{ uri: resolveMediaUrl(round.flyer_url) }}
+                style={styles.flyer}
+                resizeMode="contain"
+                accessibilityLabel={`Flyer ${round.name}`}
+              />
+              {flyerBlurb ? (
+                <>
+                  <Text style={styles.blurb}>{flyerBlurb}</Text>
+                  <PrimaryButton
+                    title="Inscribite ahora"
+                    onPress={() => router.push("/inscripcion")}
+                    style={styles.cta}
+                  />
+                </>
+              ) : null}
+            </>
           ) : null}
 
           {round.map_url ? (
@@ -113,8 +126,15 @@ const styles = StyleSheet.create({
     backgroundColor: BRAND.colors.card,
     borderWidth: 1,
     borderColor: BRAND.colors.border,
-    marginBottom: 20,
+    marginBottom: 12,
   },
+  blurb: {
+    color: BRAND.colors.muted,
+    fontSize: 14,
+    lineHeight: 22,
+    marginBottom: 12,
+  },
+  cta: { marginBottom: 20 },
   link: { marginBottom: 20 },
   linkText: { color: BRAND.colors.sky, fontSize: 13 },
   sectionTitle: {

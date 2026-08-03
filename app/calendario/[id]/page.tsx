@@ -7,6 +7,7 @@ import {
   getRoundById,
   getRoundResults,
 } from "@/lib/queries";
+import { getRoundFlyerBlurb } from "@/lib/round-flyers";
 import { groupRoundResultsByCategory } from "@/lib/round-results-order";
 import type { Category, RoundResult } from "@/lib/types";
 import { notFound } from "next/navigation";
@@ -44,6 +45,7 @@ export default async function RoundDetailPage({
   if (!round) notFound();
 
   const groupedResults = groupRoundResultsByCategory(results, categories);
+  const flyerBlurb = getRoundFlyerBlurb(round.round_number);
 
   return (
     <div className="space-y-6">
@@ -57,14 +59,27 @@ export default async function RoundDetailPage({
       />
 
       {round.flyer_url ? (
-        <div className="border border-neutral-800 bg-neutral-950">
+        <article className="border border-neutral-800 bg-neutral-900/20">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={round.flyer_url}
             alt={`Flyer ${round.name}`}
-            className="mx-auto block w-full max-w-xl object-contain"
+            className="mx-auto block w-full max-w-xl bg-neutral-950 object-contain"
           />
-        </div>
+          {flyerBlurb ? (
+            <div className="space-y-4 border-t border-neutral-800 bg-neutral-900/40 px-5 py-5 sm:px-6">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-300 sm:text-base">
+                {flyerBlurb}
+              </p>
+              <Link
+                href="/inscripcion"
+                className="inline-block bg-iame-red px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
+              >
+                Inscribite ahora
+              </Link>
+            </div>
+          ) : null}
+        </article>
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2">
