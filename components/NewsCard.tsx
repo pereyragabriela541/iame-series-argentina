@@ -19,10 +19,12 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
         />
       )}
       <div className="p-4">
-        <span className="text-[10px] font-semibold uppercase tracking-widest text-iame-red">
-          {article.category ?? "General"}
-        </span>
-        <h3 className="mt-1 text-sm font-bold uppercase leading-snug tracking-wide text-white group-hover:text-iame-sky">
+        {article.category && (
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-iame-red">
+            {article.category}
+          </span>
+        )}
+        <h3 className={`text-sm font-bold uppercase leading-snug tracking-wide text-white group-hover:text-iame-sky ${article.category ? "mt-1" : ""}`}>
           {article.title}
         </h3>
         {article.excerpt && (

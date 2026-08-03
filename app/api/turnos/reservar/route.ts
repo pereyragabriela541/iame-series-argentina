@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sendTurnoConfirmacionEmail } from "@/lib/email/inscripcion";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { resolveRoundKey } from "@/lib/round-keys";
 import { generateCodigoReserva, normalizeDniKey } from "@/lib/turnos-utils";
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
 
     const { data: config } = await sb
       .from("turnos_config")
-      .select("ubicacion, instrucciones")
+      .select("ubicacion, instrucciones, evento_nombre")
       .eq("round_key", configKey)
       .single();
 
@@ -71,11 +72,42 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: msg }, { status: 500 });
     }
 
+    const reserva = (data ?? {}) as {
+      codigo?: string;
+      fecha?: string;
+      hora?: string;
+      hora_fin?: string;
+    };
+
+    const fecha = String(reserva.fecha ?? "");
+    const hora = String(reserva.hora ?? "");
+    const horaFin = String(reserva.hora_fin ?? "");
+    const codigoFinal = String(reserva.codigo ?? codigo);
+
+    let emailSent = false;
+    if (reg.email && fecha && hora && horaFin) {
+      try {
+        const emailResult = await sendTurnoConfirmacionEmail({
+          nombreCompleto: reg.full_name,
+          email: reg.email,
+          codigo: codigoFinal,
+          fecha,
+          hora,
+          horaFin,
+          eventoNombre: config?.evento_nombre,
+        });
+        emailSent = emailResult.sent;
+      } catch (emailErr) {
+        console.error("[turnos/reservar] email turno:", emailErr);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
-      codigo,
+      codigo: codigoFinal,
       ubicacion: config?.ubicacion,
       instrucciones: config?.instrucciones,
+      emailSent,
       ...data,
     });
   } catch (err) {

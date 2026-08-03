@@ -33,7 +33,7 @@ export default async function HomePage() {
     dbReady = false;
   }
 
-  const year = config.temporada?.year ?? 2026;
+  const year = config.temporada?.year ?? season?.year ?? null;
   const nextRound =
     rounds
       .filter((r) => r.status === "upcoming" || r.status === "live")

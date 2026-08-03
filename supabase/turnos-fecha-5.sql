@@ -22,7 +22,7 @@ select
   'Fecha 5 — Kartódromo de BS AS',
   true,
   array['2026-07-16'::date, '2026-07-17'::date],
-  '10:00', '18:00', 7, 1,
+  '11:00', '18:00', 5, 1,
   'Administración del kartódromo — Kartódromo de BS AS',
   'Presentate 10 minutos antes de tu turno con DNI y comprobante de inscripción. Carrera: 18 y 19 de julio.'
 from rounds r
@@ -34,11 +34,16 @@ on conflict (round_key) do update set
   dias = excluded.dias,
   hora_inicio = excluded.hora_inicio,
   hora_fin = excluded.hora_fin,
+  minutos_por_turno = excluded.minutos_por_turno,
   ubicacion = excluded.ubicacion,
   instrucciones = excluded.instrucciones,
   updated_at = now();
 
--- Generar slots (16 y 17 de julio, cada 7 min de 10:00 a 18:00)
+-- Quitar slots libres del horario anterior (conserva los que ya tienen reserva)
+delete from turnos_slots
+where round_key = 'fecha-5' and reservados = 0;
+
+-- Generar slots (16 y 17 de julio, cada 5 min de 11:00 a 18:00)
 do $$
 declare
   cfg turnos_config%rowtype;
@@ -66,7 +71,10 @@ begin
       sid := cfg.round_key || '_' || d::text || '_' || replace(h, ':', '');
       insert into turnos_slots (slot_id, round_key, fecha, hora, hora_fin, reservados, cupo_max)
       values (sid, cfg.round_key, d, h, h_fin, 0, cfg.cupo_por_turno)
-      on conflict (slot_id) do nothing;
+      on conflict (slot_id) do update set
+        hora_fin = excluded.hora_fin,
+        cupo_max = excluded.cupo_max,
+        updated_at = now();
       t := t + mins;
     end loop;
   end loop;

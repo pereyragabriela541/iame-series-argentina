@@ -72,6 +72,35 @@ export default async function VideosPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 {section.videos.map((v) => {
                   const longTitle = v.title.length > 80;
+                  const isDirectVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(v.video_url);
+                  if (isDirectVideo) {
+                    return (
+                      <article
+                        key={v.id}
+                        className="border border-neutral-800 bg-neutral-900/40 p-4"
+                      >
+                        <p
+                          className={
+                            longTitle
+                              ? "mb-3 text-sm leading-relaxed text-neutral-200"
+                              : "mb-3 text-sm font-bold uppercase text-white"
+                          }
+                        >
+                          {v.title}
+                        </p>
+                        <video
+                          className="aspect-video w-full bg-black object-cover"
+                          controls
+                          playsInline
+                          preload="metadata"
+                          poster={v.thumbnail_url ?? undefined}
+                          src={v.video_url}
+                        >
+                          Tu navegador no soporta video.
+                        </video>
+                      </article>
+                    );
+                  }
                   return (
                     <a
                       key={v.id}
@@ -80,6 +109,14 @@ export default async function VideosPage() {
                       rel="noopener noreferrer"
                       className="border border-neutral-800 bg-neutral-900/40 p-4 transition hover:border-iame-red"
                     >
+                      {v.thumbnail_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={v.thumbnail_url}
+                          alt=""
+                          className="mb-3 aspect-video w-full object-cover"
+                        />
+                      ) : null}
                       <p
                         className={
                           longTitle

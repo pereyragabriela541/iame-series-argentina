@@ -132,7 +132,9 @@ export default function ExportarPage() {
 
             <p className="text-xs leading-relaxed text-neutral-500">
               Los archivos CSV se abren en Excel, Numbers o Google Sheets. En
-              iPhone podés compartirlos desde Safari después de descargar.
+              fechas con piloto invitado, el de inscriptos incluye columnas de
+              invitado (nombre, DNI y nacimiento). En iPhone podés compartirlos
+              desde Safari después de descargar.
             </p>
           </>
         ) : null}

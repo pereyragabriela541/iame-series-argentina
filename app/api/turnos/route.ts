@@ -3,6 +3,7 @@ import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { resolveRoundKey } from "@/lib/round-keys";
 import {
   buildSlotsFromConfig,
+  countReservationsBySlot,
   groupSlotsByFecha,
   mergeSlotAvailability,
   type TurnosConfig,
@@ -47,12 +48,20 @@ export async function GET(request: Request) {
 
     const theoretical = buildSlotsFromConfig(typedConfig);
 
-    const { data: occupied } = await sb
-      .from("turnos_slots")
-      .select("slot_id, reservados, cupo_max")
-      .eq("round_key", configKey);
+    const [{ data: occupied }, { data: reservations }] = await Promise.all([
+      sb
+        .from("turnos_slots")
+        .select("slot_id, reservados, cupo_max")
+        .eq("round_key", configKey),
+      sb.from("reservas_turnos").select("slot_id").eq("round_key", configKey),
+    ]);
 
-    const slots = mergeSlotAvailability(theoretical, occupied ?? []);
+    const reservationCounts = countReservationsBySlot(reservations ?? []);
+    const slots = mergeSlotAvailability(
+      theoretical,
+      occupied ?? [],
+      reservationCounts
+    );
     const byFecha = groupSlotsByFecha(slots);
 
     return NextResponse.json({

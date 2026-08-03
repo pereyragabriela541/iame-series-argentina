@@ -57,20 +57,24 @@ export async function fetchInscriptos(roundKey: string) {
   if (error) throw new Error(error.message);
 
   return (data ?? []).map((row) => {
-    const extra = (row.extra ?? {}) as Record<string, string>;
+    const extra = (row.extra ?? {}) as Record<string, unknown>;
+    const str = (key: string) => String(extra[key] ?? "").trim();
     return {
-      fecha: extra.round_label ?? row.round_key ?? "",
+      fecha: str("round_label") || row.round_key || "",
       round_key: row.round_key ?? "",
       nombre: row.full_name ?? "",
       dni: row.dni ?? "",
       email: row.email ?? "",
       telefono: row.phone ?? "",
       nacimiento: row.birth_date ?? "",
-      categoria: extra.category_label ?? row.category_slug ?? "",
+      categoria: str("category_label") || row.category_slug || "",
       kart: row.kart_number ?? "",
       equipo: row.team ?? "",
       ciudad: row.city ?? "",
       origen: row.origen ?? "",
+      invitado_nombre: str("guest_full_name"),
+      invitado_dni: str("guest_dni"),
+      invitado_nacimiento: str("guest_birth_date"),
       inscripto_el: row.created_at ?? "",
     };
   });

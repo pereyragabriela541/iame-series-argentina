@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -23,6 +22,10 @@ import {
   getCategories,
   getPilotStanding,
 } from "@/lib/queries";
+import {
+  isPushEnabledOnDevice,
+  registerForPushNotifications,
+} from "@/lib/push";
 import { BRAND } from "@/lib/theme";
 import type { Category, Standing } from "@/lib/types";
 
@@ -62,6 +65,8 @@ export default function CuentaScreen() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [activatingPush, setActivatingPush] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
@@ -113,6 +118,20 @@ export default function CuentaScreen() {
     );
   }, [user, profile?.category_slug, profile?.kart_number, refreshStanding]);
 
+  useEffect(() => {
+    if (!user) {
+      setPushEnabled(false);
+      return;
+    }
+    let cancelled = false;
+    void isPushEnabledOnDevice(user.id).then((enabled) => {
+      if (!cancelled) setPushEnabled(enabled);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   if (loading) {
     return (
       <Screen>
@@ -141,6 +160,25 @@ export default function CuentaScreen() {
         />
       </Screen>
     );
+  }
+
+  async function handleActivatePush() {
+    if (!user) return;
+    setActivatingPush(true);
+    setMessage(null);
+    const token = await registerForPushNotifications(user.id, {
+      forcePrompt: true,
+    });
+    setActivatingPush(false);
+    if (token) {
+      setPushEnabled(true);
+      setMessage(null);
+    } else {
+      setPushEnabled(false);
+      setMessage(
+        "No se pudo activar. Revisá el permiso de notificaciones en Ajustes del teléfono.",
+      );
+    }
   }
 
   function resetFromProfile() {
@@ -182,7 +220,7 @@ export default function CuentaScreen() {
                 setMessage(error);
                 return;
               }
-              router.replace("/login");
+              router.replace("/(tabs)/cuenta");
             })();
           },
         },
@@ -193,30 +231,39 @@ export default function CuentaScreen() {
   async function handlePickPhoto() {
     if (!editing) return;
     setMessage(null);
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      setMessage("Necesitamos permiso para acceder a tus fotos.");
-      return;
+    try {
+      // Import lazy: evita cargar el módulo nativo al abrir la pestaña.
+      const ImagePicker = await import("expo-image-picker");
+      const permission =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) {
+        setMessage("Necesitamos permiso para acceder a tus fotos.");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.75,
+      });
+
+      if (result.canceled || !result.assets[0]?.uri) return;
+
+      setUploadingPhoto(true);
+      const { error } = await uploadAvatar(result.assets[0].uri);
+      setUploadingPhoto(false);
+      if (error) {
+        setMessage(error);
+        return;
+      }
+      setMessage("Foto actualizada.");
+    } catch (e) {
+      setUploadingPhoto(false);
+      setMessage(
+        e instanceof Error ? e.message : "No se pudo abrir la galería.",
+      );
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.75,
-    });
-
-    if (result.canceled || !result.assets[0]?.uri) return;
-
-    setUploadingPhoto(true);
-    const { error } = await uploadAvatar(result.assets[0].uri);
-    setUploadingPhoto(false);
-    if (error) {
-      setMessage(error);
-      return;
-    }
-    setMessage("Foto actualizada.");
   }
 
   async function handleSave() {
@@ -337,14 +384,28 @@ export default function CuentaScreen() {
 
           {message ? <Text style={styles.message}>{message}</Text> : null}
 
-          <PrimaryButton title="Editar perfil" onPress={startEditing} />
+          {pushEnabled ? (
+            <Text style={styles.pushOn}>
+              Alertas push activadas en este dispositivo.
+            </Text>
+          ) : (
+            <PrimaryButton
+              title="Activar alertas push"
+              loading={activatingPush}
+              onPress={() => void handleActivatePush()}
+            />
+          )}
+          <PrimaryButton
+            title="Editar perfil"
+            onPress={startEditing}
+            style={styles.mt}
+          />
           <PrimaryButton
             title="Cerrar sesión"
             variant="ghost"
             onPress={() => {
               void (async () => {
                 await signOut();
-                router.replace("/login");
               })();
             }}
             style={styles.mt}
@@ -431,7 +492,6 @@ export default function CuentaScreen() {
             onPress={() => {
               void (async () => {
                 await signOut();
-                router.replace("/login");
               })();
             }}
             style={styles.mt}
@@ -636,5 +696,11 @@ const styles = StyleSheet.create({
     color: BRAND.colors.sky,
     marginBottom: 12,
     fontSize: 13,
+  },
+  pushOn: {
+    color: BRAND.colors.sky,
+    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: "600",
   },
 });

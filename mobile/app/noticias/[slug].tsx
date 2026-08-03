@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { HeaderBackButton } from "@react-navigation/elements";
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useFocusEffect } from "expo-router";
+import { router, Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
 
 import Fecha6DuosGrid from "@/components/Fecha6DuosGrid";
 import PageHeader from "@/components/PageHeader";
@@ -18,6 +18,14 @@ import { formatDate, getNews, getNewsBySlug } from "@/lib/queries";
 import { resolveMediaUrl } from "@/lib/site";
 import { BRAND } from "@/lib/theme";
 import type { NewsArticle } from "@/lib/types";
+
+function goBackOrHome() {
+  if (router.canGoBack()) {
+    router.back();
+  } else {
+    router.navigate("/(tabs)");
+  }
+}
 
 export default function NoticiaDetalleScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -49,41 +57,57 @@ export default function NoticiaDetalleScreen() {
   );
 
   return (
-    <Screen>
-      {loading || !article ? (
-        <ActivityIndicator color={BRAND.colors.red} style={styles.loader} />
-      ) : (
-        <>
-          <PageHeader
-            kicker={article.category || undefined}
-            title={article.title}
-            subtitle={
-              article.image_url || isDuos
-                ? undefined
-                : formatDate(article.published_at)
-            }
-          />
-          {article.image_url && !isDuos ? (
-            <Image
-              source={{ uri: resolveMediaUrl(article.image_url) }}
-              style={styles.image}
-              resizeMode="contain"
+    <>
+      <Stack.Screen
+        options={{
+          title: "Noticia",
+          headerBackTitle: "Volver",
+          headerLeft: () => (
+            <HeaderBackButton
+              tintColor={BRAND.colors.white}
+              label="Volver"
+              labelStyle={{ fontSize: 13 }}
+              onPress={goBackOrHome}
             />
-          ) : null}
-          {article.body || article.excerpt ? (
-            <Text style={styles.body}>{article.body ?? article.excerpt}</Text>
-          ) : null}
-          {isDuos ? (
-            <View style={styles.duosWrap}>
-              <Text style={styles.duosTitle}>
-                Dúos publicados ({duos.length})
-              </Text>
-              <Fecha6DuosGrid duos={duos} />
-            </View>
-          ) : null}
-        </>
-      )}
-    </Screen>
+          ),
+        }}
+      />
+      <Screen>
+        {loading || !article ? (
+          <ActivityIndicator color={BRAND.colors.red} style={styles.loader} />
+        ) : (
+          <>
+            <PageHeader
+              kicker={article.category || undefined}
+              title={article.title}
+              subtitle={
+                article.image_url || isDuos
+                  ? undefined
+                  : formatDate(article.published_at)
+              }
+            />
+            {article.image_url && !isDuos ? (
+              <Image
+                source={{ uri: resolveMediaUrl(article.image_url) }}
+                style={styles.image}
+                resizeMode="contain"
+              />
+            ) : null}
+            {article.body || article.excerpt ? (
+              <Text style={styles.body}>{article.body ?? article.excerpt}</Text>
+            ) : null}
+            {isDuos ? (
+              <View style={styles.duosWrap}>
+                <Text style={styles.duosTitle}>
+                  Dúos publicados ({duos.length})
+                </Text>
+                <Fecha6DuosGrid duos={duos} />
+              </View>
+            ) : null}
+          </>
+        )}
+      </Screen>
+    </>
   );
 }
 

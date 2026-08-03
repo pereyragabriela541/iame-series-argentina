@@ -24,6 +24,9 @@ const HEADERS = [
   "equipo",
   "ciudad",
   "origen",
+  "invitado_nombre",
+  "invitado_dni",
+  "invitado_nacimiento",
   "inscripto_el",
 ];
 

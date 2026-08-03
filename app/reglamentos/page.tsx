@@ -17,7 +17,7 @@ export default async function ReglamentosPage() {
   return (
     <div className="space-y-6">
       {!dbReady && <DbSetupBanner />}
-      <PageHeader kicker="Oficial" title="Reglamentos" subtitle="Documentación deportiva y técnica 2026" />
+      <PageHeader kicker="Oficial" title="Reglamentos" subtitle="Documentación deportiva y técnica oficial" />
       {regulations.length ? (
         <div className="grid gap-2 sm:grid-cols-2">
           {regulations.map((r) => (

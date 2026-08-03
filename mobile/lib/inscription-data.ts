@@ -16,7 +16,7 @@ export const INSCRIPTION_CATEGORIES: InscriptionCategoryOption[] = [
   { value: "60-mini-under", label: "60 MINI UNDER" },
   { value: "junior", label: "JUNIOR MY10" },
   { value: "senior", label: "SENIOR MY10" },
-  { value: "master", label: "MASTER MY10/GENTLEMAN" },
+  { value: "master", label: "MASTER MY10" },
   { value: "master-gentleman", label: "GENTLEMAN" },
   { value: "okn-junior", label: "OKN JUNIOR" },
   { value: "okn", label: "OKN" },
@@ -63,4 +63,9 @@ export function findRoundLabel(
   options: InscriptionRoundOption[],
 ): string {
   return options.find((o) => o.value === value)?.label ?? value;
+}
+
+/** Fecha 6: inscripción titular + piloto invitado (solo esa fecha). */
+export function isDualPilotRound(roundKey: string): boolean {
+  return roundKey === "fecha-6";
 }

@@ -91,9 +91,9 @@ function foundInscriptionMessage(hasTurno: boolean, alreadyRegistered = false) {
 
 const PRIVACY_TEXT = (
   <>
-    Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis datos
-    personales (y, si corresponde, del piloto invitado y de las fotografías
-    cargadas, inclusive su publicación en Noticias) conforme a la{" "}
+    Autorizo a BS Proyect, organizador de IAME Series Argentina, al tratamiento
+    de mis datos personales (y, si corresponde, del piloto invitado y de las
+    fotografías cargadas, inclusive su publicación en Noticias) conforme a la{" "}
     <Link href="/privacidad" className="text-iame-sky hover:underline">
       política de privacidad
     </Link>{" "}

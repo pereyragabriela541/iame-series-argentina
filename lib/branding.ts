@@ -32,5 +32,4 @@ export const NAV_LINKS = [
 export const LEGAL_LINKS = [
   { href: "/privacidad", label: "Privacidad" },
   { href: "/terminos", label: "Términos" },
-  { href: "/eliminar-cuenta", label: "Eliminar cuenta" },
 ] as const;

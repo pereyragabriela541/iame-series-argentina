@@ -9,12 +9,12 @@ export const metadata = calendarMetadata;
 
 export default async function CalendarioPage() {
   let rounds: Round[] = [];
-  let year = 2026;
+  let year: number | null = null;
   let dbReady = true;
 
   try {
     const [season, config] = await Promise.all([getActiveSeason(), getAppConfig()]);
-    year = config.temporada?.year ?? season?.year ?? 2026;
+    year = config.temporada?.year ?? season?.year ?? null;
     if (season) rounds = await getRounds(season.id);
   } catch {
     dbReady = false;
@@ -24,9 +24,13 @@ export default async function CalendarioPage() {
     <div className="space-y-6">
       {!dbReady && <DbSetupBanner />}
       <PageHeader
-        kicker={`Temporada ${year}`}
+        kicker={year != null ? `Temporada ${year}` : "Temporada"}
         title="Calendario"
-        subtitle={`${rounds.length ? `${rounds.length} fechas` : "11 fechas"} — Calendario oficial IAME Series Argentina`}
+        subtitle={
+          rounds.length
+            ? `${rounds.length} fechas — Calendario oficial IAME Series Argentina`
+            : "Calendario oficial IAME Series Argentina"
+        }
       />
       <div className="grid gap-3">
         {rounds.map((r) => <RoundCard key={r.id} round={r} />)}

@@ -1,0 +1,454 @@
+{
+  "category_slug": "senior",
+  "note": "Old Senior tras Fecha 5 — puntos art 12.1 BS Proyect 2026",
+  "pilots": [
+    {
+      "position": 1,
+      "pilot_name": "FIGUEROA FRANCISCO",
+      "points": 186,
+      "pilot_number": "822",
+      "wins": 1,
+      "nationality": "ARG"
+    },
+    {
+      "position": 2,
+      "pilot_name": "CORDONE TOMAS",
+      "points": 176,
+      "pilot_number": "807",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 3,
+      "pilot_name": "SILVESTRE FACUNDO",
+      "points": 166,
+      "pilot_number": "806",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 4,
+      "pilot_name": "BONAGLIA MATTEO",
+      "points": 161,
+      "pilot_number": "804",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 5,
+      "pilot_name": "BATTAGLIA FRANCO",
+      "points": 151,
+      "pilot_number": "899",
+      "wins": 1,
+      "nationality": "ARG"
+    },
+    {
+      "position": 6,
+      "pilot_name": "ARELLANO FACUNDO",
+      "points": 150,
+      "pilot_number": "802",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 7,
+      "pilot_name": "CORAPI TICIANO",
+      "points": 141,
+      "pilot_number": "890",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 8,
+      "pilot_name": "GUARNIERI VALENTINO",
+      "points": 103,
+      "pilot_number": "877",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 9,
+      "pilot_name": "SILVESTRE FEDERICO",
+      "points": 101,
+      "pilot_number": "857",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 10,
+      "pilot_name": "MANTA NICOLAS",
+      "points": 95,
+      "pilot_number": "841",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 11,
+      "pilot_name": "MATTAR RICARDO",
+      "points": 89,
+      "pilot_number": "887",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 12,
+      "pilot_name": "BARTUCCI SANTINO",
+      "points": 86,
+      "pilot_number": "814",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 13,
+      "pilot_name": "BRASESCO NICOLAS",
+      "points": 71,
+      "pilot_number": "885",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 14,
+      "pilot_name": "ALVARO DIEGO",
+      "points": 66,
+      "pilot_number": "876",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 15,
+      "pilot_name": "QUATTROMANO LUKA",
+      "points": 59,
+      "pilot_number": "812",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 16,
+      "pilot_name": "AMORELLI RAMIRO",
+      "points": 54,
+      "pilot_number": "844",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 17,
+      "pilot_name": "VILLALOBOS BASTIAN",
+      "points": 51,
+      "pilot_number": "891",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 18,
+      "pilot_name": "BALIÑAS AGUSTIN",
+      "points": 50,
+      "pilot_number": "818",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 19,
+      "pilot_name": "AMBROSETTI MANUEL",
+      "points": 49,
+      "pilot_number": "892",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 20,
+      "pilot_name": "NIETZEL JOAQUIN",
+      "points": 48,
+      "pilot_number": "820",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 21,
+      "pilot_name": "ORCHESE NICOLAS",
+      "points": 48,
+      "pilot_number": "850",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 22,
+      "pilot_name": "CARMONA CIRO",
+      "points": 47,
+      "pilot_number": "853",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 23,
+      "pilot_name": "DAZ BAUTISTA",
+      "points": 45,
+      "pilot_number": "16",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 24,
+      "pilot_name": "CAMPOS AGUSTIN",
+      "points": 43,
+      "pilot_number": "825",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 25,
+      "pilot_name": "PESCE SANTINO",
+      "points": 41,
+      "pilot_number": "817",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 26,
+      "pilot_name": "DRUETTO FRANCO",
+      "points": 40,
+      "pilot_number": "830",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 27,
+      "pilot_name": "ALVAREZ DAVID",
+      "points": 38,
+      "pilot_number": "880",
+      "wins": 0,
+      "nationality": "PAR"
+    },
+    {
+      "position": 28,
+      "pilot_name": "FLORES ISABEL",
+      "points": 33,
+      "pilot_number": "826",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 29,
+      "pilot_name": "NINE MARTIN",
+      "points": 33,
+      "pilot_number": "860",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 30,
+      "pilot_name": "RODRIGUEZ AGUSTIN",
+      "points": 32,
+      "pilot_number": "27",
+      "wins": 0,
+      "nationality": "PAR"
+    },
+    {
+      "position": 31,
+      "pilot_name": "TRETTEL AUGUSTO",
+      "points": 31,
+      "pilot_number": "888",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 32,
+      "pilot_name": "PINEIRO MAXIMILIANO",
+      "points": 30,
+      "pilot_number": "866",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 33,
+      "pilot_name": "CORONA EMMANUEL",
+      "points": 24,
+      "pilot_number": "31",
+      "wins": 0,
+      "nationality": "CHILE"
+    },
+    {
+      "position": 34,
+      "pilot_name": "FRANCESCHINI SEBASTIAN",
+      "points": 23,
+      "pilot_number": "889",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 35,
+      "pilot_name": "NEFA IGNACIO",
+      "points": 21,
+      "pilot_number": "33",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 36,
+      "pilot_name": "SUAREZ THOMAS",
+      "points": 21,
+      "pilot_number": "852",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 37,
+      "pilot_name": "FORCONI NICOLAS",
+      "points": 16,
+      "pilot_number": "35",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 38,
+      "pilot_name": "LAPROVITERA NICOLAS",
+      "points": 16,
+      "pilot_number": "36",
+      "wins": 0,
+      "nationality": "URU"
+    },
+    {
+      "position": 39,
+      "pilot_name": "PINTOS MORENA",
+      "points": 16,
+      "pilot_number": "881",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 40,
+      "pilot_name": "HAMMERSCHMIDT FRANCO",
+      "points": 16,
+      "pilot_number": "883",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 41,
+      "pilot_name": "TETI MATEO",
+      "points": 16,
+      "pilot_number": "894",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 42,
+      "pilot_name": "LOPEZ FRANCISCO",
+      "points": 15,
+      "pilot_number": "827",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 43,
+      "pilot_name": "GUADALUPE PEDROZO",
+      "points": 13,
+      "pilot_number": "38",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 44,
+      "pilot_name": "CONSTANZO MAXIMO",
+      "points": 12,
+      "pilot_number": "39",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 45,
+      "pilot_name": "RUMIE JOAQUIN",
+      "points": 11,
+      "pilot_number": "809",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 46,
+      "pilot_name": "MOYANO TOMAS",
+      "points": 11,
+      "pilot_number": "838",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 47,
+      "pilot_name": "CHORNE AYRTON",
+      "points": 10,
+      "pilot_number": "42",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 48,
+      "pilot_name": "VALLE JOAQUIN",
+      "points": 9,
+      "pilot_number": "43",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 49,
+      "pilot_name": "SARMARTARO IVO",
+      "points": 9,
+      "pilot_number": "45",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 50,
+      "pilot_name": "RINCON AGUSTIN",
+      "points": 9,
+      "pilot_number": "897",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 51,
+      "pilot_name": "GIANOTTI JUAN F",
+      "points": 8,
+      "pilot_number": "46",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 52,
+      "pilot_name": "LETROYE LUCA",
+      "points": 8,
+      "pilot_number": "878",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 53,
+      "pilot_name": "OMAR JORGE",
+      "points": 8,
+      "pilot_number": "871",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 54,
+      "pilot_name": "GIANI SANTINO",
+      "points": 7,
+      "pilot_number": "50",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 55,
+      "pilot_name": "OJEDA MARTIN",
+      "points": 7,
+      "pilot_number": "811",
+      "wins": 0,
+      "nationality": "ARG"
+    },
+    {
+      "position": 56,
+      "pilot_name": "TACCHELLA PABLO",
+      "points": 6,
+      "pilot_number": "851",
+      "wins": 0,
+      "nationality": "ARG"
+    }
+  ]
+}

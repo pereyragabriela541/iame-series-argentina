@@ -113,7 +113,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 export default function RoundCountdown({ round }: RoundCountdownProps) {
   const window = useMemo(
     () => getRoundEventWindow(round),
-    [round.round_number, round.event_date, round.event_date_iso],
+    [round.event_date, round.event_date_iso],
   );
   const [state, setState] = useState<CountdownState>({ kind: "loading" });
   const showLights = state.kind === "countdown";

@@ -1,7 +1,10 @@
 import { BRAND } from "@/lib/branding";
 import { SITE_URL } from "@/lib/site";
 
-export const LEGAL_LAST_UPDATED = "27 de julio de 2026";
+export const LEGAL_LAST_UPDATED = "3 de agosto de 2026";
+
+/** Nombre comercial de la app en App Store / Play Store. */
+export const MOBILE_APP_NAME = "BS Proyect";
 
 export interface LegalSection {
   title: string;
@@ -20,7 +23,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
   {
     title: "2. Alcance",
     paragraphs: [
-      `Esta política aplica al sitio web ${SITE_URL}, a la aplicación móvil oficial de ${BRAND.name} (iOS y Android) y a los formularios de inscripción, reserva de turnos, creación de cuenta de usuario y comunicaciones vinculadas al campeonato.`,
+      `Esta política aplica al sitio web ${SITE_URL}, a la aplicación móvil ${MOBILE_APP_NAME} (iOS y Android) —app oficial del campeonato ${BRAND.name}— y a los formularios de inscripción, reserva de turnos, creación de cuenta de usuario y comunicaciones vinculadas al campeonato.`,
     ],
   },
   {
@@ -46,7 +49,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     list: [
       "Crear y administrar la cuenta de usuario en la app y en los servicios asociados",
       "Gestionar inscripciones y reservas de turnos",
-      "Enviar confirmaciones por correo y, si corresponde, notificaciones push de alertas del campeonato",
+      "Enviar confirmaciones por correo (inscripción, turno, verificación o recuperación de cuenta) y, si corresponde, notificaciones push de alertas del campeonato",
       "En fechas con dúos (titular + invitado), publicar en la sección Noticias del sitio las fotos y nombres asociados a la inscripción, con fines de difusión del campeonato",
       "Permitir al titular, mediante el código de su turno, cambiar o quitar las fotos de la inscripción cuando esa función esté habilitada",
       "Mostrar en la cuenta del piloto información vinculada al campeonato (por ejemplo presentismo, posición y puntos) según el número de kart y categoría declarados",
@@ -59,7 +62,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     title: "5. Base de consentimiento",
     paragraphs: [
       "El tratamiento se realiza con tu consentimiento expreso al completar formularios, crear una cuenta o aceptar esta política, y cuando sea necesario para la ejecución de la inscripción, el uso de la app o el cumplimiento de obligaciones legales.",
-      "Podés navegar el contenido público de la aplicación móvil (noticias, calendario, resultados, documentos y secciones informativas) sin crear una cuenta. El registro e inicio de sesión son necesarios para gestionar tu perfil de piloto, la foto de cuenta y las alertas push. Al crear una cuenta aceptás esta política y los términos de uso vigentes.",
+      `Podés navegar el contenido público de la aplicación móvil ${MOBILE_APP_NAME} (noticias, calendario, resultados, documentos y secciones informativas) sin crear una cuenta. El registro e inicio de sesión son necesarios para gestionar tu perfil de piloto, la foto de cuenta y las alertas push. Al crear una cuenta aceptás esta política y los términos de uso vigentes.`,
       "Cuando la inscripción incluye piloto invitado y fotografías, quien completa el formulario declara actuar como titular o en representación autorizada, y acepta el tratamiento y la eventual publicación de esos datos e imágenes conforme a esta política y a los términos vigentes.",
     ],
   },
@@ -80,7 +83,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       "Supabase: autenticación, base de datos y almacenamiento de archivos (foto de perfil y fotos de inscripción de dúos)",
       "Expo (Expo Push Notifications): entrega de notificaciones push a dispositivos que las hayan habilitado",
       "Proveedores de hosting y despliegue del sitio y de las APIs (por ejemplo, la infraestructura donde corre www.bsproyect.com)",
-      "Proveedores de correo electrónico para confirmaciones de cuenta, inscripciones y comunicaciones operativas del campeonato",
+      "Proveedores de correo electrónico para confirmaciones de cuenta, recuperación de contraseña, inscripciones, turnos y comunicaciones operativas del campeonato",
     ],
   },
   {
@@ -98,9 +101,9 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     ],
   },
   {
-    title: "9. Eliminación de cuenta (aplicación móvil)",
+    title: `9. Eliminación de cuenta (app ${MOBILE_APP_NAME})`,
     paragraphs: [
-      "Si creaste una cuenta en la aplicación móvil, podés eliminar tu cuenta desde la propia app: sección Cuenta → Eliminar cuenta.",
+      `Si creaste una cuenta en la aplicación móvil ${MOBILE_APP_NAME}, podés eliminar tu cuenta desde la propia app: sección Cuenta → Eliminar cuenta.`,
       "Al confirmar la eliminación se borra de inmediato tu cuenta de acceso, tu perfil (nombre, teléfono, kart, categoría, equipo, chasis, foto), tus tokens de notificación push y la foto de perfil almacenada.",
       "La eliminación de la cuenta de la app no borra automáticamente las inscripciones, turnos ni las fotos de dúos publicadas en el sitio del campeonato. Para esas solicitudes escribinos a la dirección de contacto de esta política.",
       "La eliminación de la cuenta es definitiva: no se trata de una desactivación temporal. Si solo querés dejar de usar la app sin borrar datos, usá Cerrar sesión.",
@@ -149,25 +152,25 @@ export const TERMS_SECTIONS: LegalSection[] = [
   {
     title: "1. Aceptación",
     paragraphs: [
-      `Al acceder y utilizar ${SITE_URL} y/o la aplicación móvil oficial de ${BRAND.name} aceptás estos Términos y Condiciones de Uso. Si no estás de acuerdo, no utilices el sitio ni la app.`,
+      `Al acceder y utilizar ${SITE_URL} y/o la aplicación móvil ${MOBILE_APP_NAME} (oficial del campeonato ${BRAND.name}) aceptás estos Términos y Condiciones de Uso. Si no estás de acuerdo, no utilices el sitio ni la app.`,
     ],
   },
   {
     title: "2. Titular del sitio y de la app",
     paragraphs: [
-      `El sitio y la aplicación móvil son operados por ${BRAND.organizer} en el marco de ${BRAND.name}. Las referencias a “nosotros” o “la organización” aluden a ${BRAND.organizer} y al equipo organizador del campeonato.`,
+      `El sitio y la aplicación móvil ${MOBILE_APP_NAME} son operados por ${BRAND.organizer} en el marco de ${BRAND.name}. Las referencias a “nosotros” o “la organización” aluden a ${BRAND.organizer} y al equipo organizador del campeonato.`,
     ],
   },
   {
     title: "3. Objeto",
     paragraphs: [
-      "El sitio y la app tienen fines informativos y operativos: difusión de calendario, campeonato, resultados, noticias, inscripciones, turnos de administración, material oficial y, en la app, gestión de cuenta de usuario, perfil del piloto y alertas.",
+      `El sitio y la app ${MOBILE_APP_NAME} tienen fines informativos y operativos: difusión de calendario, campeonato, resultados, noticias, inscripciones, turnos de administración, material oficial y, en la app, gestión de cuenta de usuario, perfil del piloto y alertas.`,
     ],
   },
   {
-    title: "4. Cuenta de usuario (aplicación móvil)",
+    title: `4. Cuenta de usuario (app ${MOBILE_APP_NAME})`,
     paragraphs: [
-      "Podés usar el contenido informativo de la aplicación móvil sin crear una cuenta. Crear una cuenta e iniciar sesión con correo electrónico y contraseña es necesario para gestionar tu perfil de piloto, tu foto de cuenta y las alertas push del campeonato.",
+      `Podés usar el contenido informativo de la aplicación móvil ${MOBILE_APP_NAME} sin crear una cuenta. Crear una cuenta e iniciar sesión con correo electrónico y contraseña es necesario para gestionar tu perfil de piloto, tu foto de cuenta y las alertas push del campeonato.`,
       "Te comprometés a proporcionar datos veraces en tu perfil (incluyendo, si corresponde, número de kart, categoría, equipo y chasis) y a mantener actualizada tu información.",
       "La foto de perfil (foto de cuenta) es opcional: se usa para mostrarse en tu sección Cuenta dentro de la app y no se publica automáticamente en Noticias ni en la grilla de dúos. Es de tu exclusiva responsabilidad en cuanto a derechos de imagen y contenido.",
       "Podés eliminar tu cuenta en cualquier momento desde la sección Cuenta de la app. La eliminación borra el acceso y los datos de perfil asociados, conforme a la Política de Privacidad.",

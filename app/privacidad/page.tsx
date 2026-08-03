@@ -6,7 +6,7 @@ import { LEGAL_LAST_UPDATED, PRIVACY_SECTIONS } from "@/lib/legal-content";
 export const metadata = {
   title: "Política de Privacidad | IAME Series Argentina",
   description:
-    "Política de privacidad y tratamiento de datos personales de IAME Series Argentina.",
+    "Política de privacidad y tratamiento de datos personales de BS Proyect e IAME Series Argentina (sitio web y app móvil BS Proyect).",
 };
 
 export default function PrivacidadPage() {

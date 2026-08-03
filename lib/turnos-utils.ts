@@ -78,15 +78,29 @@ export function buildSlotsFromConfig(config: TurnosConfig): Omit<TurnoSlot, "dis
   return slots;
 }
 
+export function countReservationsBySlot(
+  reservations: { slot_id: string }[]
+): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const r of reservations) {
+    counts[r.slot_id] = (counts[r.slot_id] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export function mergeSlotAvailability(
   theoretical: Omit<TurnoSlot, "disponible">[],
-  occupied: { slot_id: string; reservados: number; cupo_max: number }[]
+  occupied: { slot_id: string; reservados: number; cupo_max: number }[],
+  reservationCounts?: Record<string, number>
 ): TurnoSlot[] {
   const map = Object.fromEntries(occupied.map((s) => [s.slot_id, s]));
 
   return theoretical.map((slot) => {
     const occ = map[slot.slotId];
-    const reservados = occ?.reservados ?? slot.reservados;
+    const reservados =
+      reservationCounts !== undefined
+        ? (reservationCounts[slot.slotId] ?? 0)
+        : (occ?.reservados ?? slot.reservados);
     const cupoMax = occ?.cupo_max ?? slot.cupoMax;
     return {
       ...slot,

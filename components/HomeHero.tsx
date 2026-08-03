@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { BRAND } from "@/lib/branding";
 
 interface HomeHeroProps {
-  year: number;
+  year: number | null;
   regularRounds: number;
 }
 
@@ -83,13 +83,14 @@ export default function HomeHero({ year, regularRounds }: HomeHeroProps) {
       <div className="relative z-10 flex min-h-[min(88vh,820px)] flex-col justify-center p-6 sm:p-10 lg:p-14">
         <div className="max-w-2xl">
           <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-iame-red">
-            Champion Cup {year}
+            Champion Cup{year != null ? ` ${year}` : ""}
           </p>
           <h1 className="mt-2 text-3xl font-black uppercase italic tracking-tight text-white sm:text-5xl lg:text-6xl">
             {BRAND.name}
           </h1>
           <p className="mt-3 max-w-xl text-sm text-neutral-200 sm:text-base">
-            Calendario karting Argentina, campeonato Champion Cup {year}, resultados en vivo
+            Calendario karting Argentina, campeonato
+            {year != null ? ` Champion Cup ${year}` : ""}, resultados en vivo
             e inscripción IAME. Sitio oficial de IAME Series Argentina.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">

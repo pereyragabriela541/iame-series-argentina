@@ -24,8 +24,10 @@ export default function NewsCard({ article }: { article: NewsArticle }) {
         />
       ) : null}
       <View style={styles.body}>
-        <Text style={styles.category}>{article.category ?? "General"}</Text>
-        <Text style={styles.title}>{article.title}</Text>
+        {article.category ? (
+          <Text style={styles.category}>{article.category}</Text>
+        ) : null}
+        <Text style={[styles.title, !article.category && styles.titleNoCategory]}>{article.title}</Text>
         {article.excerpt ? (
           <Text style={styles.excerpt} numberOfLines={2}>
             {article.excerpt}
@@ -62,6 +64,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginTop: 4,
   },
+  titleNoCategory: { marginTop: 0 },
   excerpt: { color: BRAND.colors.muted, fontSize: 12, marginTop: 6, lineHeight: 18 },
   date: {
     color: "#525252",

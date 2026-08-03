@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import PageHeader from "@/components/PageHeader";
 import { BRAND } from "@/lib/branding";
-import { LEGAL_LAST_UPDATED } from "@/lib/legal-content";
+import { LEGAL_LAST_UPDATED, MOBILE_APP_NAME } from "@/lib/legal-content";
 
 export const metadata = {
-  title: `Eliminar cuenta y datos | ${BRAND.name}`,
-  description: `Cómo solicitar la eliminación de cuenta y datos personales de la app ${BRAND.name}, organizada por ${BRAND.organizer}.`,
+  title: `Eliminar cuenta y datos | ${MOBILE_APP_NAME}`,
+  description: `Cómo solicitar la eliminación de cuenta y datos personales de la app ${MOBILE_APP_NAME} (${BRAND.name}), organizada por ${BRAND.organizer}.`,
 };
 
 export default function EliminarCuentaPage() {
@@ -15,7 +15,7 @@ export default function EliminarCuentaPage() {
       <PageHeader
         kicker={BRAND.name}
         title="Eliminar cuenta y datos"
-        subtitle={`Solicitud de borrado para la app ${BRAND.name} (desarrollada / organizada por ${BRAND.organizer})`}
+        subtitle={`Solicitud de borrado para la app ${MOBILE_APP_NAME} (oficial de ${BRAND.name}, organizada por ${BRAND.organizer})`}
       />
 
       <article className="space-y-8 border border-neutral-800 bg-neutral-900/30 p-6 sm:p-8">
@@ -29,6 +29,8 @@ export default function EliminarCuentaPage() {
           </h2>
           <p className="text-sm leading-relaxed text-neutral-400">
             Esta página corresponde a la aplicación móvil{" "}
+            <strong className="text-white">{MOBILE_APP_NAME}</strong>, app
+            oficial del campeonato{" "}
             <strong className="text-white">{BRAND.name}</strong>, cuyo
             responsable/organizador es{" "}
             <strong className="text-white">{BRAND.organizer}</strong>. Contacto:{" "}
@@ -48,8 +50,9 @@ export default function EliminarCuentaPage() {
           </h2>
           <ol className="list-decimal space-y-2 pl-5 text-sm leading-relaxed text-neutral-400">
             <li>
-              Abrí la app <strong className="text-white">{BRAND.name}</strong> en
-              tu teléfono.
+              Abrí la app{" "}
+              <strong className="text-white">{MOBILE_APP_NAME}</strong> en tu
+              teléfono.
             </li>
             <li>Iniciá sesión con el email y contraseña de tu cuenta.</li>
             <li>
