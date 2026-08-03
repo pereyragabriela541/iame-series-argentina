@@ -34,6 +34,7 @@ create table if not exists rounds (
   event_date date,
   event_date_iso timestamptz,
   flyer_url text,
+  flyer_text text,
   map_url text,
   map_pdf_url text,
   status text not null default 'upcoming' check (status in ('upcoming', 'live', 'finished')),

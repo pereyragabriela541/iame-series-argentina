@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "IAME Series Argentina",
+    "name": "BS Proyect",
     "slug": "iame-series-argentina",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,7 @@
     "scheme": "iame-series",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.bsproyect.iameseries",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -16,6 +16,7 @@
     },
     "android": {
       "package": "com.bsproyect.iameseries",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#0a0a0a",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -50,8 +51,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "IAME Series necesita acceso a tus fotos para tu perfil y para la inscripción con fotos de dúo.",
-          "cameraPermission": "IAME Series necesita la cámara para tu foto de perfil."
+          "photosPermission": "BS Proyect necesita acceso a tus fotos para tu perfil y para la inscripción con fotos de dúo.",
+          "cameraPermission": false
         }
       ]
     ],

@@ -3,11 +3,11 @@ import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner, EmptyState, PdfLink } from "@/components/ui";
 import { formatRoundEventDates, getRoundKicker } from "@/lib/calendar-dates";
 import {
+  getAppConfig,
   getCategories,
   getRoundById,
   getRoundResults,
 } from "@/lib/queries";
-import { getRoundFlyerBlurb } from "@/lib/round-flyers";
 import { groupRoundResultsByCategory } from "@/lib/round-results-order";
 import type { Category, RoundResult } from "@/lib/types";
 import { notFound } from "next/navigation";
@@ -27,13 +27,24 @@ export default async function RoundDetailPage({
   let round = null;
   let results: RoundResult[] = [];
   let categories: Category[] = [];
+  let flyerBlurb: string | null = null;
 
   try {
-    [round, results, categories] = await Promise.all([
+    const [roundRow, resultsRows, cats, config] = await Promise.all([
       getRoundById(id),
       getRoundResults(id),
       getCategories(),
+      getAppConfig(),
     ]);
+    round = roundRow;
+    results = resultsRows;
+    categories = cats;
+    if (round) {
+      flyerBlurb =
+        round.flyer_text?.trim() ||
+        config.flyer_copy?.[String(round.round_number)]?.trim() ||
+        null;
+    }
   } catch {
     return (
       <div className="space-y-6">
@@ -45,7 +56,6 @@ export default async function RoundDetailPage({
   if (!round) notFound();
 
   const groupedResults = groupRoundResultsByCategory(results, categories);
-  const flyerBlurb = getRoundFlyerBlurb(round.round_number);
 
   return (
     <div className="space-y-6">

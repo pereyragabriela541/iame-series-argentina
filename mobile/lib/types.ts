@@ -55,7 +55,7 @@ export interface Standing {
   points: number;
   position: number | null;
   wins: number;
-  presentismo?: number | null;
+  presentismo: number | null;
   clasif: number | null;
   m1: number | null;
   m2: number | null;
@@ -74,6 +74,49 @@ export interface NewsArticle {
   is_published: boolean;
   sort_order: number;
   published_at: string | null;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  body: string | null;
+  published_at: string | null;
+}
+
+export interface Profile {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  kart_number: string | null;
+  category_slug: string | null;
+  team: string | null;
+  chassis: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AppConfig {
+  temporada?: {
+    year?: number;
+    nombre?: string;
+    organizador?: string;
+    inscripcion_habilitada?: boolean;
+  };
+  live?: {
+    is_live?: boolean;
+    timing_url?: string;
+    speedhive_url?: string;
+    mylaps_url?: string;
+    round_label?: string;
+  };
+  transmision?: {
+    titulo?: string;
+    url?: string;
+    descripcion?: string;
+  };
+  /** Textos bajo flyer por round_number ("6" → texto). Editable sin rebuild. */
+  flyer_copy?: Record<string, string>;
 }
 
 export interface Regulation {
@@ -121,7 +164,7 @@ export interface MediaVideo {
   rounds?: Pick<Round, "round_number" | "name"> | null;
 }
 
-/** Textos editables de /imagenes y /videos (cabecera de página o bloque por fecha) */
+/** Textos editables de Imágenes / Videos */
 export interface MediaSection {
   id: string;
   media_type: "images" | "videos";
@@ -133,44 +176,4 @@ export interface MediaSection {
   description: string | null;
   sort_order: number;
   is_published: boolean;
-}
-
-export interface Notification {
-  id: string;
-  title: string;
-  body: string | null;
-  published_at: string | null;
-}
-
-export interface AppConfig {
-  temporada?: {
-    year?: number;
-    nombre?: string;
-    organizador?: string;
-    inscripcion_habilitada?: boolean;
-  };
-  contacto?: {
-    email?: string;
-    inscripciones_email?: string;
-  };
-  live?: {
-    is_live?: boolean;
-    timing_url?: string;
-    speedhive_url?: string;
-    mylaps_url?: string;
-    round_label?: string;
-  };
-  transmision?: {
-    titulo?: string;
-    url?: string;
-    descripcion?: string;
-  };
-  /** Textos bajo flyer por round_number ("6" → texto). Editable sin rebuild. */
-  flyer_copy?: Record<string, string>;
-  theme?: {
-    navy?: string;
-    red?: string;
-    silver?: string;
-    sky?: string;
-  };
 }

@@ -14,11 +14,11 @@ import PrimaryButton from "@/components/PrimaryButton";
 import Screen from "@/components/Screen";
 import { formatRoundEventDates, getRoundKicker } from "@/lib/calendar-dates";
 import {
+  getAppConfig,
   getCategories,
   getRoundById,
   getRoundResults,
 } from "@/lib/queries";
-import { getRoundFlyerBlurb } from "@/lib/round-flyers";
 import { resolveMediaUrl } from "@/lib/site";
 import { BRAND } from "@/lib/theme";
 import type { Category, Round, RoundResult } from "@/lib/types";
@@ -28,6 +28,7 @@ export default function RoundDetailScreen() {
   const [round, setRound] = useState<Round | null>(null);
   const [results, setResults] = useState<RoundResult[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [flyerBlurb, setFlyerBlurb] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -35,20 +36,29 @@ export default function RoundDetailScreen() {
       if (!id) return;
       setLoading(true);
       void (async () => {
-        const [r, cats] = await Promise.all([
+        const [r, cats, config] = await Promise.all([
           getRoundById(id),
           getCategories(),
+          getAppConfig(),
         ]);
         setRound(r);
         setCategories(cats);
-        if (r) setResults(await getRoundResults(r.id));
+        if (r) {
+          setResults(await getRoundResults(r.id));
+          setFlyerBlurb(
+            r.flyer_text?.trim() ||
+              config.flyer_copy?.[String(r.round_number)]?.trim() ||
+              null,
+          );
+        } else {
+          setFlyerBlurb(null);
+        }
         setLoading(false);
       })();
     }, [id]),
   );
 
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c]));
-  const flyerBlurb = round ? getRoundFlyerBlurb(round.round_number) : null;
 
   return (
     <Screen>

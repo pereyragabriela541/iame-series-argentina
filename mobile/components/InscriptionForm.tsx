@@ -403,7 +403,7 @@ export default function InscriptionForm({
       <Pressable style={styles.checkRow} onPress={() => setPrivacy((p) => !p)}>
         <View style={[styles.checkbox, privacy && styles.checkboxOn]} />
         <Text style={styles.checkText}>
-          Autorizo a IAME Series Argentina (BS Proyect) al tratamiento de mis
+          Autorizo a BS Proyect al tratamiento de mis
           datos personales (y, si corresponde, del piloto invitado y de las
           fotografías cargadas, inclusive su publicación en Noticias) conforme
           a la{" "}

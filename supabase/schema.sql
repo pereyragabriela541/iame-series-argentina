@@ -38,6 +38,7 @@ create table if not exists rounds (
   event_date date,
   event_date_iso timestamptz,
   flyer_url text,
+  flyer_text text,
   map_url text,
   map_pdf_url text,
   status text not null default 'upcoming' check (status in ('upcoming', 'live', 'finished')),
@@ -293,7 +294,7 @@ on conflict (season_id, round_number) do update set
 insert into app_config (key, value) values
   ('temporada', '{"year": 2026, "nombre": "IAME Series Argentina", "organizador": "BS Proyect", "inscripcion_habilitada": true}'),
   ('contacto', '{"email": "info@iameseriesargentina.com.ar", "inscripciones_email": "inscripciones@iameseriesargentina.com.ar"}'),
-  ('live', '{"is_live": false, "timing_url": "", "round_label": "Fecha 5"}'),
+  ('live', '{"is_live": false, "timing_url": "", "round_label": ""}'),
   ('transmision', '{"titulo": "Transmisión en Vivo", "url": "", "descripcion": "Seguí la transmisión oficial de IAME Series Argentina."}'),
   ('theme', '{"navy": "#004A99", "red": "#E30613", "silver": "#A7A9AC", "sky": "#75BEE9"}')
 on conflict (key) do update set value = excluded.value, updated_at = now();

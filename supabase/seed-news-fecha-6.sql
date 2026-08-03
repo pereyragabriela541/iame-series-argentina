@@ -1,13 +1,11 @@
--- Flyer Fecha 6 — Gran Premio Nave Planes / Pilotos Invitados
--- Va en Calendario → Fecha 6 (rounds.flyer_url), no en Noticias.
--- Ejecutar en Supabase → SQL Editor
+-- Opcional (largo plazo): texto del flyer en la fila de la fecha.
+-- Hoy el texto vive en app_config.flyer_copy (sin migración) y la imagen en rounds.flyer_url.
 
+alter table rounds
+  add column if not exists flyer_text text;
+
+-- Ejemplo Fecha 6
 update rounds
 set flyer_url = '/noticias/fecha-6.jpg'
 where round_number = 6
   and season_id = (select id from seasons where is_active = true limit 1);
-
--- Por si quedó una noticia previa del flyer, mantenerla oculta
-update news
-set is_published = false
-where slug in ('fecha-5', 'fecha-6');
