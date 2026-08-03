@@ -27,7 +27,8 @@ export default function FeaturedNewsFlyer({
               {article.body ?? article.excerpt}
             </p>
           )}
-          {showInscriptionCta && article.slug === "fecha-5" && (
+          {showInscriptionCta &&
+            (article.slug === "fecha-6" || article.slug === "fecha-5") && (
             <Link
               href="/inscripcion"
               className="inline-block bg-iame-red px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"

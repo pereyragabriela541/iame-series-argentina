@@ -59,7 +59,7 @@ export default async function NoticiaDetallePage({
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-300">
           {article.body ?? article.excerpt}
         </p>
-        {slug === "fecha-5" && (
+        {(slug === "fecha-6" || slug === "fecha-5") && (
           <Link
             href="/inscripcion"
             className="inline-block bg-iame-red px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
