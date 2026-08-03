@@ -56,6 +56,17 @@ export default async function RoundDetailPage({
         subtitle={`${round.circuit ?? ""} · ${formatRoundEventDates(round)}`}
       />
 
+      {round.flyer_url ? (
+        <div className="border border-neutral-800 bg-neutral-950">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={round.flyer_url}
+            alt={`Flyer ${round.name}`}
+            className="mx-auto block w-full max-w-xl object-contain"
+          />
+        </div>
+      ) : null}
+
       <div className="grid gap-3 sm:grid-cols-2">
         {round.map_url && (
           <a href={round.map_url} target="_blank" rel="noopener noreferrer" className="border border-neutral-800 px-4 py-3 text-sm text-iame-sky hover:border-iame-sky">
