@@ -5,7 +5,16 @@ import {
   unauthorizedResponse,
   verifyAdminExportToken,
 } from "@/lib/admin-export";
-import { computeResultSortOrder } from "@/lib/round-results-order";
+import {
+  identifyResultPdf,
+  type CategoryRef,
+  type ExistingResultRef,
+} from "@/lib/resultados-identify";
+import { extractPdfContent } from "@/lib/resultados-pdf";
+import {
+  RESULT_SESSION_LABELS,
+  computeResultSortOrder,
+} from "@/lib/round-results-order";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +22,7 @@ export const runtime = "nodejs";
 
 const BUCKET = "resultados";
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const MAX_BULK_FILES = 60;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -54,6 +64,141 @@ async function validateRoundAndCategory(roundId: string, categoryId: string) {
   return category;
 }
 
+async function deleteResultById(resultId: string) {
+  if (!UUID_RE.test(resultId)) throw new Error("Resultado inválido");
+
+  const sb = createSupabaseAdmin();
+  const { data: result, error: fetchError } = await sb
+    .from("round_results")
+    .select("pdf_url")
+    .eq("id", resultId)
+    .single();
+  if (fetchError) throw fetchError;
+
+  const marker = `/storage/v1/object/public/${BUCKET}/`;
+  const markerIndex = result.pdf_url.indexOf(marker);
+  if (markerIndex >= 0) {
+    const path = decodeURIComponent(
+      result.pdf_url.slice(markerIndex + marker.length).split("?")[0],
+    );
+    await sb.storage.from(BUCKET).remove([path]);
+  }
+
+  const { error } = await sb.from("round_results").delete().eq("id", resultId);
+  if (error) throw error;
+}
+
+async function handleIdentify(request: Request) {
+  const form = await request.formData();
+  const roundId = String(form.get("roundId") ?? "");
+  if (!UUID_RE.test(roundId)) return errorResponse("Fecha inválida");
+
+  const files = form
+    .getAll("files")
+    .filter((entry): entry is File => entry instanceof File);
+  if (!files.length) return errorResponse("Seleccioná al menos un PDF");
+  if (files.length > MAX_BULK_FILES) {
+    return errorResponse(`Máximo ${MAX_BULK_FILES} archivos por carga`);
+  }
+
+  const sb = createSupabaseAdmin();
+  const [{ data: round }, { data: categories, error: categoriesError }] =
+    await Promise.all([
+      sb.from("rounds").select("id").eq("id", roundId).maybeSingle(),
+      sb
+        .from("categories")
+        .select("id, name, sort_order, slug")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+    ]);
+  if (!round) return errorResponse("Fecha inexistente");
+  if (categoriesError) throw categoriesError;
+
+  const { data: existing, error: existingError } = await sb
+    .from("round_results")
+    .select("id, category_id, label")
+    .eq("round_id", roundId);
+  if (existingError) throw existingError;
+
+  const categoryRefs = (categories ?? []) as CategoryRef[];
+  const existingRefs = (existing ?? []) as ExistingResultRef[];
+  const matches = [];
+
+  for (const file of files) {
+    if (!file.name.toLowerCase().endsWith(".pdf")) {
+      matches.push({
+        fileName: file.name,
+        status: "needs_review" as const,
+        categoryId: null,
+        categoryName: null,
+        categorySlug: null,
+        label: null,
+        detectedCategoryRaw: null,
+        detectedSessionRaw: null,
+        source: null,
+        reason: "El archivo no es un PDF",
+        duplicateResultId: null,
+      });
+      continue;
+    }
+    if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
+      matches.push({
+        fileName: file.name,
+        status: "needs_review" as const,
+        categoryId: null,
+        categoryName: null,
+        categorySlug: null,
+        label: null,
+        detectedCategoryRaw: null,
+        detectedSessionRaw: null,
+        source: null,
+        reason: "El PDF debe pesar menos de 50 MB",
+        duplicateResultId: null,
+      });
+      continue;
+    }
+
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const extracted = await extractPdfContent(buffer);
+      matches.push(
+        identifyResultPdf(
+          {
+            fileName: file.name,
+            text: extracted.text,
+            title: extracted.title,
+          },
+          categoryRefs,
+          existingRefs,
+        ),
+      );
+    } catch (error) {
+      matches.push({
+        fileName: file.name,
+        status: "needs_review" as const,
+        categoryId: null,
+        categoryName: null,
+        categorySlug: null,
+        label: null,
+        detectedCategoryRaw: null,
+        detectedSessionRaw: null,
+        source: null,
+        reason:
+          error instanceof Error
+            ? `No se pudo leer el PDF: ${error.message}`
+            : "No se pudo leer el PDF",
+        duplicateResultId: null,
+      });
+    }
+  }
+
+  return NextResponse.json({
+    matches,
+    sessionLabels: RESULT_SESSION_LABELS,
+    categories: categoryRefs,
+  });
+}
+
 export async function GET(request: Request) {
   if (!verifyAdminExportToken(request)) return unauthorizedResponse();
 
@@ -66,19 +211,21 @@ export async function GET(request: Request) {
       .single();
     if (seasonError) throw seasonError;
 
-    const [{ data: rounds, error: roundsError }, { data: categories, error: categoriesError }] =
-      await Promise.all([
-        sb
-          .from("rounds")
-          .select("id, round_number, name, status, sort_order")
-          .eq("season_id", season.id)
-          .order("sort_order"),
-        sb
-          .from("categories")
-          .select("id, name, sort_order, slug")
-          .eq("is_active", true)
-          .order("sort_order", { ascending: true }),
-      ]);
+    const [
+      { data: rounds, error: roundsError },
+      { data: categories, error: categoriesError },
+    ] = await Promise.all([
+      sb
+        .from("rounds")
+        .select("id, round_number, name, status, sort_order")
+        .eq("season_id", season.id)
+        .order("sort_order"),
+      sb
+        .from("categories")
+        .select("id, name, sort_order, slug")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+    ]);
     if (roundsError) throw roundsError;
     if (categoriesError) throw categoriesError;
 
@@ -96,6 +243,7 @@ export async function GET(request: Request) {
       rounds: rounds ?? [],
       categories: categories ?? [],
       results: results ?? [],
+      sessionLabels: RESULT_SESSION_LABELS,
     });
   } catch (error) {
     const message =
@@ -108,6 +256,11 @@ export async function POST(request: Request) {
   if (!verifyAdminExportToken(request)) return unauthorizedResponse();
 
   try {
+    const contentType = request.headers.get("content-type") ?? "";
+    if (contentType.includes("multipart/form-data")) {
+      return await handleIdentify(request);
+    }
+
     const body = (await request.json()) as Record<string, unknown>;
     const action = String(body.action ?? "");
     const roundId = String(body.roundId ?? "");
@@ -135,6 +288,7 @@ export async function POST(request: Request) {
     if (action === "complete") {
       const label = String(body.label ?? "").trim().slice(0, 100);
       const path = String(body.path ?? "");
+      const replaceResultId = String(body.replaceResultId ?? "").trim();
       const expectedPrefix = `${roundId}/${categoryId}/`;
       if (!label) return errorResponse("Escribí un nombre para el resultado");
       if (!path.startsWith(expectedPrefix) || !path.endsWith(".pdf")) {
@@ -143,6 +297,24 @@ export async function POST(request: Request) {
 
       const category = await validateRoundAndCategory(roundId, categoryId);
       const sb = createSupabaseAdmin();
+
+      if (replaceResultId) {
+        const { data: previous, error: previousError } = await sb
+          .from("round_results")
+          .select("id, round_id, category_id, label")
+          .eq("id", replaceResultId)
+          .maybeSingle();
+        if (previousError) throw previousError;
+        if (
+          !previous ||
+          previous.round_id !== roundId ||
+          previous.category_id !== categoryId
+        ) {
+          return errorResponse("El resultado a reemplazar no coincide");
+        }
+        await deleteResultById(replaceResultId);
+      }
+
       const slash = path.lastIndexOf("/");
       const folder = path.slice(0, slash);
       const filename = path.slice(slash + 1);
@@ -208,28 +380,7 @@ export async function DELETE(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
     const resultId = String(body.resultId ?? "");
-    if (!UUID_RE.test(resultId)) return errorResponse("Resultado inválido");
-
-    const sb = createSupabaseAdmin();
-    const { data: result, error: fetchError } = await sb
-      .from("round_results")
-      .select("pdf_url")
-      .eq("id", resultId)
-      .single();
-    if (fetchError) throw fetchError;
-
-    const marker = `/storage/v1/object/public/${BUCKET}/`;
-    const markerIndex = result.pdf_url.indexOf(marker);
-    if (markerIndex >= 0) {
-      const path = decodeURIComponent(
-        result.pdf_url.slice(markerIndex + marker.length).split("?")[0],
-      );
-      await sb.storage.from(BUCKET).remove([path]);
-    }
-
-    const { error } = await sb.from("round_results").delete().eq("id", resultId);
-    if (error) throw error;
-
+    await deleteResultById(resultId);
     return NextResponse.json({ ok: true });
   } catch (error) {
     const message =

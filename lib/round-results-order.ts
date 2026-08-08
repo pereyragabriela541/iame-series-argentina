@@ -5,8 +5,14 @@ export const RESULT_SESSION_LABELS = [
   "Manga 1",
   "Manga 2",
   "Clasificación",
+  "Clasificación Titulares",
+  "Clasificación Invitados",
   "Sprint",
+  "Sprint Titulares",
+  "Sprint Invitados",
   "Final",
+  "Final Titulares",
+  "Final Invitados",
 ] as const;
 
 export type ResultSessionLabel = (typeof RESULT_SESSION_LABELS)[number];
@@ -22,9 +28,17 @@ const SESSION_ALIASES: Record<string, number> = {
   clasificación: 2,
   clasif: 2,
   qualifying: 2,
-  sprint: 3,
-  final: 4,
-  fin: 4,
+  "clasificacion titulares": 3,
+  "clasificación titulares": 3,
+  "clasificacion invitados": 4,
+  "clasificación invitados": 4,
+  sprint: 5,
+  "sprint titulares": 6,
+  "sprint invitados": 7,
+  final: 8,
+  fin: 8,
+  "final titulares": 9,
+  "final invitados": 10,
 };
 
 export function getResultSessionOrder(label: string): number {
@@ -35,7 +49,11 @@ export function getResultSessionOrder(label: string): number {
     .replace(/\p{M}/gu, "");
   if (key in SESSION_ALIASES) return SESSION_ALIASES[key];
 
-  for (const [alias, order] of Object.entries(SESSION_ALIASES)) {
+  // Alias más largo primero para que "sprint titulares" gane a "sprint"
+  const aliases = Object.entries(SESSION_ALIASES).sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+  for (const [alias, order] of aliases) {
     if (key.includes(alias)) return order;
   }
   return RESULT_SESSION_LABELS.length;
@@ -62,7 +80,7 @@ function resultsDisplayName(category: CategoryForResults): string {
   return category.name;
 }
 
-/** Agrupa por categoría y ordena Manga 1 → Manga 2 → Clasificación → Sprint → Final. */
+/** Agrupa por categoría y ordena sesiones canónicas. */
 export function groupRoundResultsByCategory(
   results: RoundResult[],
   categories: CategoryForResults[],

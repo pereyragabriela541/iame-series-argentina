@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "node --import tsx --test lib/resultados-identify.test.ts",
     "mobile:build:ios": "npm run build:ios --prefix mobile",
     "mobile:submit:ios": "npm run submit:ios --prefix mobile"
   },
@@ -17,7 +18,8 @@
     "nodemailer": "^9.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "resend": "^6.16.0"
+    "resend": "^6.16.0",
+    "unpdf": "^1.8.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -29,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "^15.2.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.11",
     "typescript": "^5"
   }
 }
