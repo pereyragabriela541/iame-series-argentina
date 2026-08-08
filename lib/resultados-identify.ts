@@ -305,7 +305,7 @@ export function identifyResultPdf(
   const fromMeta = sessionHintFromTitle(input.title);
   const fromName = parseFileName(input.fileName);
 
-  let categoryHit = fromText.category ?? fromName.category;
+  const categoryHit = fromText.category ?? fromName.category;
   let sessionHit = fromText.session ?? fromName.session;
 
   // Metadata solo afina sesión genérica (Race → Sprint, Qualify → Clasificación)
