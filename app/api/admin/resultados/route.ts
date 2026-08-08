@@ -19,10 +19,12 @@ import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const BUCKET = "resultados";
 const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const MAX_BULK_FILES = 60;
+const MAX_BULK_FILES = 12;
+const MAX_BULK_TOTAL_BYTES = 3.5 * 1024 * 1024;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -98,7 +100,15 @@ async function handleIdentify(request: Request) {
     .filter((entry): entry is File => entry instanceof File);
   if (!files.length) return errorResponse("Seleccioná al menos un PDF");
   if (files.length > MAX_BULK_FILES) {
-    return errorResponse(`Máximo ${MAX_BULK_FILES} archivos por carga`);
+    return errorResponse(
+      `Máximo ${MAX_BULK_FILES} archivos por lote de análisis`,
+    );
+  }
+  const totalBytes = files.reduce((sum, file) => sum + (file.size || 0), 0);
+  if (totalBytes > MAX_BULK_TOTAL_BYTES) {
+    return errorResponse(
+      "El lote es demasiado pesado. La app lo divide automáticamente; si ves este error, recargá la página.",
+    );
   }
 
   const sb = createSupabaseAdmin();

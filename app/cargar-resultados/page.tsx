@@ -85,11 +85,46 @@ async function adminApi(
   return data;
 }
 
-async function identifyBulk(
+type IdentifyMatchRow = {
+  fileName: string;
+  status: "ready" | "needs_review";
+  categoryId: string | null;
+  label: ResultSessionLabel | null;
+  reason: string;
+  source: string | null;
+  duplicateResultId: string | null;
+};
+
+/** Vercel limita el body ~4.5 MB; lotes pequeños evitan el corte. */
+const IDENTIFY_BATCH_MAX_FILES = 4;
+const IDENTIFY_BATCH_MAX_BYTES = 2.5 * 1024 * 1024;
+
+function chunkFilesForIdentify(files: File[]): File[][] {
+  const batches: File[][] = [];
+  let current: File[] = [];
+  let currentBytes = 0;
+
+  for (const file of files) {
+    const wouldExceedCount = current.length >= IDENTIFY_BATCH_MAX_FILES;
+    const wouldExceedBytes =
+      current.length > 0 && currentBytes + file.size > IDENTIFY_BATCH_MAX_BYTES;
+    if (wouldExceedCount || wouldExceedBytes) {
+      batches.push(current);
+      current = [];
+      currentBytes = 0;
+    }
+    current.push(file);
+    currentBytes += file.size;
+  }
+  if (current.length) batches.push(current);
+  return batches;
+}
+
+async function identifyBulkBatch(
   authToken: string,
   roundId: string,
   files: File[],
-) {
+): Promise<IdentifyMatchRow[]> {
   const form = new FormData();
   form.set("roundId", roundId);
   for (const file of files) form.append("files", file);
@@ -99,22 +134,46 @@ async function identifyBulk(
     headers: { "x-admin-token": authToken },
     body: form,
   });
-  const data = (await response.json().catch(() => ({}))) as {
-    error?: string;
-    matches?: Array<{
-      fileName: string;
-      status: "ready" | "needs_review";
-      categoryId: string | null;
-      label: ResultSessionLabel | null;
-      reason: string;
-      source: string | null;
-      duplicateResultId: string | null;
-    }>;
-  };
+  const raw = await response.text();
+  let data: { error?: string; matches?: IdentifyMatchRow[] } = {};
+  try {
+    data = raw ? (JSON.parse(raw) as typeof data) : {};
+  } catch {
+    data = {};
+  }
   if (!response.ok) {
-    throw new Error(data.error ?? "No se pudieron analizar los PDFs");
+    if (response.status === 413) {
+      throw new Error(
+        "Los archivos son demasiado pesados para analizar de una vez. Probá de a menos PDFs.",
+      );
+    }
+    throw new Error(
+      data.error ??
+        `No se pudieron analizar los PDFs (HTTP ${response.status})`,
+    );
   }
   return data.matches ?? [];
+}
+
+async function identifyBulk(
+  authToken: string,
+  roundId: string,
+  files: File[],
+  onProgress?: (done: number, total: number) => void,
+) {
+  const batches = chunkFilesForIdentify(files);
+  const matches: IdentifyMatchRow[] = [];
+  let done = 0;
+  onProgress?.(0, files.length);
+
+  for (const batch of batches) {
+    const batchMatches = await identifyBulkBatch(authToken, roundId, batch);
+    matches.push(...batchMatches);
+    done += batch.length;
+    onProgress?.(done, files.length);
+  }
+
+  return matches;
 }
 
 export default function CargarResultadosPage() {
@@ -281,10 +340,15 @@ export default function CargarResultadosPage() {
     if (!roundId || !files.length) return;
     setLoading(true);
     setError(null);
-    setMessage(null);
+    setMessage(`Analizando 0/${files.length}…`);
     setBulkSummary(null);
     try {
-      const matches = await identifyBulk(savedToken, roundId, files);
+      const matches = await identifyBulk(
+        savedToken,
+        roundId,
+        files,
+        (done, total) => setMessage(`Analizando ${done}/${total}…`),
+      );
       const byName = new Map(files.map((file) => [file.name, file]));
       const seenKeys = new Map<string, string>();
       const rows: BulkRow[] = matches.map((match, index) => {
