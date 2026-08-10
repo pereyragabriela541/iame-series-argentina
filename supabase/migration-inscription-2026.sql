@@ -32,7 +32,7 @@ from s, (values
   (4, 'Fecha 4', 'Kartódromo Internacional de Zárate', 'Zárate', '2026-05-30', 'upcoming'),
   (5, 'Fecha 5', 'Kartódromo de BS AS', 'CABA', '2026-07-18', 'upcoming'),
   (6, 'Fecha 6', 'Kartódromo Ramiro Tot, Baradero', 'Baradero', '2026-08-08', 'upcoming'),
-  (7, 'Fecha 7', 'Kartódromo de BS AS', 'CABA', '2026-10-03', 'upcoming'),
+  (7, 'Fecha 7', 'A confirmar', 'A confirmar', '2026-10-03', 'upcoming'),
   (8, 'Fecha 8', 'Kartódromo a confirmar', 'A confirmar', '2026-10-31', 'upcoming'),
   (9, 'Fecha 9', 'Kartódromo de BS AS', 'CABA', '2026-11-14', 'upcoming'),
   (10, 'Fecha 10', 'Kartódromo de BS AS', 'CABA', '2026-12-19', 'upcoming'),
