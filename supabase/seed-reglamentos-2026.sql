@@ -64,4 +64,11 @@ insert into regulations (title, doc_type, pdf_url, sort_order, is_published) val
     '/reglamentos/ficha-homologacion-embrague-390.pdf',
     9,
     true
+  ),
+  (
+    'RPP Fecha con Invitados 2026',
+    'deportivo',
+    '/reglamentos/rpp-fecha-con-invitados-2026.pdf',
+    10,
+    true
   );
