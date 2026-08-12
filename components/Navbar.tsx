@@ -31,7 +31,7 @@ export default function Navbar({ isLive = false, roundLabel }: NavbarProps) {
 
         <button
           type="button"
-          className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 border border-neutral-800 md:hidden"
+          className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 border border-neutral-800 lg:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Menú"
         >
@@ -78,8 +78,8 @@ export default function Navbar({ isLive = false, roundLabel }: NavbarProps) {
       </div>
 
       {open && (
-        <nav className="border-t border-neutral-800 bg-neutral-950 px-4 py-3 md:hidden">
-          <div className="grid grid-cols-2 gap-1">
+        <nav className="border-t border-neutral-800 bg-neutral-950 px-4 py-3 lg:hidden">
+          <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
