@@ -1,11 +1,9 @@
 import PageHeader from "@/components/PageHeader";
 import FeaturedNewsFlyer from "@/components/FeaturedNewsFlyer";
-import Fecha6DuosGrid from "@/components/Fecha6DuosGrid";
 import NewsCard from "@/components/NewsCard";
 import { DbSetupBanner } from "@/components/ui";
-import type { Fecha6Duo } from "@/lib/fecha6-duos";
 import type { NewsArticle } from "@/lib/types";
-import { getFecha6Duos, getNews } from "@/lib/queries";
+import { getNews } from "@/lib/queries";
 import { newsMetadata } from "@/lib/seo";
 
 export const metadata = newsMetadata;
@@ -17,10 +15,9 @@ function pickFeaturedFlyer(news: NewsArticle[]) {
 
 export default async function NoticiasPage() {
   let news: NewsArticle[] = [];
-  let duos: Fecha6Duo[] = [];
   let dbReady = true;
   try {
-    [news, duos] = await Promise.all([getNews(), getFecha6Duos()]);
+    news = await getNews();
   } catch {
     dbReady = false;
   }
@@ -35,18 +32,6 @@ export default async function NoticiasPage() {
       {!dbReady && <DbSetupBanner />}
       <PageHeader kicker="Novedades" title="Noticias" subtitle="Comunicados oficiales del campeonato" />
       {featured ? <FeaturedNewsFlyer article={featured} showInscriptionCta /> : null}
-
-      <section className="space-y-4 border border-neutral-800 bg-neutral-900/30 p-5 sm:p-6">
-        <div className="space-y-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-iame-red">
-            Fecha 6
-          </p>
-          <h2 className="text-lg font-bold uppercase tracking-wide text-white">
-            Dúos inscriptos
-          </h2>
-        </div>
-        <Fecha6DuosGrid duos={duos} />
-      </section>
 
       {rest.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
