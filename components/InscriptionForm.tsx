@@ -585,42 +585,6 @@ export default function InscriptionForm({
       ) : null}
 
       <form
-        onSubmit={handleLookupByCodigo}
-        className="space-y-3 border border-iame-navy/40 bg-iame-navy/10 p-5"
-      >
-        <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-iame-sky">
-          ¿Ya tenés turno?
-        </p>
-        <p className="text-xs text-neutral-400">
-          Ingresá el código de tu turno para editar o quitar las fotos.
-        </p>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="flex-1">
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-              Código de turno
-            </label>
-            <input
-              value={lookupCodigo}
-              onChange={(e) => setLookupCodigo(e.target.value.toUpperCase())}
-              className={inputClass}
-              placeholder="IAME-XXXX"
-              autoCapitalize="characters"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={lookupStatus === "loading"}
-            className="bg-iame-navy px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-navy/80 disabled:opacity-50"
-          >
-            {lookupStatus === "loading" ? "Buscando..." : "Cargar e editar fotos"}
-          </button>
-        </div>
-        {lookupMessage ? (
-          <p className="text-sm text-iame-red">{lookupMessage}</p>
-        ) : null}
-      </form>
-
-      <form
         onSubmit={handleSubmit}
         className="space-y-4 border border-neutral-800 bg-neutral-900/30 p-6"
       >
