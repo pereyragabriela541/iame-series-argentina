@@ -5,7 +5,8 @@ import {
   sendInscripcionEmails,
   type InscripcionEmailData,
 } from "@/lib/email/inscripcion";
-import { findRoundLabel, isDualPilotRound } from "@/lib/inscription-data";
+import { findRoundLabel } from "@/lib/inscription-data";
+import { fetchRoundFlags } from "@/lib/round-keys";
 import { normalizeDniKey } from "@/lib/turnos-utils";
 
 export const runtime = "nodejs";
@@ -87,7 +88,10 @@ export async function POST(request: Request) {
     const dniKey = normalizeDniKey(String(body.dni ?? ""));
     const roundKey = String(body.round_key ?? body.round_id ?? "").trim();
     const email = String(body.email ?? "").trim().toLowerCase();
-    const dualPilot = isDualPilotRound(roundKey);
+    const sb = createSupabaseAdmin();
+    const roundFlags = roundKey ? await fetchRoundFlags(sb, roundKey) : null;
+    const dualPilot = Boolean(roundFlags?.dual_pilot);
+    const resolvedRoundKey = roundFlags?.round_key || roundKey;
     const guestFullName = String(body.guest_full_name ?? "").trim();
     const guestDni = String(body.guest_dni ?? "").trim();
     const guestBirthDate = body.guest_birth_date
@@ -158,14 +162,27 @@ export async function POST(request: Request) {
       }
     }
 
-    const sb = createSupabaseAdmin();
+    const { data: configRows } = await sb
+      .from("app_config")
+      .select("value")
+      .eq("key", "temporada")
+      .maybeSingle();
+    const temporada = (configRows?.value ?? {}) as {
+      inscripcion_habilitada?: boolean;
+    };
+    if (temporada.inscripcion_habilitada === false) {
+      return NextResponse.json(
+        { error: "Las inscripciones no están habilitadas." },
+        { status: 403 },
+      );
+    }
 
     const { data: existing } = await sb
       .from("registrations")
       .select(
         "id, full_name, email, dni, round_key, kart_number, category_slug, extra, email_confirmacion_enviada_at"
       )
-      .eq("round_key", roundKey)
+      .eq("round_key", resolvedRoundKey)
       .eq("dni_key", dniKey)
       .maybeSingle();
 
@@ -197,18 +214,20 @@ export async function POST(request: Request) {
           file: photoTitular,
           registrationKey: folderKey,
           role: "titular",
+          roundKey: resolvedRoundKey,
         }),
         uploadDuoPhoto({
           file: photoInvitado,
           registrationKey: folderKey,
           role: "invitado",
+          roundKey: resolvedRoundKey,
         }),
       ]);
     }
 
     const payload = {
-      round_id: body.round_id_uuid || null,
-      round_key: roundKey,
+      round_id: body.round_id_uuid || roundFlags?.id || null,
+      round_key: resolvedRoundKey,
       dni: String(body.dni).trim(),
       dni_key: dniKey,
       full_name: String(body.full_name).trim(),
@@ -258,7 +277,8 @@ export async function POST(request: Request) {
       categoria: categoryLabel,
       kartNumber: payload.kart_number,
       roundLabel,
-      roundKey,
+      roundKey: resolvedRoundKey,
+      emailNote: roundFlags?.email_note ?? undefined,
       phone: payload.phone ?? undefined,
       team: payload.team ?? undefined,
       city: payload.city ?? undefined,

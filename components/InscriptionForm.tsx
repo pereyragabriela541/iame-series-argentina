@@ -8,7 +8,6 @@ import InscriptionTurnoSection from "@/components/InscriptionTurnoSection";
 import { compressImageForUpload } from "@/lib/compress-image-client";
 import {
   findRoundLabel,
-  isDualPilotRound,
   type InscriptionCategoryOption,
   type InscriptionRoundOption,
   isUuid,
@@ -20,6 +19,7 @@ interface InscriptionFormProps {
   enabled: boolean;
   /** Si viene del mail (?rid=), precarga la inscripción y muestra solo el turno. */
   resumeId?: string;
+  initialRoundId?: string;
 }
 
 interface ConfirmedRegistration {
@@ -110,13 +110,17 @@ export default function InscriptionForm({
   categories,
   enabled,
   resumeId,
+  initialRoundId,
 }: InscriptionFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
   const [confirmed, setConfirmed] = useState<ConfirmedRegistration | null>(null);
   const [resumeLoading, setResumeLoading] = useState(Boolean(resumeId));
   const [resumeError, setResumeError] = useState("");
-  const [selectedRound, setSelectedRound] = useState("");
+  const initialRound = rounds.find(
+    (item) => item.roundId === initialRoundId || item.value === initialRoundId,
+  );
+  const [selectedRound, setSelectedRound] = useState(initialRound?.value ?? "");
   const [lookupCodigo, setLookupCodigo] = useState("");
   const [lookupStatus, setLookupStatus] = useState<
     "idle" | "loading" | "error"
@@ -125,7 +129,9 @@ export default function InscriptionForm({
   const [editCodigo, setEditCodigo] = useState<string | null>(null);
   const [photoTitular, setPhotoTitular] = useState<File | null>(null);
   const [photoInvitado, setPhotoInvitado] = useState<File | null>(null);
-  const dualPilot = isDualPilotRound(selectedRound);
+  const dualPilot = Boolean(
+    rounds.find((r) => r.value === selectedRound)?.dualPilot,
+  );
 
   useEffect(() => {
     if (!resumeId) return;
@@ -237,7 +243,7 @@ export default function InscriptionForm({
     const roundOption = rounds.find((r) => r.value === roundValue);
     const roundKey = roundValue;
     const roundIdUuid = roundOption?.roundId ?? (isUuid(roundValue) ? roundValue : null);
-    const isDual = isDualPilotRound(roundKey);
+    const isDual = Boolean(roundOption?.dualPilot);
 
     const fullName = String(fd.get("full_name") ?? "").trim();
     const dni = String(fd.get("dni") ?? "").trim();
@@ -409,9 +415,7 @@ export default function InscriptionForm({
   const inputClass =
     "w-full border border-neutral-700 bg-neutral-900 px-3 py-2.5 text-sm text-white placeholder-neutral-600 focus:border-iame-navy focus:outline-none";
 
-  const showDuo =
-    Boolean(confirmed) &&
-    (confirmed!.dualPilot || isDualPilotRound(confirmed!.roundKey));
+  const showDuo = Boolean(confirmed?.dualPilot);
 
   if (confirmed) {
     return (
@@ -618,9 +622,9 @@ export default function InscriptionForm({
           {dualPilot ? (
             <div className="sm:col-span-2 border border-neutral-800 bg-neutral-950/60 px-4 py-3">
               <p className="text-xs leading-relaxed text-neutral-400">
-                Fecha 6 es de dos pilotos (titular e invitado). Completá los datos
-                de ambos y subí una foto de cada uno. Los dúos se publican en
-                Noticias.
+                Esta fecha es de dos pilotos (titular e invitado). Completá los
+                datos de ambos y subí una foto de cada uno. Los dúos se
+                publican en Noticias.
               </p>
             </div>
           ) : null}

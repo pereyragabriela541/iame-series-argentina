@@ -1,17 +1,18 @@
-import Link from "next/link";
 import HomeHero from "@/components/HomeHero";
 import FeaturedNewsFlyer from "@/components/FeaturedNewsFlyer";
-import RoundCard from "@/components/RoundCard";
-import RoundCountdown from "@/components/RoundCountdown";
 import { DbSetupBanner } from "@/components/ui";
 import {
   getActiveSeason,
   getAppConfig,
+  getHeroMediaForRound,
   getNews,
+  getRoundResults,
   getRounds,
 } from "@/lib/queries";
+import { getHomeEventPhase, selectHomeRound } from "@/lib/next-round";
 import type { AppConfig, NewsArticle, Round } from "@/lib/types";
 import { homeMetadata } from "@/lib/seo";
+import Link from "next/link";
 
 export const metadata = homeMetadata;
 
@@ -33,11 +34,26 @@ export default async function HomePage() {
     dbReady = false;
   }
 
-  const year = config.temporada?.year ?? season?.year ?? null;
-  const nextRound =
-    rounds
-      .filter((r) => r.status === "upcoming" || r.status === "live")
-      .sort((a, b) => a.round_number - b.round_number)[0] ?? rounds[0];
+  const nextRound = selectHomeRound(rounds);
+  let heroMedia = { imageUrl: null as string | null, videoUrl: null as string | null };
+  try {
+    heroMedia = await getHeroMediaForRound(nextRound);
+  } catch {
+    heroMedia = { imageUrl: null, videoUrl: null };
+  }
+  const phase = nextRound ? getHomeEventPhase(nextRound) : "upcoming";
+  const inscriptionOpen = Boolean(nextRound) &&
+    nextRound?.registration_open !== false &&
+    config.temporada?.inscripcion_habilitada !== false && phase !== "finished";
+
+  let hasResults = false;
+  if (nextRound && phase === "finished") {
+    try {
+      hasResults = (await getRoundResults(nextRound.id)).length > 0;
+    } catch {
+      hasResults = false;
+    }
+  }
 
   const featuredNews = news.find((n) => n.image_url) ?? news[0] ?? null;
 
@@ -45,54 +61,32 @@ export default async function HomePage() {
     <div className="space-y-10">
       {!dbReady && <DbSetupBanner />}
 
-      <HomeHero year={year} regularRounds={season?.regular_rounds ?? 10} />
-
-      {nextRound && (
-        <section>
-          <div className="mb-4 flex items-end justify-between">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-iame-sky">
-                Próxima fecha
-              </p>
-              <h2 className="text-lg font-bold uppercase text-white">{nextRound.name}</h2>
-            </div>
-            <Link href="/calendario" className="text-[10px] font-semibold uppercase tracking-widest text-iame-red hover:underline">
-              Ver calendario
-            </Link>
-          </div>
-          <RoundCountdown round={nextRound} />
-          <RoundCard round={nextRound} />
-        </section>
-      )}
+      <HomeHero
+        round={nextRound}
+        imageUrl={heroMedia.imageUrl}
+        inscriptionOpen={inscriptionOpen}
+        hasResults={hasResults}
+        error={dbReady ? null : "db"}
+      />
 
       {featuredNews && (
         <section>
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-lg font-bold uppercase text-white">Noticias</h2>
-            <Link href="/noticias" className="text-[10px] font-semibold uppercase tracking-widest text-iame-red hover:underline">
+            <Link
+              href="/noticias"
+              className="text-[10px] font-semibold uppercase tracking-widest text-iame-red hover:underline"
+            >
               Ver todas
             </Link>
           </div>
-          <FeaturedNewsFlyer article={featuredNews} showInscriptionCta />
+          <FeaturedNewsFlyer
+            article={featuredNews}
+            showInscriptionCta
+            showExtraPages
+          />
         </section>
       )}
-
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { href: "/tiempos", label: "Tiempos en Vivo", color: "border-iame-red" },
-          { href: "/transmision", label: "Transmisión", color: "border-iame-sky" },
-          { href: "/inscripcion", label: "Inscripción", color: "border-iame-navy" },
-          { href: "/reglamentos", label: "Reglamentos", color: "border-neutral-600" },
-        ].map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`border-l-4 ${item.color} bg-neutral-900/40 px-4 py-5 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-neutral-900`}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </section>
     </div>
   );
 }

@@ -29,8 +29,9 @@ export async function uploadDuoPhoto(opts: {
   file: File;
   registrationKey: string;
   role: "titular" | "invitado";
+  roundKey: string;
 }): Promise<string> {
-  const { file, registrationKey, role } = opts;
+  const { file, registrationKey, role, roundKey } = opts;
   const mime = resolveMime(file);
   if (!mime || !ALLOWED.has(mime)) {
     throw new Error("Formato de foto inválido. Usá JPG, PNG o WebP.");
@@ -39,11 +40,15 @@ export async function uploadDuoPhoto(opts: {
     throw new Error("La foto supera el máximo de 3 MB.");
   }
 
+  const folder = String(roundKey || "duos").trim() || "duos";
+
   // Best-effort: limpia otra extensión del mismo rol (png vs jpg).
-  await deleteDuoPhoto({ registrationKey, role }).catch(() => undefined);
+  await deleteDuoPhoto({ registrationKey, role, roundKey: folder }).catch(
+    () => undefined,
+  );
 
   const sb = createSupabaseAdmin();
-  const path = `fecha-6/${registrationKey}/${role}.${extFor(mime)}`;
+  const path = `${folder}/${registrationKey}/${role}.${extFor(mime)}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error } = await sb.storage.from(BUCKET).upload(path, buffer, {
@@ -59,9 +64,10 @@ export async function uploadDuoPhoto(opts: {
 export async function deleteDuoPhoto(opts: {
   registrationKey: string;
   role: "titular" | "invitado";
+  roundKey: string;
 }): Promise<void> {
   const sb = createSupabaseAdmin();
-  const folder = `fecha-6/${opts.registrationKey}`;
+  const folder = `${String(opts.roundKey || "duos").trim() || "duos"}/${opts.registrationKey}`;
   const { data, error } = await sb.storage.from(BUCKET).list(folder);
   // Carpeta inexistente / vacía: no bloquear el alta.
   if (error) return;

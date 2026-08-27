@@ -24,12 +24,10 @@ export default async function CampeonatoPage({
   let dbReady = true;
   let dbError = "";
   let categories: Category[] = [];
-  let regularRounds = 10;
   let standings: Awaited<ReturnType<typeof getStandings>> = [];
 
   try {
     const season = await getActiveSeason();
-    regularRounds = season?.regular_rounds ?? 10;
     categories = await getCategories();
     const activeCat =
       categories.find((c) => c.slug === catSlug) ?? categories[0];
@@ -57,11 +55,7 @@ export default async function CampeonatoPage({
           )}
         </>
       )}
-      <PageHeader
-        kicker="Posiciones"
-        title="Campeonato"
-        subtitle={`Clasificación general por categoría — ${regularRounds} fechas etapa regular`}
-      />
+      <PageHeader kicker="Posiciones" title="Campeonato" />
       {activeCat && dbReady && (
         <p className="text-xs text-neutral-500">
           {activeCat.name}: {standings.length} piloto

@@ -15,22 +15,26 @@ import type {
   Standing,
 } from "@/lib/types";
 import type { Fecha6Duo } from "@/lib/fecha6-duos";
+import { listNewsInFeed } from "@/lib/round-keys";
+import { resolveMediaUrl } from "@/lib/site";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export async function getActiveSeason(): Promise<Season | null> {
   const sb = createSupabaseServer();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("seasons")
     .select("*")
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
+  if (error) throw error;
   return data;
 }
 
 export async function getAppConfig(): Promise<AppConfig> {
   const sb = createSupabaseServer();
-  const { data } = await sb.from("app_config").select("key, value");
+  const { data, error } = await sb.from("app_config").select("key, value");
+  if (error) throw error;
   const config: AppConfig = {};
   for (const row of data ?? []) {
     (config as Record<string, unknown>)[row.key] = row.value;
@@ -40,21 +44,24 @@ export async function getAppConfig(): Promise<AppConfig> {
 
 export async function getCategories(): Promise<Category[]> {
   const sb = createSupabaseServer();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("categories")
     .select("*")
     .eq("is_active", true)
     .order("sort_order");
+  if (error) throw error;
   return data ?? [];
 }
 
 export async function getRounds(seasonId: string): Promise<Round[]> {
   const sb = createSupabaseServer();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("rounds")
     .select("*")
     .eq("season_id", seasonId)
-    .order("sort_order");
+    .order("event_date_iso", { ascending: true, nullsFirst: false })
+    .order("event_date", { ascending: true, nullsFirst: false });
+  if (error) throw error;
   return data ?? [];
 }
 
@@ -90,33 +97,40 @@ export async function getStandings(
 
 export async function getNews(limit = 20): Promise<NewsArticle[]> {
   const sb = createSupabaseServer();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("news")
     .select("*")
     .eq("is_published", true)
     .order("published_at", { ascending: false })
     .limit(limit);
-  return data ?? [];
+  if (error) throw error;
+  return listNewsInFeed(data ?? []);
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
   const sb = createSupabaseServer();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("news")
     .select("*")
     .eq("slug", slug)
     .eq("is_published", true)
-    .single();
+    .maybeSingle();
+  if (error) throw error;
   return data;
 }
 
-/** Dúos Fecha 6 con fotos (titular + invitado). */
-export async function getFecha6Duos(limit = 200): Promise<Fecha6Duo[]> {
+/** Dúos de una ronda (round_key de Supabase) con fotos titular + invitado. */
+export async function getDuosForRound(
+  roundKey: string,
+  limit = 200,
+): Promise<Fecha6Duo[]> {
+  const key = String(roundKey ?? "").trim();
+  if (!key) return [];
   const sb = createSupabaseAdmin();
   const { data, error } = await sb
     .from("registrations")
     .select("id, full_name, kart_number, category_slug, extra, created_at")
-    .eq("round_key", "fecha-6")
+    .eq("round_key", key)
     .order("created_at", { ascending: true })
     .limit(limit);
 
@@ -228,6 +242,68 @@ export async function getNotifications(): Promise<Notification[]> {
     .eq("is_published", true)
     .order("published_at", { ascending: false });
   return data ?? [];
+}
+
+export type HeroMedia = {
+  imageUrl: string | null;
+  videoUrl: string | null;
+};
+
+async function getGlobalHeroMedia(): Promise<HeroMedia> {
+  const sb = createSupabaseServer();
+  const { data } = await sb
+    .from("media_images")
+    .select("image_url")
+    .is("round_id", null)
+    .eq("section_key", "hero")
+    .eq("is_published", true)
+    .order("sort_order")
+    .limit(1);
+  const url = data?.[0]?.image_url;
+  return {
+    imageUrl: url ? resolveMediaUrl(url) : null,
+    videoUrl: null,
+  };
+}
+
+export async function getHeroMediaForRound(
+  round: Round | null,
+): Promise<HeroMedia> {
+  try {
+    if (!round) return getGlobalHeroMedia();
+    const sb = createSupabaseServer();
+    const [imagesRes, videosRes] = await Promise.all([
+      sb
+        .from("media_images")
+        .select("image_url, section_key, sort_order")
+        .eq("round_id", round.id)
+        .eq("is_published", true)
+        .order("sort_order")
+        .limit(12),
+      sb
+        .from("media_videos")
+        .select("video_url, thumbnail_url, sort_order")
+        .eq("round_id", round.id)
+        .eq("is_published", true)
+        .order("sort_order")
+        .limit(1),
+    ]);
+    const images = imagesRes.data ?? [];
+    const featured =
+      images.find((row) => row.section_key === "hero") ?? images[0];
+    const video = videosRes.data?.[0];
+    const imagePath =
+      featured?.image_url ?? round.flyer_url ?? video?.thumbnail_url ?? null;
+    if (imagePath || video?.video_url) {
+      return {
+        imageUrl: imagePath ? resolveMediaUrl(imagePath) : null,
+        videoUrl: video?.video_url ? resolveMediaUrl(video.video_url) : null,
+      };
+    }
+    return getGlobalHeroMedia();
+  } catch {
+    return { imageUrl: null, videoUrl: null };
+  }
 }
 
 export function formatDate(dateStr: string | null): string {

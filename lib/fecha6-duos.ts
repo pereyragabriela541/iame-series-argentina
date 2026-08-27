@@ -1,5 +1,3 @@
-import { INSCRIPTION_CATEGORIES } from "@/lib/inscription-data";
-
 export interface Fecha6Duo {
   id: string;
   titularName: string;
@@ -18,33 +16,30 @@ export interface Fecha6DuoCategoryGroup {
   duos: Fecha6Duo[];
 }
 
-const CATEGORY_ORDER = new Map(
-  INSCRIPTION_CATEGORIES.map((c, index) => [c.value, index]),
-);
-
-function categorySortKey(duo: Fecha6Duo): number {
-  const slug = duo.categorySlug.trim();
-  if (slug && CATEGORY_ORDER.has(slug)) return CATEGORY_ORDER.get(slug)!;
-  const label = duo.categoryLabel.trim().toUpperCase();
-  const byLabel = INSCRIPTION_CATEGORIES.findIndex(
-    (c) => c.label.toUpperCase() === label,
-  );
-  if (byLabel >= 0) return byLabel;
-  return 1000;
-}
-
 function kartSortKey(kart: string): number {
   const n = Number.parseInt(String(kart).replace(/\D/g, ""), 10);
   return Number.isFinite(n) ? n : 99999;
 }
 
-/** Agrupa y ordena dúos por categoría del campeonato; dentro, por kart y antigüedad. */
+/** Agrupa dúos por categoría. El orden de categorías viene de Supabase (slugs). */
 export function groupFecha6DuosByCategory(
   duos: Fecha6Duo[],
+  categorySlugsInOrder: string[] = [],
 ): Fecha6DuoCategoryGroup[] {
+  const order = new Map(
+    categorySlugsInOrder.map((slug, index) => [slug, index]),
+  );
+
   const sorted = [...duos].sort((a, b) => {
-    const cat = categorySortKey(a) - categorySortKey(b);
-    if (cat !== 0) return cat;
+    const aIdx = order.has(a.categorySlug)
+      ? order.get(a.categorySlug)!
+      : 1000;
+    const bIdx = order.has(b.categorySlug)
+      ? order.get(b.categorySlug)!
+      : 1000;
+    if (aIdx !== bIdx) return aIdx - bIdx;
+    const label = a.categoryLabel.localeCompare(b.categoryLabel, "es");
+    if (label !== 0) return label;
     const kart = kartSortKey(a.kartNumber) - kartSortKey(b.kartNumber);
     if (kart !== 0) return kart;
     return String(a.createdAt).localeCompare(String(b.createdAt));

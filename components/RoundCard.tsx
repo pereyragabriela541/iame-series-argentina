@@ -10,12 +10,14 @@ const statusStyles = {
   upcoming: "border-iame-sky/40 text-iame-sky",
   live: "border-iame-red text-iame-red",
   finished: "border-neutral-600 text-neutral-400",
+  cancelled: "border-neutral-600 text-neutral-400",
 };
 
 const statusLabels = {
   upcoming: "Próxima",
   live: "En Vivo",
   finished: "Finalizada",
+  cancelled: "Cancelada",
 };
 
 export default function RoundCard({ round }: RoundCardProps) {

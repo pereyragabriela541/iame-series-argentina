@@ -1,125 +1,164 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { BRAND } from "@/lib/branding";
+import { useEffect, useMemo, useState } from "react";
+import HeroCountdown from "@/components/HeroCountdown";
+import { formatRoundEventDates } from "@/lib/calendar-dates";
+import {
+  formatHeroCircuit,
+  formatHeroHeadline,
+  getHomeEventPhase,
+} from "@/lib/next-round";
+import type { Round } from "@/lib/types";
+
+// Respaldo técnico solamente: la portada normal viene de media_images en Supabase.
+const FALLBACK = "/assets/hero-karting.jpg";
 
 interface HomeHeroProps {
-  year: number | null;
-  regularRounds: number;
+  round: Round | null;
+  imageUrl: string | null;
+  inscriptionOpen: boolean;
+  hasResults: boolean;
+  error?: string | null;
 }
 
-export default function HomeHero({ year, regularRounds }: HomeHeroProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [soundOn, setSoundOn] = useState(false);
-  const [needsTap, setNeedsTap] = useState(false);
-  const [ended, setEnded] = useState(false);
+export default function HomeHero({
+  round,
+  imageUrl,
+  inscriptionOpen,
+  hasResults,
+  error = null,
+}: HomeHeroProps) {
+  const [now, setNow] = useState(() => Date.now());
+  const [imgFailed, setImgFailed] = useState(false);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const onEnded = () => setEnded(true);
-
-    video.addEventListener("ended", onEnded);
-
-    const tryPlayWithSound = async () => {
-      video.muted = false;
-      video.volume = 1;
-
-      try {
-        await video.play();
-        setSoundOn(true);
-        setNeedsTap(false);
-      } catch {
-        video.muted = true;
-        try {
-          await video.play();
-          setSoundOn(false);
-          setNeedsTap(true);
-        } catch {
-          setNeedsTap(true);
-        }
-      }
-    };
-
-    void tryPlayWithSound();
-
-    return () => video.removeEventListener("ended", onEnded);
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
   }, []);
 
-  function toggleSound() {
-    const video = videoRef.current;
-    if (!video || ended) return;
+  useEffect(() => {
+    setImgFailed(false);
+  }, [imageUrl]);
 
-    if (video.muted) {
-      video.muted = false;
-      video.volume = 1;
-      setSoundOn(true);
-      setNeedsTap(false);
-      if (video.paused) void video.play();
-      return;
-    }
+  const phase = useMemo(
+    () => (round ? getHomeEventPhase(round, now) : "upcoming"),
+    [round, now],
+  );
 
-    video.muted = true;
-    setSoundOn(false);
+  const photo = !imageUrl || imgFailed ? FALLBACK : imageUrl;
+  const closed = !inscriptionOpen || phase === "finished";
+
+  return (
+    <section className="relative left-1/2 min-h-[calc(100svh-4.5rem)] w-screen max-w-[100vw] -translate-x-1/2 -mt-8 overflow-hidden bg-[#070E1A]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photo}
+        alt={round ? `Karting — ${formatHeroHeadline(round)}` : "Karting BS Proyect"}
+        className="absolute inset-x-0 top-0 h-[38svh] w-full object-cover object-[center_45%] md:h-full md:object-[58%_42%]"
+        decoding="async"
+        fetchPriority="high"
+        onError={() => setImgFailed(true)}
+      />
+      <div className="absolute inset-0 hidden bg-gradient-to-r from-[#070E1A] via-[#070E1A]/60 to-transparent md:block" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#070E1A] via-[#070E1A]/25 to-transparent" />
+
+      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-[1480px] flex-col justify-end gap-7 px-5 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[38svh] sm:px-8 md:flex-row md:items-end md:justify-between md:gap-10 md:px-12 md:pb-14 md:pt-10 xl:px-14 xl:pb-20">
+        <div className="min-w-0 max-w-[42rem] flex-1">
+          {error ? (
+            <p className="text-sm text-white">No se pudo cargar la próxima fecha.</p>
+          ) : !round ? (
+            <p className="text-sm text-[#A7A9AC]">
+              No hay fechas próximas en el calendario.
+            </p>
+          ) : (
+            <>
+              <p className="text-sm font-black italic uppercase tracking-[0.28em] text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+                {phase === "live"
+                  ? "En vivo"
+                  : phase === "finished"
+                    ? "Última fecha"
+                    : "Próxima fecha"}
+              </p>
+              <h1 className="mt-2 max-w-[18ch] text-[clamp(2.35rem,5.5vw,5.15rem)] font-black italic uppercase leading-[0.92] text-white [text-shadow:-2px_0_#000,2px_0_#000,0_2px_#000,0_-2px_#000]">
+                {formatHeroHeadline(round)}
+              </h1>
+              <p className="mt-3 text-[clamp(1.15rem,2.4vw,1.75rem)] font-black italic uppercase text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+                {formatRoundEventDates(round)}
+              </p>
+              <p className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-white [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+                {formatHeroCircuit(round)}
+              </p>
+              <div className="mt-6">
+                <HeroCountdown
+                  round={round}
+                  phase={phase}
+                  hasResults={hasResults}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="flex w-full flex-col gap-3 md:max-w-[28rem] md:pb-2">
+          <HeroButton
+            href={`/inscripcion?round=${encodeURIComponent(round?.id ?? "")}`}
+            label={closed ? "Inscripción cerrada" : "Inscribirme"}
+            variant="primary"
+            disabled={closed}
+          />
+          <HeroButton
+            href={`/calendario/${round?.id ?? ""}`}
+            label="Más información del evento"
+            variant="secondary"
+            disabled={!round}
+          />
+          <HeroButton
+            href="/transmision"
+            label="Transmisión"
+            variant="secondary"
+          />
+          <HeroButton
+            href="/tiempos"
+            label="Tiempos"
+            variant="secondary"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HeroButton({
+  href,
+  label,
+  variant,
+  disabled,
+}: {
+  href: string;
+  label: string;
+  variant: "primary" | "secondary";
+  disabled?: boolean;
+}) {
+  const className = [
+    "flex min-h-12 items-center justify-center rounded-md px-5 py-3.5 text-sm font-black italic uppercase tracking-[0.16em] text-white transition",
+    variant === "primary"
+      ? "bg-[#E30613] hover:bg-[#c10510]"
+      : "border border-white/85 bg-[#0A1628] hover:bg-[#122038]",
+    disabled ? "cursor-not-allowed opacity-55 hover:bg-inherit" : "",
+  ].join(" ");
+
+  if (disabled) {
+    return (
+      <span className={className} aria-disabled="true">
+        {label}
+      </span>
+    );
   }
 
   return (
-    <section className="relative left-1/2 min-h-[min(88vh,820px)] w-screen max-w-[100vw] -translate-x-1/2 overflow-hidden border-y border-neutral-800">
-      <video
-        ref={videoRef}
-        className="absolute inset-0 h-full w-full object-cover"
-        src="/assets/hero-iame.mp4"
-        autoPlay
-        playsInline
-        preload="auto"
-        aria-hidden
-      />
-
-      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/75" />
-      <div className="absolute inset-0 bg-gradient-to-t from-carbon via-transparent to-black/40" />
-
-      <div className="relative z-10 flex min-h-[min(88vh,820px)] flex-col justify-center p-6 sm:p-10 lg:p-14">
-        <div className="max-w-2xl">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-iame-red">
-            Champion Cup{year != null ? ` ${year}` : ""}
-          </p>
-          <h1 className="mt-2 text-3xl font-black uppercase italic tracking-tight text-white sm:text-5xl lg:text-6xl">
-            {BRAND.name}
-          </h1>
-          <p className="mt-3 max-w-xl text-sm text-neutral-200 sm:text-base">
-            Calendario karting Argentina, campeonato
-            {year != null ? ` Champion Cup ${year}` : ""}, resultados en vivo
-            e inscripción IAME. Sitio oficial de IAME Series Argentina.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/campeonato"
-              className="bg-iame-red px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
-            >
-              Campeonato
-            </Link>
-            <Link
-              href="/calendario"
-              className="border border-iame-navy bg-iame-navy/40 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-navy/60"
-            >
-              Calendario
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {!ended && (
-        <button
-          type="button"
-          onClick={toggleSound}
-          className="absolute bottom-5 right-5 z-20 border border-white/20 bg-black/50 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm hover:bg-black/70"
-          aria-label={soundOn ? "Silenciar video" : "Activar sonido del video"}
-        >
-          {needsTap && !soundOn ? "Activar sonido" : soundOn ? "Silenciar" : "Activar sonido"}
-        </button>
-      )}
-    </section>
+    <Link href={href} className={className} aria-label={label}>
+      {label}
+    </Link>
   );
 }

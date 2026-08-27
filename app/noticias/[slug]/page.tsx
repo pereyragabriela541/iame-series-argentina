@@ -1,9 +1,11 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import Fecha6DuosGrid from "@/components/Fecha6DuosGrid";
-import { DbSetupBanner } from "@/components/ui";
+import NewsImageCarousel from "@/components/NewsImageCarousel";
+import { DbSetupBanner, PdfLink } from "@/components/ui";
 import type { Fecha6Duo } from "@/lib/fecha6-duos";
-import { formatDate, getFecha6Duos, getNewsBySlug } from "@/lib/queries";
+import { extraNewsImages, newsPdf } from "@/lib/news-assets";
+import { formatDate, getDuosForRound, getNewsBySlug } from "@/lib/queries";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -24,15 +26,19 @@ export default async function NoticiaDetallePage({
   let duos: Fecha6Duo[] = [];
   try {
     article = await getNewsBySlug(slug);
-    if (slug === "duos-fecha-6") {
-      duos = await getFecha6Duos();
+    const roundKey = article?.gallery_round_key?.trim();
+    if (article?.show_duos_gallery && roundKey) {
+      duos = await getDuosForRound(roundKey);
     }
   } catch {
     return <DbSetupBanner />;
   }
   if (!article) notFound();
 
-  const isDuos = slug === "duos-fecha-6";
+  const showDuos = Boolean(article.show_duos_gallery);
+  const extra = extraNewsImages(article.slug);
+  const pdf = newsPdf(article.slug);
+  const images = extra.length ? extra : article.image_url ? [article.image_url] : [];
 
   return (
     <article className="mx-auto max-w-5xl space-y-6">
@@ -44,14 +50,9 @@ export default async function NoticiaDetallePage({
         title={article.title}
         subtitle={formatDate(article.published_at)}
       />
-      {article.image_url && !isDuos ? (
+      {article.image_url && !showDuos ? (
         <div className="border border-neutral-800">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={article.image_url}
-            alt=""
-            className="block w-full bg-neutral-950 object-contain"
-          />
+          <NewsImageCarousel images={images} title={article.title} />
         </div>
       ) : null}
 
@@ -59,7 +60,8 @@ export default async function NoticiaDetallePage({
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-300">
           {article.body ?? article.excerpt}
         </p>
-        {(slug === "fecha-6" || slug === "fecha-5") && (
+        {pdf ? <PdfLink href={pdf.href} label={pdf.label} /> : null}
+        {article.show_inscription_cta && (
           <Link
             href="/inscripcion"
             className="inline-block bg-iame-red px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
@@ -67,17 +69,9 @@ export default async function NoticiaDetallePage({
             Inscribite ahora
           </Link>
         )}
-        {isDuos && (
-          <Link
-            href="/inscripcion"
-            className="inline-block bg-iame-red px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
-          >
-            Inscribite a Fecha 6
-          </Link>
-        )}
       </div>
 
-      {isDuos ? (
+      {showDuos ? (
         <section className="space-y-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-white">
             Dúos publicados ({duos.length})

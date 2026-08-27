@@ -3,8 +3,6 @@ import InscriptionForm from "@/components/InscriptionForm";
 import { DbSetupBanner } from "@/components/ui";
 import {
   categoriesToOptions,
-  INSCRIPTION_CATEGORIES,
-  INSCRIPTION_ROUNDS_OPEN,
   roundsToOptions,
 } from "@/lib/inscription-data";
 import {
@@ -20,16 +18,16 @@ export const metadata = inscriptionMetadata;
 export default async function InscripcionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ rid?: string }>;
+  searchParams: Promise<{ rid?: string; round?: string }>;
 }) {
-  const { rid } = await searchParams;
+  const { rid, round } = await searchParams;
   const resumeId = typeof rid === "string" ? rid.trim() : "";
 
   let enabled = true;
   let dbReady = true;
 
-  let roundOptions = INSCRIPTION_ROUNDS_OPEN;
-  let categoryOptions = INSCRIPTION_CATEGORIES;
+  let roundOptions: ReturnType<typeof roundsToOptions> = [];
+  let categoryOptions: ReturnType<typeof categoriesToOptions> = [];
 
   try {
     const [season, config, cats] = await Promise.all([
@@ -62,6 +60,7 @@ export default async function InscripcionPage({
         categories={categoryOptions}
         enabled={enabled}
         resumeId={resumeId || undefined}
+        initialRoundId={typeof round === "string" ? round.trim() : undefined}
       />
     </div>
   );

@@ -29,6 +29,26 @@ export const NAV_LINKS = [
   { href: "/alertas", label: "Alertas" },
 ] as const;
 
+export const HOME_NAV_LINKS = [
+  { href: "/", label: "Inicio" },
+  { href: "/campeonato", label: "Campeonato" },
+  { href: "/calendario", label: "Calendario" },
+  { href: "/resultados", label: "Resultados" },
+  { href: "/inscripcion", label: "Inscripción" },
+  { href: "/tiempos", label: "En vivo" },
+] as const;
+
+export const MORE_NAV_LINKS = [
+  { href: "/noticias", label: "Noticias" },
+  { href: "/transmision", label: "Transmisión" },
+  { href: "/cronograma", label: "Cronograma" },
+  { href: "/reglamentos", label: "Reglamentos" },
+  { href: "/formularios", label: "Formularios" },
+  { href: "/imagenes", label: "Imágenes" },
+  { href: "/videos", label: "Videos" },
+  { href: "/alertas", label: "Alertas" },
+] as const;
+
 export const LEGAL_LINKS = [
   { href: "/privacidad", label: "Privacidad" },
   { href: "/terminos", label: "Términos" },

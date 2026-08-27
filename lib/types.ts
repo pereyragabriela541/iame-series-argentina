@@ -20,18 +20,32 @@ export interface Round {
   id: string;
   season_id: string;
   round_number: number;
+  /** Clave de inscripción/turnos (ej. fecha-6, final-iame). Editable en Supabase. */
+  round_key?: string | null;
+  /** Si true, el formulario pide titular + invitado. */
+  dual_pilot?: boolean;
+  /** Texto extra en el mail de inscripción (opcional). */
+  email_note?: string | null;
   name: string;
   circuit: string | null;
   location: string | null;
   city: string | null;
   event_date: string | null;
   event_date_iso: string | null;
+  event_end_iso?: string | null;
+  is_active?: boolean;
+  registration_open?: boolean | null;
+  transmission_url?: string | null;
+  replay_url?: string | null;
+  live_timing_url?: string | null;
+  results_url?: string | null;
+  slug?: string | null;
   flyer_url: string | null;
   /** Texto bajo el flyer (viene de Supabase; la app no lo hardcodea). */
   flyer_text: string | null;
   map_url: string | null;
   map_pdf_url: string | null;
-  status: "upcoming" | "live" | "finished";
+  status: "upcoming" | "live" | "finished" | "cancelled";
   sort_order: number;
 }
 
@@ -72,6 +86,10 @@ export interface NewsArticle {
   category: string | null;
   image_url: string | null;
   is_published: boolean;
+  list_in_feed?: boolean;
+  show_inscription_cta?: boolean;
+  show_duos_gallery?: boolean;
+  gallery_round_key?: string | null;
   sort_order: number;
   published_at: string | null;
 }
@@ -147,6 +165,8 @@ export interface AppConfig {
     year?: number;
     nombre?: string;
     organizador?: string;
+    kicker?: string;
+    tagline?: string;
     inscripcion_habilitada?: boolean;
   };
   contacto?: {

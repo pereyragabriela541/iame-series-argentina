@@ -3,7 +3,7 @@ import {
   deleteDuoPhoto,
   uploadDuoPhoto,
 } from "@/lib/inscription-duo-photos";
-import { isDualPilotRound } from "@/lib/inscription-data";
+import { fetchRoundFlags } from "@/lib/round-keys";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -104,23 +104,33 @@ export async function PATCH(request: Request) {
         { status: 404 },
       );
     }
-    if (!isDualPilotRound(reg.round_key)) {
+    const roundFlags = await fetchRoundFlags(sb, String(reg.round_key ?? ""));
+    if (!roundFlags?.dual_pilot) {
       return NextResponse.json(
         { error: "Esta inscripción no admite fotos de dúo" },
         { status: 400 },
       );
     }
+    const photoRoundKey = roundFlags.round_key;
 
     const extra = { ...((reg.extra as Extra | null) ?? {}) };
     const guestDniKey = String(extra.guest_dni_key ?? "").trim();
     const folderKey = `${reg.dni_key}_${guestDniKey || "solo"}`;
 
     if (removeTitular && !photoTitular) {
-      await deleteDuoPhoto({ registrationKey: folderKey, role: "titular" });
+      await deleteDuoPhoto({
+        registrationKey: folderKey,
+        role: "titular",
+        roundKey: photoRoundKey,
+      });
       delete extra.photo_titular_url;
     }
     if (removeInvitado && !photoInvitado) {
-      await deleteDuoPhoto({ registrationKey: folderKey, role: "invitado" });
+      await deleteDuoPhoto({
+        registrationKey: folderKey,
+        role: "invitado",
+        roundKey: photoRoundKey,
+      });
       delete extra.photo_invitado_url;
     }
 
@@ -129,6 +139,7 @@ export async function PATCH(request: Request) {
         file: photoTitular,
         registrationKey: folderKey,
         role: "titular",
+        roundKey: photoRoundKey,
       });
     }
     if (photoInvitado) {
@@ -136,6 +147,7 @@ export async function PATCH(request: Request) {
         file: photoInvitado,
         registrationKey: folderKey,
         role: "invitado",
+        roundKey: photoRoundKey,
       });
     }
 

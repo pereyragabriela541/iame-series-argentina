@@ -3,13 +3,14 @@ import { getDuosForRound } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Compatibilidad con clientes que llaman /api/duos/fecha-6.
- * La fuente de verdad es `rounds.round_key` (misma data que /api/duos/[roundKey]).
- */
-export async function GET() {
+/** Dúos públicos (sin DNI/email) para web y app. round_key viene de Supabase. */
+export async function GET(
+  _request: Request,
+  context: { params: Promise<{ roundKey: string }> },
+) {
   try {
-    const duos = await getDuosForRound("fecha-6");
+    const { roundKey } = await context.params;
+    const duos = await getDuosForRound(decodeURIComponent(roundKey));
     return NextResponse.json({ duos });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Error";

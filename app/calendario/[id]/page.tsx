@@ -1,7 +1,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
-import { DbSetupBanner, EmptyState, PdfLink } from "@/components/ui";
-import { formatRoundEventDates, getRoundKicker } from "@/lib/calendar-dates";
+import { DbSetupBanner, PdfLink } from "@/components/ui";
+import { formatRoundEventDates } from "@/lib/calendar-dates";
 import {
   getAppConfig,
   getCategories,
@@ -63,7 +63,6 @@ export default async function RoundDetailPage({
         ← Calendario
       </Link>
       <PageHeader
-        kicker={getRoundKicker(round.round_number)}
         title={round.name}
         subtitle={`${round.circuit ?? ""} · ${formatRoundEventDates(round)}`}
       />
@@ -101,10 +100,8 @@ export default async function RoundDetailPage({
         {round.map_pdf_url && <PdfLink href={round.map_pdf_url} label="Mapa PDF" />}
       </div>
 
-      <section>
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-white">Resultados</h2>
-        {results.length ? (
-          <div className="space-y-4">
+      {results.length ? (
+        <section className="space-y-4">
             {groupedResults.map(({ category, results: categoryResults }) => (
               <div key={category.id} className="space-y-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-white">
@@ -121,11 +118,8 @@ export default async function RoundDetailPage({
                 </div>
               </div>
             ))}
-          </div>
-        ) : (
-          <EmptyState message="Sin PDFs de resultados para esta fecha." />
-        )}
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }

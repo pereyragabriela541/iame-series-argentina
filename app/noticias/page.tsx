@@ -22,16 +22,18 @@ export default async function NoticiasPage() {
     dbReady = false;
   }
 
-  const featured = pickFeaturedFlyer(news.filter((n) => n.slug !== "duos-fecha-6"));
+  const featured = pickFeaturedFlyer(news);
   const rest = featured
-    ? news.filter((n) => n.id !== featured.id && n.slug !== "duos-fecha-6")
-    : news.filter((n) => n.slug !== "duos-fecha-6");
+    ? news.filter((n) => n.id !== featured.id)
+    : news;
 
   return (
     <div className="space-y-6">
       {!dbReady && <DbSetupBanner />}
       <PageHeader kicker="Novedades" title="Noticias" subtitle="Comunicados oficiales del campeonato" />
-      {featured ? <FeaturedNewsFlyer article={featured} showInscriptionCta /> : null}
+      {featured ? (
+        <FeaturedNewsFlyer article={featured} showInscriptionCta showExtraPages />
+      ) : null}
 
       {rest.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

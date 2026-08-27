@@ -36,7 +36,7 @@ function DuoCard({ duo }: { duo: Fecha6Duo }) {
       </div>
       <div className="flex items-center justify-between gap-2 border-t border-neutral-800 px-3 py-2">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-iame-sky">
-          {duo.categoryLabel || "Fecha 6"}
+          {duo.categoryLabel || "Sin categoría"}
         </p>
         {duo.kartNumber ? (
           <p className="text-xs font-bold text-white">#{duo.kartNumber}</p>

@@ -37,9 +37,13 @@ export function splitDescription(description: string | null | undefined): string
     .filter(Boolean);
 }
 
-export function getDefaultRoundTitle(roundNumber: number): string {
-  if (roundNumber === 11) return "FINAL";
-  return `FECHA ${roundNumber}`;
+export function getDefaultRoundTitle(round: {
+  name?: string | null;
+  round_number: number;
+}): string {
+  const name = round.name?.trim();
+  if (name) return name;
+  return `Fecha ${round.round_number}`;
 }
 
 export function getEmptySectionMessage(isUpcoming: boolean): string {
@@ -106,7 +110,7 @@ function roundSectionHeader(
   const header = dbSections.find((s) => s.title?.trim()) ?? dbSections[0];
 
   return {
-    title: header?.title?.trim() || getDefaultRoundTitle(round.round_number),
+    title: header?.title?.trim() || getDefaultRoundTitle(round),
     subtitle: header?.subtitle?.trim() || undefined,
     description: splitDescription(header?.description),
   };
@@ -195,7 +199,10 @@ export function groupMediaImagesByRound(
 
     const title =
       headerSection?.title?.trim() ||
-      (roundNumber != null ? getDefaultRoundTitle(roundNumber) : "Galería general");
+      (round?.name?.trim() ||
+        (roundNumber != null
+          ? getDefaultRoundTitle({ round_number: roundNumber, name: round?.name })
+          : "Galería general"));
     const subtitle = headerSection?.subtitle?.trim() || undefined;
     const description = splitDescription(headerSection?.description);
 
@@ -298,7 +305,9 @@ export function groupMediaVideosByRound(
       key,
       title:
         header?.title?.trim() ||
-        (roundNumber != null ? getDefaultRoundTitle(roundNumber) : "Videos"),
+        (roundNumber != null
+          ? getDefaultRoundTitle({ round_number: roundNumber, name: round?.name })
+          : "Videos"),
       subtitle: header?.subtitle?.trim() || undefined,
       description: splitDescription(header?.description),
       roundNumber,

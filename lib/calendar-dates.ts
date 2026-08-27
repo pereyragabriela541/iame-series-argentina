@@ -20,17 +20,24 @@ export function formatRoundEventDates(round: {
 }): string {
   if (!round.event_date) return "—";
 
-  const start = new Date(round.event_date + "T12:00:00");
+  const start = new Date(`${round.event_date}T12:00:00-03:00`);
   if (Number.isNaN(start.getTime())) return round.event_date;
 
   const end = new Date(start);
   end.setDate(end.getDate() + 1);
 
   const fmtDayMonth = (d: Date) =>
-    d.toLocaleDateString("es-AR", { day: "numeric", month: "long" });
+    d.toLocaleDateString("es-AR", {
+      day: "numeric",
+      month: "long",
+      timeZone: "America/Argentina/Buenos_Aires",
+    });
 
   if (start.getMonth() === end.getMonth()) {
-    const month = start.toLocaleDateString("es-AR", { month: "long" });
+    const month = start.toLocaleDateString("es-AR", {
+      month: "long",
+      timeZone: "America/Argentina/Buenos_Aires",
+    });
     return `${start.getDate()} y ${end.getDate()} de ${month}`;
   }
 
@@ -49,6 +56,7 @@ function toRaceInstant(date: string, hour: number): string {
 export function getRoundEventWindow(round: {
   event_date?: string | null;
   event_date_iso?: string | null;
+  event_end_iso?: string | null;
 }): { start: string; end: string } | null {
   if (round.event_date_iso) {
     const startDate = round.event_date_iso.slice(0, 10);
@@ -57,7 +65,7 @@ export function getRoundEventWindow(round: {
     const endIso = endDate.toISOString().slice(0, 10);
     return {
       start: round.event_date_iso,
-      end: toRaceInstant(endIso, RACE_END_HOUR),
+      end: round.event_end_iso || toRaceInstant(endIso, RACE_END_HOUR),
     };
   }
 

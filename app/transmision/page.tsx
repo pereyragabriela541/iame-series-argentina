@@ -1,28 +1,41 @@
 import PageHeader from "@/components/PageHeader";
-
-const YOUTUBE_IAME_SERIES =
-  "https://www.youtube.com/results?search_query=iame+series";
+import { DbSetupBanner } from "@/components/ui";
+import { resolveYoutubeUrl } from "@/lib/live-config";
+import type { AppConfig } from "@/lib/types";
+import { getAppConfig } from "@/lib/queries";
 
 export const metadata = { title: "Transmisión | IAME Series Argentina" };
+export const dynamic = "force-dynamic";
 
-export default function TransmisionPage() {
+export default async function TransmisionPage() {
+  let config: AppConfig = {};
+  let dbReady = true;
+  try {
+    config = await getAppConfig();
+  } catch {
+    dbReady = false;
+  }
+
+  const url = resolveYoutubeUrl(config.transmision);
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        kicker="Streaming"
-        title="Transmisión en Vivo"
-        subtitle="Seguí la transmisión oficial en YouTube"
-      />
+      {!dbReady && <DbSetupBanner />}
+      <PageHeader title="Transmisión en Vivo" />
 
       <div className="border border-iame-sky/40 bg-iame-sky/10 px-6 py-10 text-center">
-        <a
-          href={YOUTUBE_IAME_SERIES}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-iame-red px-8 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
-        >
-          Ver transmisión en YouTube ↗
-        </a>
+        {url ? (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-iame-red px-8 py-3 text-xs font-bold uppercase tracking-widest text-white hover:bg-iame-red/90"
+          >
+            Ver transmisión en YouTube ↗
+          </a>
+        ) : (
+          <p className="text-sm text-neutral-400">No hay transmisión configurada.</p>
+        )}
       </div>
     </div>
   );

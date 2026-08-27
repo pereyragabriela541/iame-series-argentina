@@ -27,6 +27,7 @@ export interface InscripcionEmailData {
   guestFullName?: string;
   guestDni?: string;
   guestBirthDate?: string;
+  emailNote?: string;
 }
 
 interface OutboundMail {
@@ -154,11 +155,10 @@ export function buildPilotEmail(data: InscripcionEmailData) {
   return { subject, text, html };
 }
 
-function eventoCierreKba(roundKey?: string): string {
-  if (roundKey === "fecha-5") {
-    return ", donde despediremos al histórico Kartódromo de Buenos Aires";
-  }
-  return "";
+function eventoNota(note?: string): string {
+  const trimmed = String(note ?? "").trim();
+  if (!trimmed) return "";
+  return trimmed.startsWith(",") ? trimmed : `, ${trimmed}`;
 }
 
 /** Deep link: abre /inscripcion con la inscripción precargada (solo reserva de turno). */
@@ -173,10 +173,11 @@ export function buildInscripcionPendienteEmail(data: {
   nombreCompleto: string;
   eventoNombre: string;
   roundKey?: string;
+  emailNote?: string;
   registrationId?: string;
 }) {
   const evento = data.eventoNombre.trim() || "IAME Series Argentina";
-  const cierre = eventoCierreKba(data.roundKey);
+  const cierre = eventoNota(data.emailNote);
   const inscripcionUrl = buildInscripcionTurnoUrl(data.registrationId ?? "");
   const subject = "⚠️ Inscripción no finalizada — IAME Series Argentina";
 
@@ -275,6 +276,7 @@ export async function sendInscripcionEmails(data: InscripcionEmailData) {
     nombreCompleto: data.nombreCompleto,
     eventoNombre: data.roundLabel,
     roundKey: data.roundKey,
+    emailNote: data.emailNote,
     registrationId: data.registrationId,
   });
   const org = buildOrgEmail(data);
@@ -312,6 +314,7 @@ export async function sendResendConfirmation(data: InscripcionEmailData) {
     nombreCompleto: data.nombreCompleto,
     eventoNombre: data.roundLabel,
     roundKey: data.roundKey,
+    emailNote: data.emailNote,
     registrationId: data.registrationId,
   });
   const org = buildOrgEmail(data);
