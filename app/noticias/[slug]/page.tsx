@@ -41,7 +41,7 @@ export default async function NoticiaDetallePage({
   const images = extra.length ? extra : article.image_url ? [article.image_url] : [];
 
   return (
-    <article className="mx-auto max-w-5xl space-y-6">
+    <article className="space-y-6">
       <Link href="/noticias" className="text-[10px] font-semibold uppercase tracking-widest text-iame-red hover:underline">
         ← Noticias
       </Link>
@@ -51,9 +51,7 @@ export default async function NoticiaDetallePage({
         subtitle={formatDate(article.published_at)}
       />
       {article.image_url && !showDuos ? (
-        <div className="border border-neutral-800">
-          <NewsImageCarousel images={images} title={article.title} />
-        </div>
+        <NewsImageCarousel images={images} title={article.title} />
       ) : null}
 
       <div className="space-y-4 border border-neutral-800 bg-neutral-900/40 px-5 py-5 sm:px-6">

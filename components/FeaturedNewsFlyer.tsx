@@ -21,10 +21,10 @@ export default function FeaturedNewsFlyer({
   const images = extra.length ? extra : article.image_url ? [article.image_url] : [];
 
   return (
-    <article className="w-full border border-neutral-800 bg-neutral-900/20">
+    <article className="w-full">
       <NewsImageCarousel images={images} title={article.title} />
       {(article.body || article.excerpt || showInscriptionCta || pdf) && (
-        <div className="space-y-4 border-t border-neutral-800 bg-neutral-900/40 px-5 py-5 sm:px-6">
+        <div className="space-y-4 border border-neutral-800 bg-neutral-900/40 px-5 py-5 sm:px-6">
           {(article.body || article.excerpt) && (
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-neutral-300 sm:text-base">
               {article.body ?? article.excerpt}
