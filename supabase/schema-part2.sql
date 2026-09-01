@@ -100,7 +100,7 @@ from s, (values
   (8, 'Fecha 8', 'Kartódromo a confirmar', 'A confirmar', '2026-10-31', 'upcoming'),
   (9, 'Fecha 9', 'Kartódromo de BS AS', 'CABA', '2026-11-14', 'upcoming'),
   (10, 'Fecha 10', 'Kartódromo de BS AS', 'CABA', '2026-12-19', 'upcoming'),
-  (11, 'Final IAME Argentina', 'Kartódromo a confirmar', 'A confirmar', '2026-09-05', 'upcoming')
+  (11, 'Final IAME Argentina', 'Kartódromo de Gualeguay, Entre Ríos', 'Gualeguay', null, 'upcoming')
 ) as n(num, name, circuit, city, dt, st)
 on conflict (season_id, round_number) do update set
   name = excluded.name,

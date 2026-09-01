@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import HeroCountdown from "@/components/HeroCountdown";
-import { formatRoundEventDates } from "@/lib/calendar-dates";
 import {
   formatHeroCircuit,
+  formatHeroEventDates,
   formatHeroHeadline,
   getHomeEventPhase,
+  isHomeDatePending,
 } from "@/lib/next-round";
 import type { Round } from "@/lib/types";
 
@@ -48,6 +49,15 @@ export default function HomeHero({
 
   const photo = !imageUrl || imgFailed ? FALLBACK : imageUrl;
   const closed = !inscriptionOpen || phase === "finished";
+  const dateLabel = round ? formatHeroEventDates(round) : "";
+  const circuitLabel = round ? formatHeroCircuit(round) : "";
+  const showCircuit =
+    Boolean(circuitLabel) &&
+    circuitLabel.toLowerCase() !== dateLabel.toLowerCase();
+  const countdownRound =
+    round && isHomeDatePending(round)
+      ? { ...round, event_date: null, event_date_iso: null, event_end_iso: null }
+      : round;
 
   return (
     <section className="relative left-1/2 min-h-[calc(100svh-4.5rem)] w-screen max-w-[100vw] -translate-x-1/2 -mt-8 overflow-hidden bg-[#070E1A]">
@@ -84,18 +94,22 @@ export default function HomeHero({
                 {formatHeroHeadline(round)}
               </h1>
               <p className="mt-3 text-[clamp(1.15rem,2.4vw,1.75rem)] font-black italic uppercase text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
-                {formatRoundEventDates(round)}
+                {dateLabel}
               </p>
-              <p className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-white [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
-                {formatHeroCircuit(round)}
-              </p>
-              <div className="mt-6">
-                <HeroCountdown
-                  round={round}
-                  phase={phase}
-                  hasResults={hasResults}
-                />
-              </div>
+              {showCircuit ? (
+                <p className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-white [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+                  {circuitLabel}
+                </p>
+              ) : null}
+              {countdownRound ? (
+                <div className="mt-6">
+                  <HeroCountdown
+                    round={countdownRound}
+                    phase={phase}
+                    hasResults={hasResults}
+                  />
+                </div>
+              ) : null}
             </>
           )}
         </div>

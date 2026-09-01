@@ -18,7 +18,7 @@ export function getRoundKicker(roundNumber: number): string {
 export function formatRoundEventDates(round: {
   event_date?: string | null;
 }): string {
-  if (!round.event_date) return "—";
+  if (!round.event_date) return "A confirmar";
 
   const start = new Date(`${round.event_date}T12:00:00-03:00`);
   if (Number.isNaN(start.getTime())) return round.event_date;

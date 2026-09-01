@@ -1,4 +1,4 @@
-import { getRoundEventWindow } from "./calendar-dates";
+import { formatRoundEventDates, getRoundEventWindow } from "./calendar-dates";
 import type { Round } from "./types";
 
 export type HomeEventPhase = "upcoming" | "live" | "finished";
@@ -82,4 +82,17 @@ export function formatHeroHeadline(round: Round): string {
   const name = round.name?.trim();
   if (name) return name;
   return `Fecha ${round.round_number}`;
+}
+
+export function isHomeDatePending(
+  round: Pick<Round, "round_number" | "event_date">,
+): boolean {
+  return !round.event_date || round.round_number === 7;
+}
+
+export function formatHeroEventDates(
+  round: Pick<Round, "round_number" | "event_date">,
+): string {
+  if (isHomeDatePending(round)) return "A confirmar";
+  return formatRoundEventDates(round);
 }

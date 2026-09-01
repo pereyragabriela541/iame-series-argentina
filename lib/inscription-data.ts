@@ -25,10 +25,17 @@ export function roundNumberToKey(roundNumber: number): string {
   return `fecha-${roundNumber}`;
 }
 
+function isInscriptionDatePending(r: Pick<Round, "round_number" | "event_date">): boolean {
+  return !r.event_date || r.round_number === 7 || r.round_number === 11;
+}
+
 function roundToInscriptionLabel(r: Round): string {
+  if (isInscriptionDatePending(r)) {
+    return `${r.name} — A confirmar`;
+  }
   const dates = formatRoundEventDates(r);
   const parts = [r.name];
-  if (dates && dates !== "—") parts.push(dates);
+  if (dates) parts.push(dates);
   if (r.circuit) parts.push(r.circuit);
   return parts.join(" — ");
 }
