@@ -26,7 +26,7 @@ export function roundNumberToKey(roundNumber: number): string {
 }
 
 function isInscriptionDatePending(r: Pick<Round, "round_number" | "event_date">): boolean {
-  return !r.event_date || r.round_number === 7 || r.round_number === 11;
+  return !r.event_date || r.round_number === 11;
 }
 
 function roundToInscriptionLabel(r: Round): string {

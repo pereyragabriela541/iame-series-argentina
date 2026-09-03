@@ -85,13 +85,13 @@ export function formatHeroHeadline(round: Round): string {
 }
 
 export function isHomeDatePending(
-  round: Pick<Round, "round_number" | "event_date">,
+  round: Pick<Round, "event_date">,
 ): boolean {
-  return !round.event_date || round.round_number === 7;
+  return !round.event_date;
 }
 
 export function formatHeroEventDates(
-  round: Pick<Round, "round_number" | "event_date">,
+  round: Pick<Round, "event_date">,
 ): string {
   if (isHomeDatePending(round)) return "A confirmar";
   return formatRoundEventDates(round);
