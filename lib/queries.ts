@@ -295,7 +295,7 @@ export async function getHeroMediaForRound(
       images.find((row) => row.section_key === "hero") ?? images[0];
     const video = videosRes.data?.[0];
     const imagePath =
-      featured?.image_url ?? round.flyer_url ?? video?.thumbnail_url ?? null;
+      featured?.image_url ?? video?.thumbnail_url ?? null;
     if (imagePath || video?.video_url) {
       return {
         imageUrl: imagePath ? resolveMediaUrl(imagePath) : null,
