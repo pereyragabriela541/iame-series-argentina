@@ -59,6 +59,8 @@ export async function getRounds(seasonId: string): Promise<Round[]> {
     .from("rounds")
     .select("*")
     .eq("season_id", seasonId)
+    .neq("round_number", 11)
+    .neq("status", "cancelled")
     .order("event_date_iso", { ascending: true, nullsFirst: false })
     .order("event_date", { ascending: true, nullsFirst: false });
   if (error) throw error;
