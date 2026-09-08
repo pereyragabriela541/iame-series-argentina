@@ -12,7 +12,10 @@ import {
 } from "@/lib/next-round";
 import type { Round } from "@/lib/types";
 
-// Foto local nítida. Si Supabase manda el jpg viejo o nada, usamos esta.
+const HERO_RED_SHADOW =
+  "-1px -1px 0 #75bee9, 1px -1px 0 #75bee9, -1px 1px 0 #75bee9, 1px 1px 0 #75bee9, -2px 0 0 #004a99, 2px 0 0 #004a99, 0 -2px 0 #004a99, 0 2px 0 #004a99";
+const HERO_RED_SHADOW_XL =
+  "-2px -2px 0 #75bee9, 2px -2px 0 #75bee9, -2px 2px 0 #75bee9, 2px 2px 0 #75bee9, -3px 0 0 #004a99, 3px 0 0 #004a99, 0 -3px 0 #004a99, 0 3px 0 #004a99, -2px 2px 0 #004a99, 2px -2px 0 #004a99";
 const FALLBACK = "/assets/hero-karting-enhanced.jpg";
 const LEGACY_HERO = "/assets/hero-karting.jpg";
 
@@ -90,21 +93,33 @@ export default function HomeHero({
             </p>
           ) : (
             <>
-              <p className="text-sm font-black italic uppercase tracking-[0.28em] text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+              <p
+                className="text-sm font-black italic uppercase tracking-[0.28em] text-[#E30613]"
+                style={{ textShadow: HERO_RED_SHADOW }}
+              >
                 {phase === "live"
                   ? "En vivo"
                   : phase === "finished"
                     ? "Última fecha"
                     : "Próxima fecha"}
               </p>
-              <h1 className="mt-2 max-w-[18ch] text-[clamp(2.35rem,5.5vw,5.15rem)] font-black italic uppercase leading-[0.92] text-[#E30613] [text-shadow:-2px_0_#000,2px_0_#000,0_2px_#000,0_-2px_#000]">
+              <h1
+                className="mt-2 max-w-[18ch] text-[clamp(2.35rem,5.5vw,5.15rem)] font-black italic uppercase leading-[0.92] text-[#E30613]"
+                style={{ textShadow: HERO_RED_SHADOW_XL }}
+              >
                 {formatHeroHeadline(round)}
               </h1>
-              <p className="mt-3 text-[clamp(1.15rem,2.4vw,1.75rem)] font-black italic uppercase text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+              <p
+                className="mt-3 text-[clamp(1.15rem,2.4vw,1.75rem)] font-black italic uppercase text-[#E30613]"
+                style={{ textShadow: HERO_RED_SHADOW }}
+              >
                 {dateLabel}
               </p>
               {showCircuit ? (
-                <p className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+                <p
+                  className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-[#E30613]"
+                  style={{ textShadow: HERO_RED_SHADOW }}
+                >
                   {circuitLabel}
                 </p>
               ) : null}
