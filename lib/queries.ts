@@ -291,8 +291,8 @@ export async function getHeroMediaForRound(
         .limit(1),
     ]);
     const images = imagesRes.data ?? [];
-    const featured =
-      images.find((row) => row.section_key === "hero") ?? images[0];
+    // Solo una imagen marcada como hero. Si no hay, no usar flyers de la fecha.
+    const featured = images.find((row) => row.section_key === "hero");
     const video = videosRes.data?.[0];
     const imagePath =
       featured?.image_url ?? video?.thumbnail_url ?? null;

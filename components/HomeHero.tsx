@@ -12,8 +12,9 @@ import {
 } from "@/lib/next-round";
 import type { Round } from "@/lib/types";
 
-// Respaldo técnico solamente: la portada normal viene de media_images en Supabase.
-const FALLBACK = "/assets/hero-karting.jpg";
+// Foto local nítida. Si Supabase manda el jpg viejo o nada, usamos esta.
+const FALLBACK = "/assets/hero-karting-enhanced.jpg";
+const LEGACY_HERO = "/assets/hero-karting.jpg";
 
 interface HomeHeroProps {
   round: Round | null;
@@ -47,7 +48,10 @@ export default function HomeHero({
     [round, now],
   );
 
-  const photo = !imageUrl || imgFailed ? FALLBACK : imageUrl;
+  const photo =
+    !imageUrl || imgFailed || imageUrl.endsWith(LEGACY_HERO)
+      ? FALLBACK
+      : imageUrl;
   const closed = !inscriptionOpen || phase === "finished";
   const dateLabel = round ? formatHeroEventDates(round) : "";
   const circuitLabel = round ? formatHeroCircuit(round) : "";
@@ -68,10 +72,13 @@ export default function HomeHero({
         className="absolute inset-x-0 top-0 h-[38svh] w-full object-cover object-[center_45%] md:h-full md:object-[58%_42%]"
         decoding="async"
         fetchPriority="high"
+        width={2200}
+        height={1370}
+        style={{ filter: "brightness(1.12) contrast(1.08) saturate(1.28)" }}
         onError={() => setImgFailed(true)}
       />
-      <div className="absolute inset-0 hidden bg-gradient-to-r from-[#070E1A] via-[#070E1A]/60 to-transparent md:block" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#070E1A] via-[#070E1A]/25 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 hidden bg-gradient-to-r from-[#070E1A]/22 via-transparent to-transparent md:block" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#070E1A] via-[#070E1A]/18 to-transparent md:from-[#070E1A]/28 md:via-transparent" />
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-[1480px] flex-col justify-end gap-7 px-5 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-[38svh] sm:px-8 md:flex-row md:items-end md:justify-between md:gap-10 md:px-12 md:pb-14 md:pt-10 xl:px-14 xl:pb-20">
         <div className="min-w-0 max-w-[42rem] flex-1">
