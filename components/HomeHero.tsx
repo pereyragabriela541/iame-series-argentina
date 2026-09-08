@@ -97,14 +97,14 @@ export default function HomeHero({
                     ? "Última fecha"
                     : "Próxima fecha"}
               </p>
-              <h1 className="mt-2 max-w-[18ch] text-[clamp(2.35rem,5.5vw,5.15rem)] font-black italic uppercase leading-[0.92] text-white [text-shadow:-2px_0_#000,2px_0_#000,0_2px_#000,0_-2px_#000]">
+              <h1 className="mt-2 max-w-[18ch] text-[clamp(2.35rem,5.5vw,5.15rem)] font-black italic uppercase leading-[0.92] text-[#E30613] [text-shadow:-2px_0_#000,2px_0_#000,0_2px_#000,0_-2px_#000]">
                 {formatHeroHeadline(round)}
               </h1>
               <p className="mt-3 text-[clamp(1.15rem,2.4vw,1.75rem)] font-black italic uppercase text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
                 {dateLabel}
               </p>
               {showCircuit ? (
-                <p className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-white [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
+                <p className="mt-3 text-sm font-bold uppercase tracking-[0.16em] text-[#E30613] [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
                   {circuitLabel}
                 </p>
               ) : null}
