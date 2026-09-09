@@ -1,5 +1,4 @@
 import PageHeader from "@/components/PageHeader";
-import FeaturedNewsFlyer from "@/components/FeaturedNewsFlyer";
 import NewsCard from "@/components/NewsCard";
 import { DbSetupBanner } from "@/components/ui";
 import type { NewsArticle } from "@/lib/types";
@@ -8,10 +7,6 @@ import { newsMetadata } from "@/lib/seo";
 
 export const metadata = newsMetadata;
 export const dynamic = "force-dynamic";
-
-function pickFeaturedFlyer(news: NewsArticle[]) {
-  return news.find((n) => n.image_url) ?? news[0] ?? null;
-}
 
 export default async function NoticiasPage() {
   let news: NewsArticle[] = [];
@@ -22,22 +17,13 @@ export default async function NoticiasPage() {
     dbReady = false;
   }
 
-  const featured = pickFeaturedFlyer(news);
-  const rest = featured
-    ? news.filter((n) => n.id !== featured.id)
-    : news;
-
   return (
     <div className="space-y-6">
       {!dbReady && <DbSetupBanner />}
       <PageHeader kicker="Novedades" title="Noticias" subtitle="Comunicados oficiales del campeonato" />
-      {featured ? (
-        <FeaturedNewsFlyer article={featured} showInscriptionCta showExtraPages />
-      ) : null}
-
-      {rest.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {rest.map((n) => (
+      {news.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+          {news.map((n) => (
             <NewsCard key={n.id} article={n} />
           ))}
         </div>
