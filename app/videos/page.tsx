@@ -1,7 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import { DbSetupBanner, EmptyState } from "@/components/ui";
 import {
-  getEmptySectionMessage,
   getMediaPageHeader,
   groupMediaVideosByRound,
 } from "@/lib/gallery";
@@ -39,7 +38,12 @@ export default async function VideosPage() {
     kicker: "Media",
     title: "Videos",
   });
-  const sections = groupMediaVideosByRound(videos, rounds, mediaSections);
+  const sections = groupMediaVideosByRound(videos, rounds, mediaSections)
+    .filter((section) => section.videos.length > 0)
+    .sort((a, b) => {
+      if (a.eventDate && b.eventDate) return b.eventDate.localeCompare(a.eventDate);
+      return (b.roundNumber ?? 0) - (a.roundNumber ?? 0);
+    });
   const hasSections = sections.length > 0;
 
   return (
@@ -69,15 +73,20 @@ export default async function VideosPage() {
               </div>
             )}
             {section.videos.length ? (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4">
                 {section.videos.map((v) => {
                   const longTitle = v.title.length > 80;
                   const isDirectVideo = /\.(mp4|webm|ogg)(\?|$)/i.test(v.video_url);
+                  const isPortraitVideo = /-vertical\.(mp4|webm|ogg)(\?|$)/i.test(
+                    v.video_url,
+                  );
                   if (isDirectVideo) {
                     return (
                       <article
                         key={v.id}
-                        className="border border-neutral-800 bg-neutral-900/40 p-4"
+                        className={`border border-neutral-800 bg-neutral-900/40 p-4 ${
+                          isPortraitVideo ? "mx-auto w-full max-w-md" : "w-full"
+                        }`}
                       >
                         <p
                           className={
@@ -89,7 +98,11 @@ export default async function VideosPage() {
                           {v.title}
                         </p>
                         <video
-                          className="aspect-video w-full bg-black object-cover"
+                          className={
+                            isPortraitVideo
+                              ? "mx-auto aspect-[9/16] max-h-[78svh] w-full bg-black object-contain"
+                              : "aspect-video w-full bg-black object-cover"
+                          }
                           controls
                           playsInline
                           preload="metadata"
@@ -131,10 +144,6 @@ export default async function VideosPage() {
                   );
                 })}
               </div>
-            ) : section.roundNumber != null ? (
-              <p className="text-sm text-neutral-500">
-                {getEmptySectionMessage(section.isUpcoming)}
-              </p>
             ) : null}
           </section>
         ))

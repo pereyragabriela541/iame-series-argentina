@@ -1,53 +1,60 @@
--- Videos FECHA 4 — Conociendo equipos (Franco Manta / FGM)
--- Ejecutar en Supabase SQL Editor si hace falta re-seed
+-- Selección curada de videos para las Fechas 4 y 6.
 
 delete from media_videos
-where video_url like '%DZs8EwfAATe%';
+where round_id in (
+  select r.id from rounds r
+  join seasons s on s.id = r.season_id and s.is_active = true
+  where r.round_number in (4, 6)
+);
 
 delete from media_sections
 where media_type = 'videos'
   and round_id in (
     select r.id from rounds r
     join seasons s on s.id = r.season_id and s.is_active = true
-    where r.round_number = 4
+    where r.round_number in (4, 6)
   );
 
 insert into media_sections (
   media_type, round_id, section_key, title, subtitle, description, sort_order, is_published
 )
-select
-  'videos',
-  r.id,
-  'main',
-  'FECHA 4',
-  null,
-  null,
-  1,
-  true
+select 'videos', r.id, 'main', 'FECHA ' || r.round_number,
+  case
+    when r.round_number = 4 then 'Kartódromo Internacional de Zárate'
+    when r.round_number = 6 then 'Kartódromo Ramiro Tot — Baradero'
+  end,
+  null, r.round_number, true
 from rounds r
 join seasons s on s.id = r.season_id and s.is_active = true
-where r.round_number = 4;
+where r.round_number in (4, 6);
 
-insert into media_videos (title, video_url, round_id, sort_order, is_published)
+insert into media_videos (
+  title, video_url, thumbnail_url, round_id, sort_order, is_published
+)
 select
   v.title,
   v.video_url,
+  v.thumbnail_url,
   r.id,
   v.sort_order,
   true
 from rounds r
 join seasons s on s.id = r.season_id and s.is_active = true
-cross join (
-  values
-    (
-      'Franco Manta — FGM | Conociendo equipos',
-      'https://www.instagram.com/reel/DZs8EwfAATe/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
-      1
-    ),
-    (
-      'Un resumen de lo que fue nuestra 4ª fecha del Champion Cup 2026. Un fin de semana lleno de competencia, emoción, grandes carreras y momentos que siguen demostrando el crecimiento de esta categoría. Seguimos construyendo juntos un campeonato cada vez más grande, manteniendo la pasión, el profesionalismo y el espíritu que caracterizan a IAME Series Argentina.',
-      'https://www.instagram.com/reel/DZbJDT3EcpM/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==',
-      2
-    )
-) as v(title, video_url, sort_order)
-where r.round_number = 4;
+cross join lateral (
+  values (
+    case
+      when r.round_number = 4 then 'Resumen de la Fecha 4 — Domingo de finales'
+      when r.round_number = 6 then 'Resumen de la Fecha 6 — Domingo de finales'
+    end,
+    case
+      when r.round_number = 4 then '/videos/fecha-4/resumen-final-vertical.mp4'
+      when r.round_number = 6 then '/videos/fecha-6/resumen-final-vertical.mp4'
+    end,
+    case
+      when r.round_number = 4 then '/videos/fecha-4/resumen-final-poster.jpg'
+      when r.round_number = 6 then '/videos/fecha-6/resumen-final-poster.jpg'
+    end,
+    1
+  )
+) as v(title, video_url, thumbnail_url, sort_order)
+where r.round_number in (4, 6);
