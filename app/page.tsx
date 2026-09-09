@@ -1,5 +1,5 @@
 import HomeHero from "@/components/HomeHero";
-import FeaturedNewsFlyer from "@/components/FeaturedNewsFlyer";
+import HomeNewsCarousel from "@/components/HomeNewsCarousel";
 import { DbSetupBanner } from "@/components/ui";
 import {
   getActiveSeason,
@@ -55,10 +55,8 @@ export default async function HomePage() {
     }
   }
 
-  const featuredNews = news.find((n) => n.image_url) ?? news[0] ?? null;
-
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       {!dbReady && <DbSetupBanner />}
 
       <HomeHero
@@ -69,10 +67,21 @@ export default async function HomePage() {
         error={dbReady ? null : "db"}
       />
 
-      {featuredNews && (
+      <nav
+        aria-label="Accesos principales"
+        className="grid grid-cols-3 gap-2 sm:gap-3"
+      >
+        <HomeShortcut href="/campeonato" label="Campeonato" />
+        <HomeShortcut href="/calendario" label="Calendario" />
+        <HomeShortcut href="/tiempos" label="Tiempos en vivo" />
+      </nav>
+
+      {news.length > 0 && (
         <section>
-          <div className="mb-4 flex items-end justify-between">
-            <h2 className="text-lg font-bold uppercase text-white">Noticias</h2>
+          <div className="mb-3 flex items-end justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-white sm:text-base">
+              Noticias
+            </h2>
             <Link
               href="/noticias"
               className="text-[10px] font-semibold uppercase tracking-widest text-iame-red hover:underline"
@@ -80,13 +89,20 @@ export default async function HomePage() {
               Ver todas
             </Link>
           </div>
-          <FeaturedNewsFlyer
-            article={featuredNews}
-            showInscriptionCta
-            showExtraPages
-          />
+          <HomeNewsCarousel articles={news} />
         </section>
       )}
     </div>
+  );
+}
+
+function HomeShortcut({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-11 items-center justify-center border border-white/20 bg-[#0A1628] px-2 py-2.5 text-center text-[10px] font-black italic uppercase tracking-[0.12em] text-white transition hover:border-[#E30613]/60 hover:bg-[#122038] sm:min-h-12 sm:text-[11px] sm:tracking-[0.14em]"
+    >
+      {label}
+    </Link>
   );
 }
