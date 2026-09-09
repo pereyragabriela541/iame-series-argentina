@@ -5,7 +5,7 @@ import { getRoundEventWindow } from "@/lib/calendar-dates";
 import type { HomeEventPhase } from "@/lib/next-round";
 import type { Round } from "@/lib/types";
 
-type Units = { days: number; hours: number; minutes: number };
+type Units = { days: number; hours: number; minutes: number; seconds: number };
 
 function diffUnits(startIso: string, now: number): Units | null {
   const start = new Date(startIso).getTime();
@@ -17,6 +17,7 @@ function diffUnits(startIso: string, now: number): Units | null {
     days: Math.floor(totalSeconds / 86400),
     hours: Math.floor((totalSeconds % 86400) / 3600),
     minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
   };
 }
 
@@ -82,7 +83,7 @@ export default function HeroCountdown({
   }
 
   const label = units
-    ? `Faltan ${units.days} días, ${units.hours} horas y ${units.minutes} minutos`
+    ? `Faltan ${units.days} días, ${units.hours} horas, ${units.minutes} minutos y ${units.seconds} segundos`
     : "Calculando cuenta regresiva";
 
   return (
@@ -99,10 +100,14 @@ export default function HeroCountdown({
         </p>
       </div>
       {units ? (
-        <div className="grid min-w-0 flex-1 grid-cols-3 divide-x divide-white/20">
+        <div
+          className="min-w-0 flex-1 divide-x divide-white/20"
+          style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}
+        >
           <CountUnit value={units.days} label="Días" />
           <CountUnit value={units.hours} label="Horas" />
           <CountUnit value={units.minutes} label="Min" />
+          <CountUnit value={units.seconds} label="Seg" />
         </div>
       ) : (
         <div className="h-8 flex-1 animate-pulse rounded bg-white/10" />
