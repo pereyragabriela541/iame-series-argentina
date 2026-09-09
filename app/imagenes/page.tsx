@@ -40,7 +40,12 @@ export default async function ImagenesPage() {
     kicker: "Galería",
     title: "Imágenes",
   });
-  const sections = groupMediaImagesByRound(images, rounds, mediaSections);
+  const sections = groupMediaImagesByRound(images, rounds, mediaSections)
+    .filter((section) => section.images.length > 0)
+    .sort((a, b) => {
+      if (a.eventDate && b.eventDate) return b.eventDate.localeCompare(a.eventDate);
+      return (b.roundNumber ?? 0) - (a.roundNumber ?? 0);
+    });
 
   return (
     <div className="space-y-8">
