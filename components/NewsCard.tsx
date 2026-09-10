@@ -15,7 +15,7 @@ export default function NewsCard({
       className="group flex h-full flex-col overflow-hidden border border-neutral-800 bg-neutral-900/30 transition hover:border-iame-red/50"
     >
       <div
-        className="flex w-full shrink-0 items-center justify-center overflow-hidden bg-neutral-950"
+        className="relative w-full shrink-0 overflow-hidden bg-neutral-950"
         style={{ height: "11rem" }}
       >
         {article.image_url ? (
@@ -24,7 +24,13 @@ export default function NewsCard({
             src={article.image_url}
             alt=""
             loading="lazy"
-            style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
+            className="absolute inset-0"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
           />
         ) : null}
       </div>
