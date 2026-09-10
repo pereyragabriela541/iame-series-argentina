@@ -4,6 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { MediaImage } from "@/lib/types";
 
+const GALLERY_DESKTOP_CSS = `
+@media (min-width: 1024px) {
+  .gallery-photo-frame {
+    aspect-ratio: 3 / 2 !important;
+  }
+  .gallery-photo-img {
+    object-fit: contain !important;
+    object-position: center;
+  }
+}
+`;
+
 export default function GalleryCarousel({ images }: { images: MediaImage[] }) {
   const [index, setIndex] = useState(0);
   const total = images.length;
@@ -26,11 +38,15 @@ export default function GalleryCarousel({ images }: { images: MediaImage[] }) {
 
   return (
     <div className="space-y-3">
+      <style>{GALLERY_DESKTOP_CSS}</style>
       <div className="relative overflow-hidden border border-neutral-800 bg-neutral-950">
-        <div
-          className="aspect-video bg-cover bg-center"
-          style={{ backgroundImage: `url(${current.image_url})` }}
-        >
+        <div className="gallery-photo-frame relative aspect-video">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={current.image_url}
+            alt={current.title || `Foto ${index + 1} de ${total}`}
+            className="gallery-photo-img absolute inset-0 h-full w-full object-cover object-center"
+          />
           <a
             href={current.image_url}
             target="_blank"
