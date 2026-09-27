@@ -48,9 +48,9 @@ export default function HeroCountdown({
         className="flex items-center justify-center gap-3 rounded-lg border border-[#E30613] bg-[#070E1A]/70 px-4 py-3"
         aria-live="polite"
       >
-        <span className="h-2.5 w-2.5 rounded-full bg-[#E30613]" />
-        <p className="text-lg font-black italic uppercase tracking-[0.2em] text-white [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000]">
-          En vivo
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[#E30613]" />
+        <p className="text-center text-sm font-black italic uppercase tracking-widest text-white [text-shadow:-1px_0_#000,1px_0_#000,0_1px_#000,0_-1px_#000] sm:text-base">
+          Fin de semana de carrera
         </p>
       </div>
     );

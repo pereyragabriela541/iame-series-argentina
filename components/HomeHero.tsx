@@ -94,11 +94,13 @@ export default function HomeHero({
           ) : (
             <>
               <p
-                className="text-sm font-black italic uppercase tracking-[0.28em] text-[#E30613]"
+                className={`text-sm font-black italic uppercase text-[#E30613] ${
+                  phase === "live" ? "tracking-[0.12em]" : "tracking-[0.28em]"
+                }`}
                 style={{ textShadow: HERO_RED_SHADOW }}
               >
                 {phase === "live"
-                  ? "En vivo"
+                  ? "Fin de semana de carrera"
                   : phase === "finished"
                     ? "Última fecha"
                     : "Próxima fecha"}
