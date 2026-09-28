@@ -65,6 +65,15 @@ interface BulkSummary {
 
 const STORAGE_KEY = "iame-admin-resultados-token";
 
+/** La fecha 11 es el duplicado oculto de la Final. */
+function defaultRoundId(rounds: RoundOption[]): string {
+  const visible = rounds.filter((round) => round.round_number !== 11);
+  const live = visible.find((round) => round.status === "live");
+  if (live) return live.id;
+  const latest = [...visible].sort((a, b) => b.round_number - a.round_number)[0];
+  return latest?.id || rounds[0]?.id || "";
+}
+
 async function adminApi(
   method: "GET" | "POST" | "PATCH" | "DELETE",
   authToken: string,
@@ -226,8 +235,7 @@ export default function CargarResultadosPage() {
       setCategories(data.categories);
       setResults(data.results);
 
-      const fecha6 = data.rounds.find((round) => round.round_number === 6);
-      setRoundId((current) => current || fecha6?.id || data.rounds[0]?.id || "");
+      setRoundId((current) => current || defaultRoundId(data.rounds));
       setCategoryId((current) => current || data.categories[0]?.id || "");
       sessionStorage.setItem(STORAGE_KEY, authToken);
       setSavedToken(authToken);
@@ -594,7 +602,9 @@ export default function CargarResultadosPage() {
                 }}
                 className="mt-2 w-full border border-neutral-700 bg-neutral-950 px-3 py-3 text-white"
               >
-                {rounds.map((round) => (
+                {rounds
+                  .filter((round) => round.round_number !== 11)
+                  .map((round) => (
                   <option key={round.id} value={round.id}>
                     Fecha {round.round_number} — {round.name}
                   </option>
